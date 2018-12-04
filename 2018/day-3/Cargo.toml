@@ -1,0 +1,7 @@
+[package]
+name = "day-3"
+version = "0.1.0"
+authors = ["Newton Ni <nwtnni@gmail.com>"]
+
+[dependencies]
+nom = "4.1.1"
