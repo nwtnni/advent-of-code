@@ -3,16 +3,16 @@ use std::usize;
 const INPUT: &'static str = include_str!("input.txt");
 
 fn react(mut polymer: Vec<&char>) -> usize {
-    let mut change = true;
-    while change {
-        change = false;
-        for i in 0..polymer.len() - 1 {
+    let mut change = Some(0);
+    while change.is_some() {
+        let start = change.take().unwrap();
+        for i in start..polymer.len() - 1 {
             let a = *polymer[i];
             let b = *polymer[i + 1];
             if (a.to_ascii_uppercase() == b || a.to_ascii_lowercase() == b) && a != b {
+                change = Some(if i == 0 { 0 } else { i - 1 });
                 polymer.remove(i);
                 polymer.remove(i);
-                change = true;
                 break
             }
         }
