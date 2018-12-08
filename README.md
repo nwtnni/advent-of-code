@@ -27,6 +27,9 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 5. [Alchemical Reduction][2018-5]
   - [Both Parts](./2018/day-5/src/main.rs)
 
+8. [Memory Maneuver][2018-8]
+  - [Both Parts](./2018/day-8/src/main.rs)
+
 ## 2015
 
 1. [Not Quite Lisp][2015-1]
@@ -82,3 +85,4 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 [2018-3]: https://adventofcode.com/2018/day/3
 [2018-4]: https://adventofcode.com/2018/day/4
 [2018-5]: https://adventofcode.com/2018/day/5
+[2018-8]: https://adventofcode.com/2018/day/8
