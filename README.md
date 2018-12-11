@@ -27,6 +27,13 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 5. [Alchemical Reduction][2018-5]
   - [Both Parts](./2018/day-5/src/main.rs)
 
+6. [Chronal Coordinates][2018-6]
+  - [Library](./2018/day-6/src/lib.rs)
+  - [Part One](./2018/day-6/src/one.rs)
+  - [Part Two](./2018/day-6/src/two.rs)
+
+![Screenshot](./2018/day-6/screenshot.png)
+
 8. [Memory Maneuver][2018-8]
   - [Both Parts](./2018/day-8/src/main.rs)
 
@@ -85,4 +92,5 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 [2018-3]: https://adventofcode.com/2018/day/3
 [2018-4]: https://adventofcode.com/2018/day/4
 [2018-5]: https://adventofcode.com/2018/day/5
+[2018-6]: https://adventofcode.com/2018/day/6
 [2018-8]: https://adventofcode.com/2018/day/8
