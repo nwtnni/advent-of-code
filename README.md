@@ -43,6 +43,9 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 10. [The Stars Align][2018-10]
   - [Both Parts](./2018/day-10/src/main.rs)
 
+11. [Chronal Charge][2018-11]
+  - [Both Parts](./2018/day-11/src/main.rs)
+
 ## 2015
 
 1. [Not Quite Lisp][2015-01]
@@ -102,3 +105,4 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 [2018-08]: https://adventofcode.com/2018/day/8
 [2018-09]: https://adventofcode.com/2018/day/9
 [2018-10]: https://adventofcode.com/2018/day/10
+[2018-11]: https://adventofcode.com/2018/day/11
