@@ -40,6 +40,9 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 9. [Marble Mania][2018-09]
   - [Both Parts](./2018/day-09/src/main.rs)
 
+10. [The Stars Align][2018-10]
+  - [Both Parts](./2018/day-10/src/main.rs)
+
 ## 2015
 
 1. [Not Quite Lisp][2015-01]
@@ -98,3 +101,4 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 [2018-06]: https://adventofcode.com/2018/day/6
 [2018-08]: https://adventofcode.com/2018/day/8
 [2018-09]: https://adventofcode.com/2018/day/9
+[2018-10]: https://adventofcode.com/2018/day/10

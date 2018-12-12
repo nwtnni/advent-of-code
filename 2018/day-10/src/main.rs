@@ -1,0 +1,93 @@
+#[macro_use]
+extern crate nom;
+
+use std::collections::HashMap as Map;
+use std::io::Write;
+
+use nom::types::CompleteStr;
+
+named!(parse_int<CompleteStr, i32>,
+    switch!(take_s!(1),
+        CompleteStr("-") => map!(nom::digit, |s| -s.parse::<i32>().unwrap()) |
+        CompleteStr(" ") => map!(nom::digit, |s| s.parse::<i32>().unwrap())
+    )
+);
+
+named!(parse_vector<CompleteStr, (i32, i32)>,
+    do_parse!(
+           tag_s!("<")  >>
+        x: parse_int    >>
+           tag_s!(", ") >>
+        y: parse_int    >>
+           tag_s!(">")  >>
+        (x, y)
+    )
+);
+
+named!(parse_points<CompleteStr, Vec<((i32, i32), (i32, i32))>>,
+    separated_list!(
+        tag_s!("\n"),
+        do_parse!(
+                    tag_s!("position=") >> 
+            position: parse_vector         >>
+                    tag_s!(" velocity=") >>
+            velocity: parse_vector         >>
+            (position, velocity)
+        )
+    )
+);
+
+const INPUT: &'static str = include_str!("input.txt");
+const ROWS: i32 = 12;
+const COLS: i32 = 80;
+
+fn main() -> Result<(), std::io::Error> {
+
+    let sleep = std::time::Duration::from_millis(500);
+    let (_, points) = parse_points(CompleteStr(INPUT)).unwrap();
+
+    let (mut position, velocity): (Map<_, _>, Map<_, _>) = points
+        .into_iter()
+        .enumerate()
+        .map(|(i, (p, v))| ((i, p), (i, v)))
+        .unzip();
+
+    let mut grid = vec![vec![false; COLS as usize]; ROWS as usize];
+    let stdout = std::io::stdout();
+    let mut out = stdout.lock();
+    let mut round = 0;
+
+    loop {
+        let (mut min_x, mut min_y) = (i32::max_value(), i32::max_value());
+        let (mut max_x, mut max_y) = (0, 0);
+
+        for (x, y) in position.values() {
+            min_x = i32::min(*x, min_x);    
+            max_x = i32::max(*x, max_x);
+            min_y = i32::min(*y, min_y);
+            max_y = i32::max(*y, max_y);
+        }
+
+        if max_x - min_x < 200 && max_y - min_y < 200 {
+            write!(out, "\nRound {}\n", round)?;
+            for row in &mut grid { row.iter_mut().for_each(|b| *b = false) }
+            for (x, y) in position.values() {
+                let x = (((*x as f32 - min_x as f32) / (max_x as f32 - min_x as f32)) * (COLS as f32 - 1.0)).floor() as usize;
+                let y = (((*y as f32 - min_y as f32) / (max_y as f32 - min_y as f32)) * (ROWS as f32 - 1.0)).floor() as usize;
+                grid[y][x] = true;
+            }
+            for row in &grid {
+                for c in row {
+                    write!(out, "{}", if *c { "#" } else { "." })?;
+                }
+                write!(out, "\n")?;
+            }
+            std::thread::sleep(sleep);
+        } 
+
+        round += 1;
+        for (&i, (dx, dy)) in &velocity {
+            position.entry(i).and_modify(|(x, y)| { *x += dx; *y += dy; });
+        }
+    }
+}
