@@ -2,30 +2,22 @@ const INPUT: &'static str = include_str!("input.txt");
 
 const GRID_SIZE: usize = 300;
 
-fn cell_iter(cell_size: usize, x: usize, y: usize) -> impl Iterator<Item = (usize, usize)> {
-    (0..cell_size)
-        .map(move |dx| x + dx)
-        .flat_map(move |x| {
-            (0..cell_size).map(move |dy| (x, y + dy))
-        })
-}
-
 fn main() {
     
     let serial = INPUT.trim().parse::<isize>().unwrap();
     let mut power = vec![vec![0; GRID_SIZE]; GRID_SIZE];
 
-    for y in 1..=GRID_SIZE {
-        for x in 1..=GRID_SIZE {
-            let rack_id = 10 + x as isize;
-            let p1 = rack_id * y as isize;
-            let p2 = p1 + serial; 
-            let p3 = p2 * rack_id;
-            if p3 < 100 {
-                power[y - 1][x - 1] = -5;
-            } else {
-                power[y - 1][x - 1] = ((p3 % 1000) / 100) - 5;
-            }
+    for y in 0..GRID_SIZE {
+        for x in 0..GRID_SIZE {
+            let (xi, yi) = (x as isize + 1, y as isize + 1);
+            let rack_id = 10 + xi;
+            let p = ((rack_id * yi) + serial) * rack_id;
+            let p = if p < 100 { -5 } else { ((p % 1000) / 100) - 5 };
+            
+            power[y][x] = p
+                + power.get(y - 1).map(|r| r[x]).unwrap_or(0)
+                + power[y].get(x - 1).unwrap_or(&0)
+                - power.get(y - 1).and_then(|r| r.get(x - 1)).unwrap_or(&0);
         }
     }
 
@@ -34,12 +26,12 @@ fn main() {
     let mut max_size = 0;
 
     for cell_size in 0..300 {
-        println!("{}", cell_size);
         for y in 1..=GRID_SIZE - cell_size {
             for x in 1..=GRID_SIZE - cell_size {
-                let power = cell_iter(cell_size, x, y)
-                    .map(|(cx, cy)| power[cy - 1][cx - 1])
-                    .sum::<isize>();
+                let power = power[y + cell_size - 1][x + cell_size - 1]
+                    + power[y - 1][x - 1]
+                    - power[y + cell_size - 1][x - 1]
+                    - power[y - 1][x + cell_size - 1];
 
                 if power > max_power {
                     max_x = x;
