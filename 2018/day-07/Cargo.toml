@@ -1,0 +1,10 @@
+[package]
+name = "day-07"
+version = "0.1.0"
+authors = ["Newton Ni <nwtnni@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+petgraph = "0.4"
+nom = "4.0"
+tap = "0.3"
