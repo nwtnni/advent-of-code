@@ -49,6 +49,9 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 11. [Chronal Charge][2018-11]
   - [Both Parts](./2018/day-11/src/main.rs)
 
+13. [Mine Cart Madness][2018-13]
+  - [Both Parts](./2018/day-13/src/main.rs)
+
 ## 2015
 
 1. [Not Quite Lisp][2015-01]
@@ -90,15 +93,6 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 [1]: https://adventofcode.com/
 [2]: https://adventofcode.com/2018/about 
 
-[2015-01]: https://adventofcode.com/2015/day/1
-[2015-02]: https://adventofcode.com/2015/day/2
-[2015-03]: https://adventofcode.com/2015/day/3
-[2015-04]: https://adventofcode.com/2015/day/4
-[2015-05]: https://adventofcode.com/2015/day/5
-[2015-06]: https://adventofcode.com/2015/day/6
-[2015-07]: https://adventofcode.com/2015/day/7
-[2015-08]: https://adventofcode.com/2015/day/8
-
 [2018-01]: https://adventofcode.com/2018/day/1
 [2018-02]: https://adventofcode.com/2018/day/2
 [2018-03]: https://adventofcode.com/2018/day/3
@@ -110,3 +104,13 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 [2018-09]: https://adventofcode.com/2018/day/9
 [2018-10]: https://adventofcode.com/2018/day/10
 [2018-11]: https://adventofcode.com/2018/day/11
+[2018-13]: https://adventofcode.com/2018/day/13
+
+[2015-01]: https://adventofcode.com/2015/day/1
+[2015-02]: https://adventofcode.com/2015/day/2
+[2015-03]: https://adventofcode.com/2015/day/3
+[2015-04]: https://adventofcode.com/2015/day/4
+[2015-05]: https://adventofcode.com/2015/day/5
+[2015-06]: https://adventofcode.com/2015/day/6
+[2015-07]: https://adventofcode.com/2015/day/7
+[2015-08]: https://adventofcode.com/2015/day/8
