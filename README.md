@@ -52,6 +52,10 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 13. [Mine Cart Madness][2018-13]
   - [Both Parts](./2018/day-13/src/main.rs)
 
+14. [Chocolate Charts][2018-14]
+  - [Part One](./2018/day-14/src/one.rs)
+  - [Part Two](./2018/day-14/src/two.rs)
+
 16. [Chronal Classifaction][2018-16]
   - [Library](./2018/day-16/src/lib.rs)
   - [Both Parts](./2018/day-16/src/main.rs)
@@ -109,6 +113,7 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 [2018-10]: https://adventofcode.com/2018/day/10
 [2018-11]: https://adventofcode.com/2018/day/11
 [2018-13]: https://adventofcode.com/2018/day/13
+[2018-14]: https://adventofcode.com/2018/day/14
 [2018-16]: https://adventofcode.com/2018/day/16
 
 [2015-01]: https://adventofcode.com/2015/day/1
