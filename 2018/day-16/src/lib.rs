@@ -106,7 +106,7 @@ impl Op {
 }
 
 named! {
-    value<Input, usize>,
+    pub value<Input, usize>,
     map!(nom_digit1, |s| s.parse::<usize>().unwrap())
 }
 

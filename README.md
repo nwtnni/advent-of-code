@@ -63,6 +63,9 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 18. [Settlers of the North Pole][2018-18]
   - [Both Parts](./2018/day-18/src/main.rs)
 
+19. [Go With The Flow][2018-19]
+  - [Part One](./2018/day-18/src/main.rs)
+
 ## 2015
 
 1. [Not Quite Lisp][2015-01]
@@ -119,6 +122,7 @@ My solutions to the annual [Advent of Code][1] programming puzzles
 [2018-14]: https://adventofcode.com/2018/day/14
 [2018-16]: https://adventofcode.com/2018/day/16
 [2018-18]: https://adventofcode.com/2018/day/18
+[2018-19]: https://adventofcode.com/2018/day/19
 
 [2015-01]: https://adventofcode.com/2015/day/1
 [2015-02]: https://adventofcode.com/2015/day/2

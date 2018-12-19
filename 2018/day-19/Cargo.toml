@@ -1,0 +1,9 @@
+[package]
+name = "day-19"
+version = "0.1.0"
+authors = ["Newton Ni <nwtnni@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+day-16 = { path = "../day-16" }
+nom = "4.1.1"
