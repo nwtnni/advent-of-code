@@ -1,3 +1,13 @@
+#[macro_use]
+extern crate nom;
+
+use nom::{
+    digit1 as nom_digit1,
+    types::CompleteStr as Input,
+};
+
+type Reg = [usize; 4];
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Code {
     /// Add Register
@@ -94,3 +104,39 @@ impl Op {
         }
     }
 }
+
+named! {
+    value<Input, usize>,
+    map!(nom_digit1, |s| s.parse::<usize>().unwrap())
+}
+
+named! {
+    pub reg<Input, Reg>,
+    delimited!(
+        tag!("["),
+        map!(separated_list!(tag!(", "), value), |r| [r[0], r[1], r[2], r[3]]),
+        tag!("]")
+    )
+}
+
+named! {
+    pub op<Input, Op>,
+    ws!(do_parse!(
+        c: value >>
+        l: value >>
+        r: value >>
+        d: value >>
+        (Op { c, l, r, d })
+    ))
+}
+
+named! {
+    pub before<Input, Reg>,
+    ws!(preceded!(tag!("Before:"), reg))
+}
+
+named! {
+    pub after<Input, Reg>,
+    ws!(preceded!(tag!("After:"), reg))
+}
+

@@ -1,12 +1,6 @@
-#[macro_use]
-extern crate nom;
-
 use std::collections::{HashMap as Map, HashSet as Set};
 
-use nom::{
-    digit1 as nom_digit1,
-    types::CompleteStr as Input,
-};
+use nom::types::CompleteStr as Input;
 
 use day_16::*;
 
@@ -15,41 +9,7 @@ const PROGRAM: &'static str = include_str!("input_2.txt");
 
 type Reg = [usize; 4];
 
-named! {
-    value<Input, usize>,
-    map!(nom_digit1, |s| s.parse::<usize>().unwrap())
-}
-
-named! {
-    reg<Input, Reg>,
-    delimited!(
-        tag!("["),
-        map!(separated_list!(tag!(", "), value), |r| [r[0], r[1], r[2], r[3]]),
-        tag!("]")
-    )
-}
-
-named! {
-    op<Input, Op>,
-    ws!(do_parse!(
-        c: value >>
-        l: value >>
-        r: value >>
-        d: value >>
-        (Op { c, l, r, d })
-    ))
-}
-
-named! {
-    before<Input, Reg>,
-    ws!(preceded!(tag!("Before:"), reg))
-}
-
-named! {
-    after<Input, Reg>,
-    ws!(preceded!(tag!("After:"), reg))
-}
-
+#[allow(dead_code)]
 fn flexible(threshold: usize, samples: &[(Reg, Op, Reg)]) -> usize {
     let mut flexible = 0;
     for (before, op, after) in samples {
