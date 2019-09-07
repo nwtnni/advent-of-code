@@ -1,4 +1,6 @@
+use std::cmp;
 use std::str;
+use std::usize;
 
 #[derive(Debug)]
 pub struct CorruptionChecksum {
@@ -39,7 +41,18 @@ impl str::FromStr for CorruptionChecksum {
 
 impl aoc::Solution for CorruptionChecksum {
     fn one(self) -> usize {
-        unimplemented!()
+        let mut sum = 0;
+        for row in 0..self.rows {
+            let mut max = usize::MIN;
+            let mut min = usize::MAX;
+            for col in 0..self.cols {
+                let n = self.grid[row * self.cols + col];
+                max = cmp::max(n, max);
+                min = cmp::min(n, min);
+            }
+            sum += max - min;
+        }
+        sum
     }
 
     fn two(self) -> usize {
