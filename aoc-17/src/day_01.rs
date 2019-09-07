@@ -1,5 +1,6 @@
 use std::str;
 
+#[derive(Debug)]
 pub struct InverseCaptcha(Vec<u8>);
 
 impl str::FromStr for InverseCaptcha {
@@ -20,13 +21,20 @@ impl aoc::Solution for InverseCaptcha {
             self.0.push(self.0[0]);
         }
         self.0.windows(2)
-            .filter(|digits| digits[0] == digits[1])
-            .map(|digits| digits[0])
-            .map(|digit| digit as usize)
+            .filter(|ns| ns[0] == ns[1])
+            .map(|ns| ns[0])
+            .map(|n| n as usize)
             .sum()
     }
 
     fn two(self) -> usize {
-        unimplemented!()
+        let full = self.0.len();
+        let half = full / 2;
+        self.0.iter()
+            .enumerate()
+            .filter(|(i, n)| **n == self.0[(i + half) % full])
+            .map(|(_, n)| n)
+            .map(|n| *n as usize)
+            .sum()
     }
 }
