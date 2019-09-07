@@ -68,7 +68,7 @@ pub enum Part {
     P02 = 2,
 }
 
-pub trait Solution: str::FromStr {
+pub trait Solution: str::FromStr<Err = Error> {
     fn one(self) -> usize;
     fn two(self) -> usize;
     fn solve(self, part: Part) -> usize {
