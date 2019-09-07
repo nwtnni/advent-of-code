@@ -4,6 +4,7 @@ use std::path;
 use structopt::StructOpt;
 
 mod day_01;
+mod day_02;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "aoc-17", about = "Solutions to Advent of Code 2017")]
@@ -26,6 +27,7 @@ pub fn main() -> Result<(), failure::Error> {
     use aoc::Day::*;
     let output = match opt.day {
     | D01 => run::<day_01::InverseCaptcha>(&input, opt.part)?,
+    | D02 => run::<day_02::CorruptionChecksum>(&input, opt.part)?,
     | _ => unimplemented!(),
     };
     println!("{}", output);
