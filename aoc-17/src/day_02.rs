@@ -56,6 +56,22 @@ impl aoc::Solution for CorruptionChecksum {
     }
 
     fn two(self) -> usize {
-        unimplemented!()
+        let mut sum = 0;
+        for row in 0..self.rows {
+            'outer: for i in 0..self.cols {
+                let a = self.grid[row * self.cols + i];
+                for j in i + 1..self.cols {
+                    let b = self.grid[row * self.cols + j];
+                    if a % b == 0 {
+                        sum += a / b;
+                        break 'outer;
+                    } else if b % a == 0 {
+                        sum += b / a;
+                        break 'outer;
+                    }
+                }
+            }
+        }
+        sum
     }
 }
