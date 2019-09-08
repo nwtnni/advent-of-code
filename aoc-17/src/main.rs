@@ -29,6 +29,7 @@ pub fn main() -> Result<(), failure::Error> {
     let output = match opt.day {
     | D01 => run::<day_01::InverseCaptcha>(&input, opt.part)?,
     | D02 => run::<day_02::CorruptionChecksum>(&input, opt.part)?,
+    | D03 => run::<day_03::SpiralMemory>(&input, opt.part)?,
     | _ => unimplemented!(),
     };
     println!("{}", output);
