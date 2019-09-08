@@ -5,6 +5,7 @@ use structopt::StructOpt;
 
 mod day_01;
 mod day_02;
+mod day_03;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "aoc-17", about = "Solutions to Advent of Code 2017")]
