@@ -7,11 +7,11 @@ use structopt::StructOpt;
 struct Opt {
     /// Which day's puzzle to solve.
     #[structopt(short = "d", long = "day")]
-    day: aoc::Day,
+    day: aoc_core::Day,
 
     /// Whether to solve the first or second part of the puzzle.
     #[structopt(short = "p", long = "part")]
-    part: aoc::Part,
+    part: aoc_core::Part,
 
     /// Path to puzzle's corresponding input.
     file: path::PathBuf,
