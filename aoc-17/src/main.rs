@@ -1,5 +1,6 @@
 use std::fs;
 use std::path;
+use std::str;
 
 use structopt::StructOpt;
 
@@ -23,21 +24,27 @@ struct Opt {
 }
 
 pub fn main() -> Result<(), failure::Error> {
+    use aoc::Day::*;
     let opt = Opt::from_args();
     let input = fs::read_to_string(opt.file)?;
-    use aoc::Day::*;
-    let output = match opt.day {
-    | D01 => run::<day_01::InverseCaptcha>(&input, opt.part)?,
-    | D02 => run::<day_02::CorruptionChecksum>(&input, opt.part)?,
-    | D03 => run::<day_03::SpiralMemory>(&input, opt.part)?,
+    let mut sol = match opt.day {
+    | D01 => parse::<day_01::InverseCaptcha>(&input)?,
+    | D02 => parse::<day_02::CorruptionChecksum>(&input)?,
+    | D03 => parse::<day_03::SpiralMemory>(&input)?,
     | _ => unimplemented!(),
     };
-    println!("{}", output);
+    let out = sol.solve(opt.part);
+    println!("{}", out);
     Ok(())
 }
 
-fn run<S: aoc::Solution>(input: &str, part: aoc::Part) -> Result<usize, failure::Error> {
-    input.parse::<S>()
-        .map(move |solution| solution.solve(part))
-        .map_err(From::from)
+fn parse<S>(input: &str) -> Result<Box<dyn aoc::Solution>, aoc::Error>
+    where S: 'static +
+        aoc::Solution +
+        str::FromStr<Err = aoc::Error>,
+{
+  S::from_str(input)
+    .map(Box::new)
+    .map(|sol| sol as Box<dyn aoc::Solution>)
+    .map(Result::Ok)?
 }

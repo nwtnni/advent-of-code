@@ -13,7 +13,7 @@ impl str::FromStr for SpiralMemory {
 }
 
 impl aoc::Solution for SpiralMemory {
-    fn one(self) -> usize {
+    fn one(&mut self) -> usize {
 
         // Bottom-right corner is a square
         let inner = match (1i32..)
@@ -45,7 +45,7 @@ impl aoc::Solution for SpiralMemory {
         x + y
     }
 
-    fn two(self) -> usize {
+    fn two(&mut self) -> usize {
         unimplemented!()
     }
 }

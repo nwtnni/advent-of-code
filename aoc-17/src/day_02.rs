@@ -40,7 +40,7 @@ impl str::FromStr for CorruptionChecksum {
 }
 
 impl aoc::Solution for CorruptionChecksum {
-    fn one(self) -> usize {
+    fn one(&mut self) -> usize {
         let mut sum = 0;
         for row in 0..self.rows {
             let mut max = usize::MIN;
@@ -55,7 +55,7 @@ impl aoc::Solution for CorruptionChecksum {
         sum
     }
 
-    fn two(self) -> usize {
+    fn two(&mut self) -> usize {
         let mut sum = 0;
         for row in 0..self.rows {
             'outer: for i in 0..self.cols {

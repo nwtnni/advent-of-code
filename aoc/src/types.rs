@@ -68,10 +68,10 @@ pub enum Part {
     P02 = 2,
 }
 
-pub trait Solution: str::FromStr<Err = Error> {
-    fn one(self) -> usize;
-    fn two(self) -> usize;
-    fn solve(self, part: Part) -> usize {
+pub trait Solution {
+    fn one(&mut self) -> usize;
+    fn two(&mut self) -> usize;
+    fn solve(&mut self, part: Part) -> usize {
         match part {
         | Part::P01 => self.one(),
         | Part::P02 => self.two(),
