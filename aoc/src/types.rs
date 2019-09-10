@@ -78,3 +78,15 @@ pub trait Solution {
         }
     }
 }
+
+pub trait Parse {
+    fn parse(input: &str) -> Result<Box<dyn Solution>, Error>;
+}
+
+impl<S> Parse for S where S: 'static + Solution + str::FromStr<Err = Error> {
+    fn parse(input: &str) -> Result<Box<dyn Solution>, Error> {
+        input.parse::<S>()
+            .map(Box::new)
+            .map(|sol| sol as Box<dyn Solution>)
+    }
+}
