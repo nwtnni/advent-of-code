@@ -1,3 +1,4 @@
+use std::io;
 use std::num;
 use std::str;
 
@@ -5,6 +6,12 @@ use std::str;
 pub enum Error {
     #[fail(display = "invalid integer: {}", _0)]
     InvalidInt(#[fail(cause)] num::ParseIntError),
+
+    #[fail(display = "I/O error: {:?}", _0)]
+    IO(#[fail(cause)] io::Error),
+
+    #[fail(display = "invalid year: {}", _0)]
+    InvalidYear(String),
 
     #[fail(display = "invalid day: {}", _0)]
     InvalidDay(String),
@@ -29,6 +36,14 @@ pub enum Digit {
     D7 = 7,
     D8 = 8,
     D9 = 9,
+}
+
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Year {
+    Y15 = 15,
+    Y17 = 17,
+    Y18 = 18,
 }
 
 #[repr(u8)]

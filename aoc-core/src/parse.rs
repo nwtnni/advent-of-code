@@ -1,5 +1,39 @@
 use std::str;
 
+impl str::FromStr for crate::Digit {
+    type Err = crate::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use crate::Digit::*;
+        match s.parse::<u8>().map_err(crate::Error::InvalidInt)? {
+        | 0 => Ok(D0),
+        | 1 => Ok(D1),
+        | 2 => Ok(D2),
+        | 3 => Ok(D3),
+        | 4 => Ok(D4),
+        | 5 => Ok(D5),
+        | 6 => Ok(D6),
+        | 7 => Ok(D7),
+        | 8 => Ok(D8),
+        | 9 => Ok(D9),
+        | _ => Err(crate::Error::InvalidDigit(s.to_string()))
+        }
+    }
+}
+
+impl str::FromStr for crate::Year {
+    type Err = crate::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use crate::Year::*;
+        match s.parse::<u8>().map_err(crate::Error::InvalidInt)? {
+        | 15 => Ok(Y15),
+        | 17 => Ok(Y17),
+        | 18 => Ok(Y18),
+        | _ => Err(crate::Error::InvalidPart(s.to_string())),
+        }
+    }
+}
+
+
 impl str::FromStr for crate::Day {
     type Err = crate::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -43,26 +77,6 @@ impl str::FromStr for crate::Part {
         | 1 => Ok(P01),
         | 2 => Ok(P02),
         | _ => Err(crate::Error::InvalidPart(s.to_string())),
-        }
-    }
-}
-
-impl str::FromStr for crate::Digit {
-    type Err = crate::Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use crate::Digit::*;
-        match s.parse::<u8>().map_err(crate::Error::InvalidInt)? {
-        | 0 => Ok(D0),
-        | 1 => Ok(D1),
-        | 2 => Ok(D2),
-        | 3 => Ok(D3),
-        | 4 => Ok(D4),
-        | 5 => Ok(D5),
-        | 6 => Ok(D6),
-        | 7 => Ok(D7),
-        | 8 => Ok(D8),
-        | 9 => Ok(D9),
-        | _ => Err(crate::Error::InvalidDigit(s.to_string()))
         }
     }
 }

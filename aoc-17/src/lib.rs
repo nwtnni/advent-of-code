@@ -4,7 +4,7 @@ mod day_01;
 mod day_02;
 mod day_03;
 
-pub fn main(day: aoc::Day, part: aoc::Part, input: &str) -> Result<usize, aoc::Error> {
+pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> Result<usize, aoc::Error> {
     use aoc::Parse;
     match day {
     | aoc::Day::D01 => day_01::InverseCaptcha::parse(&input),
