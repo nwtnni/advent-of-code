@@ -9,4 +9,5 @@ edition = "2018"
 [dependencies]
 structopt = "0.3.1"
 aoc-core = { path = "../aoc-core" }
+aoc-15 = { path = "../aoc-15" }
 aoc-17 = { path = "../aoc-17" }

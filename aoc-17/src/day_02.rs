@@ -1,12 +1,12 @@
 use std::cmp;
 use std::str;
-use std::usize;
+use std::i32;
 
 #[derive(Debug)]
 pub struct CorruptionChecksum {
     rows: usize, 
     cols: usize,
-    grid: Vec<usize>,
+    grid: Vec<i32>,
 }
 
 impl str::FromStr for CorruptionChecksum {
@@ -23,7 +23,7 @@ impl str::FromStr for CorruptionChecksum {
 
         for line in s.lines() {
             for n in line.split_whitespace() {
-                n.parse::<usize>()
+                n.parse::<i32>()
                     .map_err(aoc::Error::InvalidInt)
                     .map(|n| grid.push(n))?; 
             }
@@ -40,11 +40,11 @@ impl str::FromStr for CorruptionChecksum {
 }
 
 impl aoc::Solution for CorruptionChecksum {
-    fn one(&mut self) -> usize {
+    fn one(&mut self) -> i32 {
         let mut sum = 0;
         for row in 0..self.rows {
-            let mut max = usize::MIN;
-            let mut min = usize::MAX;
+            let mut max = i32::MIN;
+            let mut min = i32::MAX;
             for col in 0..self.cols {
                 let n = self.grid[row * self.cols + col];
                 max = cmp::max(n, max);
@@ -55,7 +55,7 @@ impl aoc::Solution for CorruptionChecksum {
         sum
     }
 
-    fn two(&mut self) -> usize {
+    fn two(&mut self) -> i32 {
         let mut sum = 0;
         for row in 0..self.rows {
             'outer: for i in 0..self.cols {

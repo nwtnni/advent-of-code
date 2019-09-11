@@ -84,9 +84,9 @@ pub enum Part {
 }
 
 pub trait Solution {
-    fn one(&mut self) -> usize;
-    fn two(&mut self) -> usize;
-    fn solve(&mut self, part: Part) -> usize {
+    fn one(&mut self) -> i32;
+    fn two(&mut self) -> i32;
+    fn solve(&mut self, part: Part) -> i32 {
         match part {
         | Part::P01 => self.one(),
         | Part::P02 => self.two(),

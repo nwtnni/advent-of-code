@@ -1,24 +1,24 @@
 use std::str;
 
 #[derive(Debug)]
-pub struct SpiralMemory(usize);
+pub struct SpiralMemory(i32);
 
 impl str::FromStr for SpiralMemory {
     type Err = aoc::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.parse::<usize>()
+        s.parse::<i32>()
             .map(SpiralMemory)
             .map_err(aoc::Error::InvalidInt)
     }
 }
 
 impl aoc::Solution for SpiralMemory {
-    fn one(&mut self) -> usize {
+    fn one(&mut self) -> i32 {
 
         // Bottom-right corner is a square
         let inner = match (1i32..)
             .step_by(2)
-            .take_while(|n| n.pow(2) < self.0 as i32)
+            .take_while(|n| n.pow(2) < self.0)
             .last()
         {
         | None => return 0,
@@ -28,9 +28,9 @@ impl aoc::Solution for SpiralMemory {
         let outer = inner + 1;
         
         // Steps from the bottom-right corner
-        let steps = self.0 as i32 - inner.pow(2);
+        let steps = self.0 - inner.pow(2);
 
-        if steps == 0 { return inner as usize }
+        if steps == 0 { return inner }
 
         let (dx, dy) = match steps - 1 {
         | n if n >= outer * 0 && n < outer * 1 => (1, (n % outer)),
@@ -39,13 +39,13 @@ impl aoc::Solution for SpiralMemory {
         | n                                    => ((n % outer) - inner + 1, -1),
         };
 
-        let x = ((inner / 2) + dx).abs() as usize;
-        let y = (dy - (inner / 2)).abs() as usize;
+        let x = ((inner / 2) + dx).abs();
+        let y = (dy - (inner / 2)).abs();
         
         x + y
     }
 
-    fn two(&mut self) -> usize {
+    fn two(&mut self) -> i32 {
         unimplemented!()
     }
 }
