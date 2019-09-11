@@ -1,0 +1,3 @@
+[workspace]
+members = ["aoc", "aoc-core", "aoc-17"]
+
