@@ -23,6 +23,27 @@ pub enum Error {
     InvalidDigit(String),
 }
 
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct Pos {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Pos {
+    pub fn shift(&self, dir: Dir) -> Self {
+        match dir {
+        | Dir::N => Pos { x: self.x, y: self.y + 1 },
+        | Dir::S => Pos { x: self.x, y: self.y - 1 },
+        | Dir::E => Pos { x: self.x + 1, y: self.y },
+        | Dir::W => Pos { x: self.x - 1, y: self.y },
+        }
+    }
+}
+
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum Dir { N, S, E, W }
+
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Digit {
