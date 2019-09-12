@@ -3,37 +3,35 @@ use std::str;
 
 pub struct TheIdealStockingStuffer {
     buf: String,
-    key: String,
+    len: usize,
 }
 
 impl str::FromStr for TheIdealStockingStuffer {
     type Err = aoc::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self {
-            buf: String::default(),
-            key: s.trim().to_owned(),
+            buf: s.trim().to_owned(),
+            len: s.trim().len(),
         })
     }
 }
 
 impl TheIdealStockingStuffer {
     #[inline(always)]
-    fn hash(&mut self, salt: i32) -> &str {
-        self.buf.clear();
-        write!(self.buf, "{}{}", self.key, salt).ok();
-        let digest = md5::compute(&self.buf);
-        self.buf.clear();
-        write!(self.buf, "{:x}", digest).ok();
-        &self.buf
+    fn hash(&mut self, salt: i32) -> md5::Digest {
+        self.buf.truncate(self.len);
+        write!(self.buf, "{}", salt).ok();
+        md5::compute(&self.buf)
     }
 
     fn find(&mut self, len: usize) -> i32 {
         (1i32..).find(|&salt| {
-            self.hash(salt)
-                .as_bytes()
-                .iter()
-                .take(len)
-                .all(|b| *b == b'0')
+            let digest = self.hash(salt).0;
+            (0..len).all(|i| {
+                let byte = digest[i >> 1];
+                let mask = 0b1111_0000 >> ((i & 1) << 2);
+                byte & mask == 0
+            })
         }).unwrap()
     }
 }
