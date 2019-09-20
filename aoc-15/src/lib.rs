@@ -4,6 +4,7 @@ mod day_01;
 mod day_02;
 mod day_03;
 mod day_04;
+mod day_05;
 
 pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> Result<i32, aoc::Error> {
     use aoc::Parse;
@@ -12,6 +13,7 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> Result<i32, aoc::Er
     | aoc::Day::D02 => day_02::IWasToldThereWouldBeNoMath::parse(input),
     | aoc::Day::D03 => day_03::PerfectlySphericalHousesInAVacuum::parse(input),
     | aoc::Day::D04 => day_04::TheIdealStockingStuffer::parse(input),
+    | aoc::Day::D05 => day_05::DoesntHeHaveInternElvesForThis::parse(input),
     | _ => unimplemented!(),
     }.map(|mut sol| sol.solve(part))
 }
