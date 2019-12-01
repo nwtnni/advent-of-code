@@ -34,7 +34,6 @@ impl str::FromStr for crate::Year {
     }
 }
 
-
 impl str::FromStr for crate::Day {
     type Err = crate::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
