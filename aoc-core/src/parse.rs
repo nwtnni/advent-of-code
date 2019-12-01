@@ -28,7 +28,8 @@ impl str::FromStr for crate::Year {
         | 15 => Ok(Y15),
         | 17 => Ok(Y17),
         | 18 => Ok(Y18),
-        | _ => Err(crate::Error::InvalidPart(s.to_string())),
+        | 19 => Ok(Y19),
+        | _ => Err(crate::Error::InvalidYear(s.to_string())),
         }
     }
 }
