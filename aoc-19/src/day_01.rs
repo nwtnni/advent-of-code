@@ -21,6 +21,16 @@ impl aoc::Solution for TheTyrannyOfTheRocketEquation {
     }
 
     fn two(&mut self) -> i32 {
-        unimplemented!()
+        self.0.iter()
+            .map(|mass| {
+                let mut fuel = mass / 3 - 2;
+                let mut df = fuel / 3 - 2;
+                while df > 0 {
+                    fuel += df;
+                    df = df / 3 - 2;
+                }
+                fuel
+            })
+            .sum()
     }
 }
