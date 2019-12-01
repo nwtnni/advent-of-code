@@ -1,3 +1,3 @@
 [workspace]
-members = ["aoc", "aoc-core", "aoc-15", "aoc-17"]
+members = ["aoc", "aoc-core", "aoc-15", "aoc-17", "aoc-19"]
 

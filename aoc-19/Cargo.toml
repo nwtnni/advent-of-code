@@ -1,5 +1,5 @@
 [package]
-name = "aoc"
+name = "aoc-19"
 version = "0.1.0"
 authors = ["Newton Ni <nwtnni@gmail.com>"]
 edition = "2018"
@@ -7,8 +7,4 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-structopt = "0.3.1"
-aoc-core = { path = "../aoc-core" }
-aoc-15 = { path = "../aoc-15" }
-aoc-17 = { path = "../aoc-17" }
-aoc-19 = { path = "../aoc-19" }
+aoc = { package = "aoc-core", path = "../aoc-core" }

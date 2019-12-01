@@ -28,6 +28,7 @@ pub fn main() -> Result<(), aoc_core::Error> {
     let out = match opt.year {
     | aoc_core::Year::Y15 => aoc_15::solve(opt.day, opt.part, &txt)?,
     | aoc_core::Year::Y17 => aoc_17::solve(opt.day, opt.part, &txt)?,
+    | aoc_core::Year::Y19 => aoc_19::solve(opt.day, opt.part, &txt)?,
     | _ => unimplemented!(),
     };
     println!("{}", out);
