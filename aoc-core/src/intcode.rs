@@ -5,7 +5,7 @@ use std::str;
 pub struct Program(Vec<i32>);
 
 impl Program {
-    pub fn run(&mut self, noun: i32, verb: i32) -> i32 {
+    pub fn run(mut self, noun: i32, verb: i32) -> i32 {
         self[1] = noun;
         self[2] = verb;
         let mut ip = 0;

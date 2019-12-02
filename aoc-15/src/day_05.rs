@@ -34,7 +34,7 @@ fn is_naughty(cs: &&[char]) -> bool {
 }
 
 impl aoc::Solution for DoesntHeHaveInternElvesForThis {
-    fn one(mut self) -> i32 {
+    fn one(self) -> i32 {
         self.0
             .split_whitespace()
             .filter(|string| {
@@ -48,7 +48,7 @@ impl aoc::Solution for DoesntHeHaveInternElvesForThis {
             as i32
     }
 
-    fn two(mut self) -> i32 {
+    fn two(self) -> i32 {
         self.0
             .split_whitespace()
             .filter(|string| {

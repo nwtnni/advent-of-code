@@ -14,13 +14,13 @@ impl str::FromStr for TheTyrannyOfTheRocketEquation {
 }
 
 impl aoc::Solution for TheTyrannyOfTheRocketEquation {
-    fn one(mut self) -> i32 {
+    fn one(self) -> i32 {
         self.0.iter()
             .map(|mass| mass / 3 - 2)
             .sum()
     }
 
-    fn two(mut self) -> i32 {
+    fn two(self) -> i32 {
         self.0.iter()
             .map(|mass| {
                 let mut fuel = mass / 3 - 2;

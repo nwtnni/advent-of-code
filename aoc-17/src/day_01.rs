@@ -27,7 +27,7 @@ impl aoc::Solution for InverseCaptcha {
             .sum()
     }
 
-    fn two(mut self) -> i32 {
+    fn two(self) -> i32 {
         let full = self.0.len();
         let half = full / 2;
         self.0.iter()
