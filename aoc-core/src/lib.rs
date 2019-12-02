@@ -1,3 +1,4 @@
+pub mod intcode;
 mod parse;
 mod types;
 mod util;
