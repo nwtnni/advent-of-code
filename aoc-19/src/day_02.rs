@@ -40,6 +40,38 @@ impl aoc::Solution for ProgramAlarm {
     }
 
     fn two(&mut self) -> i32 {
-        unimplemented!()
+
+        let program = self.0.clone();
+
+        for n in 0..=99 {
+            for v in 0..=99 {
+                let mut mem = program.clone();
+                mem[1] = n;
+                mem[2] = v;
+
+                let mut ip = 0;
+
+                while mem[ip] != 99 {
+
+                    let a = mem[ip + 1] as usize;
+                    let b = mem[ip + 2] as usize;
+                    let dst = mem[ip + 3] as usize;
+
+                    if mem[ip] == 1 {
+                        mem[dst] = mem[a] + mem[b];
+                    } else {
+                        mem[dst] = mem[a] * mem[b];
+                    }
+
+                    ip += 4;
+                }
+
+                if mem[0] == 19690720 {
+                    return n * 100 + v
+                }
+            }
+        }
+
+        unreachable!()
     }
 }
