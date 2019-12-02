@@ -2,10 +2,14 @@ mod day_01;
 mod day_02;
 
 pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> Result<i32, aoc::Error> {
-    use aoc::Parse;
+    macro_rules! run {
+        ($solution:ty) => {
+            aoc::run::<$solution>(input, part)
+        }
+    }
     match day {
-    | aoc::Day::D01 => day_01::TheTyrannyOfTheRocketEquation::parse(input),
-    | aoc::Day::D02 => day_02::ProgramAlarm::parse(input),
+    | aoc::Day::D01 => run!(day_01::TheTyrannyOfTheRocketEquation),
+    | aoc::Day::D02 => run!(day_02::ProgramAlarm),
     | _ => unimplemented!(),
-    }.map(|mut sol| sol.solve(part))
+    }
 }

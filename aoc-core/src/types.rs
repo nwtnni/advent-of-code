@@ -106,24 +106,17 @@ pub enum Part {
 }
 
 pub trait Solution {
-    fn one(&mut self) -> i32;
-    fn two(&mut self) -> i32;
-    fn solve(&mut self, part: Part) -> i32 {
-        match part {
-        | Part::P01 => self.one(),
-        | Part::P02 => self.two(),
-        }
-    }
+    fn one(self) -> i32;
+    fn two(self) -> i32;
 }
 
-pub trait Parse {
-    fn parse(input: &str) -> Result<Box<dyn Solution>, Error>;
-}
-
-impl<S> Parse for S where S: 'static + Solution + str::FromStr<Err = Error> {
-    fn parse(input: &str) -> Result<Box<dyn Solution>, Error> {
-        input.parse::<S>()
-            .map(Box::new)
-            .map(|sol| sol as Box<dyn Solution>)
-    }
+pub fn run<S>(input: &str, part: Part) -> Result<i32, Error>
+where S: str::FromStr<Err = Error> + Solution
+{
+    let solution = input.parse::<S>()?;
+    let output = match part {
+    | Part::P01 => solution.one(),
+    | Part::P02 => solution.two(),
+    };
+    Ok(output)
 }

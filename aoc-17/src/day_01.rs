@@ -16,7 +16,7 @@ impl str::FromStr for InverseCaptcha {
 }
 
 impl aoc::Solution for InverseCaptcha {
-    fn one(&mut self) -> i32 {
+    fn one(mut self) -> i32 {
         if !self.0.is_empty() {
             self.0.push(self.0[0]);
         }
@@ -27,7 +27,7 @@ impl aoc::Solution for InverseCaptcha {
             .sum()
     }
 
-    fn two(&mut self) -> i32 {
+    fn two(mut self) -> i32 {
         let full = self.0.len();
         let half = full / 2;
         self.0.iter()

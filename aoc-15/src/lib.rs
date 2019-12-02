@@ -7,13 +7,17 @@ mod day_04;
 mod day_05;
 
 pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> Result<i32, aoc::Error> {
-    use aoc::Parse;
+    macro_rules! run {
+        ($solution:ty) => {
+            aoc::run::<$solution>(input, part)
+        }
+    }
     match day {
-    | aoc::Day::D01 => day_01::NotQuiteLisp::parse(input),
-    | aoc::Day::D02 => day_02::IWasToldThereWouldBeNoMath::parse(input),
-    | aoc::Day::D03 => day_03::PerfectlySphericalHousesInAVacuum::parse(input),
-    | aoc::Day::D04 => day_04::TheIdealStockingStuffer::parse(input),
-    | aoc::Day::D05 => day_05::DoesntHeHaveInternElvesForThis::parse(input),
+    | aoc::Day::D01 => run!(day_01::NotQuiteLisp),
+    | aoc::Day::D02 => run!(day_02::IWasToldThereWouldBeNoMath),
+    | aoc::Day::D03 => run!(day_03::PerfectlySphericalHousesInAVacuum),
+    | aoc::Day::D04 => run!(day_04::TheIdealStockingStuffer),
+    | aoc::Day::D05 => run!(day_05::DoesntHeHaveInternElvesForThis),
     | _ => unimplemented!(),
-    }.map(|mut sol| sol.solve(part))
+    }
 }

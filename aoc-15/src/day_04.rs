@@ -37,11 +37,11 @@ impl TheIdealStockingStuffer {
 }
 
 impl aoc::Solution for TheIdealStockingStuffer {
-    fn one(&mut self) -> i32 {
+    fn one(mut self) -> i32 {
         self.find(5)
     }
 
-    fn two(&mut self) -> i32 {
+    fn two(mut self) -> i32 {
         self.find(6)
     }
 }

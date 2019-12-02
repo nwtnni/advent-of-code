@@ -14,11 +14,11 @@ impl str::FromStr for IWasToldThereWouldBeNoMath {
 }
 
 impl aoc::Solution for IWasToldThereWouldBeNoMath {
-    fn one(&mut self) -> i32 {
+    fn one(mut self) -> i32 {
         self.0.iter().map(Present::wrapping).sum()
     }
 
-    fn two(&mut self) -> i32 {
+    fn two(mut self) -> i32 {
         self.0.iter().map(Present::ribbon).sum()
     }
 }

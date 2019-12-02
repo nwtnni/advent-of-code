@@ -18,13 +18,13 @@ fn delta(c: char) -> i32 {
 }
 
 impl aoc::Solution for NotQuiteLisp {
-    fn one(&mut self) -> i32 {
+    fn one(mut self) -> i32 {
         self.0.chars()
             .map(delta)
             .sum()
     }
 
-    fn two(&mut self) -> i32 {
+    fn two(mut self) -> i32 {
         self.0.chars()
             .map(delta)
             .scan(0, |this, next| {

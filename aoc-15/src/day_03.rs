@@ -26,7 +26,7 @@ fn parse_dir(c: char) -> aoc::Dir {
 }
 
 impl aoc::Solution for PerfectlySphericalHousesInAVacuum {
-    fn one(&mut self) -> i32 {
+    fn one(mut self) -> i32 {
         use aoc::Pos;
         self.0.iter()
             .chain(&[aoc::Dir::N]) // Dummy
@@ -35,7 +35,7 @@ impl aoc::Solution for PerfectlySphericalHousesInAVacuum {
             .len() as i32
     }
 
-    fn two(&mut self) -> i32 {
+    fn two(mut self) -> i32 {
         use aoc::Pos;
         self.0.iter()
             .chain(&[aoc::Dir::N, aoc::Dir::N]) // Dummy
