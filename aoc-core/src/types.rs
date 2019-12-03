@@ -38,6 +38,10 @@ impl Pos {
         | Dir::W => Pos { x: self.x - 1, y: self.y },
         }
     }
+
+    pub fn shift_mut(&mut self, dir: Dir) {
+        *self = self.shift(dir);
+    }
 }
 
 #[repr(u8)]

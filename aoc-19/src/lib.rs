@@ -11,7 +11,7 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> Result<i32, aoc::Er
     match day {
     | aoc::Day::D01 => run!(day_01::TheTyrannyOfTheRocketEquation),
     | aoc::Day::D02 => run!(day_02::ProgramAlarm),
-    | aoc::Day::D03 => run!(day_03::Placeholder),
+    | aoc::Day::D03 => run!(day_03::CrossedWires),
     | _ => unimplemented!(),
     }
 }
