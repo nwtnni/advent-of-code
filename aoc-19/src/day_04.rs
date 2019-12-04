@@ -1,34 +1,33 @@
 use std::collections::HashSet;
 use std::str;
 
+use aoc::*;
+
 #[derive(Clone, Debug)]
 pub struct SecureContainer {
     lo: i32,
     hi: i32,
 }
 
-impl str::FromStr for SecureContainer {
-    type Err = aoc::Error;
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
+impl Fro for SecureContainer {
+    fn fro(input: &str) -> Self {
         let mut iter = input.trim().split('-');
         let lo = iter
             .next()
             .unwrap()
-            .parse::<i32>()
-            .map_err(aoc::Error::InvalidInt)?;
+            .to::<i32>();
         let hi = iter
             .next()
             .unwrap()
-            .parse::<i32>()
-            .map_err(aoc::Error::InvalidInt)?;
-        Ok(SecureContainer {
+            .to::<i32>();
+        SecureContainer {
             lo,
             hi,
-        })
+        }
     }
 }
 
-impl aoc::Solution for SecureContainer {
+impl Solution for SecureContainer {
     fn one(self) -> i32 {
 
         let mut count = 0;

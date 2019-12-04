@@ -2,59 +2,59 @@ use std::collections::HashSet;
 use std::collections::HashMap;
 use std::str;
 
+use aoc::*;
+
 #[derive(Clone, Debug)]
 pub struct CrossedWires(Vec<Wire>, Vec<Wire>);
 
 #[derive(Copy, Clone, Debug)]
 struct Wire {
-    dir: aoc::Dir,
+    dir: Dir,
     len: i32,
 }
 
-impl str::FromStr for Wire {
-    type Err = aoc::Error;
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
+impl Fro for Wire {
+    fn fro(input: &str) -> Self {
         let mut iter = input.chars();
         let dir = match iter.next() {
-            | Some('R') => aoc::Dir::E,
-            | Some('D') => aoc::Dir::S,
-            | Some('U') => aoc::Dir::N,
-            | Some('L') => aoc::Dir::W,
-            | _ => unreachable!(),
+        | Some('R') => Dir::E,
+        | Some('D') => Dir::S,
+        | Some('U') => Dir::N,
+        | Some('L') => Dir::W,
+        | _ => unreachable!(),
         };
         let len = iter
             .as_str()
-            .parse::<i32>()
-            .map_err(aoc::Error::InvalidInt)?;
-        Ok(Wire {
+            .to::<i32>();
+        Wire {
             dir,
             len,
-        })
+        }
     }
 }
 
 impl str::FromStr for CrossedWires {
-    type Err = aoc::Error;
+    type Err = Error;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut wires = input.split_whitespace();
         let l = wires.next()
             .unwrap()
             .split(',')
-            .filter_map(|wire| wire.parse::<Wire>().ok())
+            .map(Wire::fro)
             .collect();
         let r = wires.next()
             .unwrap()
             .split(',')
-            .filter_map(|wire| wire.parse::<Wire>().ok())
+            .map(Wire::fro)
             .collect();
         Ok(CrossedWires(l, r))
     }
 }
 
-impl aoc::Solution for CrossedWires {
+impl Solution for CrossedWires {
     fn one(self) -> i32 {
         let mut l_seen = HashSet::new();
-        let mut p = aoc::Pos::default();
+        let mut p = Pos::default();
         for wire in &self.0 {
             for _ in 0..wire.len {
                 p.shift_mut(wire.dir);
@@ -63,7 +63,7 @@ impl aoc::Solution for CrossedWires {
         }
 
         let mut r_seen = HashSet::new();
-        let mut p = aoc::Pos::default();
+        let mut p = Pos::default();
         for wire in &self.1 {
             for _ in 0..wire.len {
                 p.shift_mut(wire.dir);
@@ -80,7 +80,7 @@ impl aoc::Solution for CrossedWires {
     fn two(self) -> i32 {
         let mut l_dist = HashMap::new();
         let mut l_seen = HashSet::new();
-        let mut p = aoc::Pos::default();
+        let mut p = Pos::default();
         let mut s = 0;
         for wire in &self.0 {
             for _ in 0..wire.len {
@@ -93,7 +93,7 @@ impl aoc::Solution for CrossedWires {
 
         let mut r_dist = HashMap::new();
         let mut r_seen = HashSet::new();
-        let mut p = aoc::Pos::default();
+        let mut p = Pos::default();
         let mut s = 0;
         for wire in &self.1 {
             for _ in 0..wire.len {

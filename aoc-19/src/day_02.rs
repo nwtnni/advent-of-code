@@ -1,16 +1,17 @@
 use std::str;
 
-pub struct ProgramAlarm(aoc::intcode::Program);
+use aoc::*;
+use aoc::intcode;
 
-impl str::FromStr for ProgramAlarm {
-    type Err = aoc::Error;
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
-        aoc::intcode::Program::from_str(input)
-            .map(ProgramAlarm)
+pub struct ProgramAlarm(intcode::Program);
+
+impl Fro for ProgramAlarm {
+    fn fro(input: &str) -> Self {
+        input.to::<intcode::Program>().tap(ProgramAlarm)
     }
 }
 
-impl aoc::Solution for ProgramAlarm {
+impl Solution for ProgramAlarm {
     fn one(self) -> i32 {
         self.0.run(12, 2)
     }

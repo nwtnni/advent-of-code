@@ -1,19 +1,19 @@
 use std::str;
 
+use aoc::*;
+
 pub struct TheTyrannyOfTheRocketEquation(Vec<i32>);
 
-impl str::FromStr for TheTyrannyOfTheRocketEquation {
-    type Err = aoc::Error;
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
+impl Fro for TheTyrannyOfTheRocketEquation {
+    fn fro(input: &str) -> Self {
         input.split_whitespace()
-            .map(|line| line.parse::<i32>())
-            .collect::<Result<Vec<_>, _>>()
-            .map(TheTyrannyOfTheRocketEquation)
-            .map_err(aoc::Error::InvalidInt)
+            .map(i32::fro)
+            .collect::<Vec<_>>()
+            .tap(TheTyrannyOfTheRocketEquation)
     }
 }
 
-impl aoc::Solution for TheTyrannyOfTheRocketEquation {
+impl Solution for TheTyrannyOfTheRocketEquation {
     fn one(self) -> i32 {
         self.0.iter()
             .map(|mass| mass / 3 - 2)
