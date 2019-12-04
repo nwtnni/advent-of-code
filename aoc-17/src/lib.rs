@@ -1,13 +1,15 @@
 use std::str;
 
+use aoc::Solution;
+
 mod day_01;
 mod day_02;
 mod day_03;
 
-pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> Result<i32, aoc::Error> {
+pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i32 {
     macro_rules! run {
         ($solution:ty) => {
-            aoc::run::<$solution>(input, part)
+            <$solution>::run(input, part)
         }
     }
     match day {

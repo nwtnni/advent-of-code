@@ -26,9 +26,9 @@ pub fn main() -> Result<(), aoc_core::Error> {
     let opt = Opt::from_args();
     let txt = fs::read_to_string(opt.file).map_err(aoc_core::Error::IO)?;
     let out = match opt.year {
-    | aoc_core::Year::Y15 => aoc_15::solve(opt.day, opt.part, &txt)?,
-    | aoc_core::Year::Y17 => aoc_17::solve(opt.day, opt.part, &txt)?,
-    | aoc_core::Year::Y19 => aoc_19::solve(opt.day, opt.part, &txt)?,
+    | aoc_core::Year::Y15 => aoc_15::solve(opt.day, opt.part, &txt),
+    | aoc_core::Year::Y17 => aoc_17::solve(opt.day, opt.part, &txt),
+    | aoc_core::Year::Y19 => aoc_19::solve(opt.day, opt.part, &txt),
     | _ => unimplemented!(),
     };
     println!("{}", out);
