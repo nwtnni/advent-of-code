@@ -57,3 +57,13 @@ pub trait Tap: Sized {
 }
 
 impl<T: Sized> Tap for T {}
+
+pub trait Give: Iterator {
+    fn give(&mut self) -> <Self as Iterator>::Item;
+}
+
+impl<T, I: Iterator<Item = T>> Give for I {
+    fn give(&mut self) -> T {
+        self.next().unwrap()
+    }
+}

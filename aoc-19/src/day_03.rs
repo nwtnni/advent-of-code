@@ -16,11 +16,11 @@ struct Wire {
 impl Fro for Wire {
     fn fro(input: &str) -> Self {
         let mut iter = input.chars();
-        let dir = match iter.next() {
-        | Some('R') => Dir::E,
-        | Some('D') => Dir::S,
-        | Some('U') => Dir::N,
-        | Some('L') => Dir::W,
+        let dir = match iter.give() {
+        | 'R' => Dir::E,
+        | 'D' => Dir::S,
+        | 'U' => Dir::N,
+        | 'L' => Dir::W,
         | _ => unreachable!(),
         };
         let len = iter
@@ -37,13 +37,11 @@ impl str::FromStr for CrossedWires {
     type Err = Error;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut wires = input.split_whitespace();
-        let l = wires.next()
-            .unwrap()
+        let l = wires.give()
             .split(',')
             .map(Wire::fro)
             .collect();
-        let r = wires.next()
-            .unwrap()
+        let r = wires.give()
             .split(',')
             .map(Wire::fro)
             .collect();

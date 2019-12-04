@@ -13,12 +13,10 @@ impl Fro for SecureContainer {
     fn fro(input: &str) -> Self {
         let mut iter = input.trim().split('-');
         let lo = iter
-            .next()
-            .unwrap()
+            .give()
             .to::<i32>();
         let hi = iter
-            .next()
-            .unwrap()
+            .give()
             .to::<i32>();
         SecureContainer {
             lo,
