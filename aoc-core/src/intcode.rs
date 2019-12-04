@@ -1,6 +1,8 @@
 use std::ops;
 use std::str;
 
+use crate::*;
+
 #[derive(Clone, Debug)]
 pub struct Program(Vec<i32>);
 
@@ -43,14 +45,14 @@ impl Program {
 }
 
 impl str::FromStr for Program {
-    type Err = crate::Error;
+    type Err = Error;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         input.trim()
             .split(',')
             .map(|line| line.parse::<i32>())
             .collect::<Result<Vec<_>, _>>()
             .map(Program)
-            .map_err(crate::Error::InvalidInt)
+            .map_err(Error::InvalidInt)
     }
 }
 

@@ -1,3 +1,4 @@
+use std::any;
 use std::io;
 use std::num;
 use std::str;
@@ -18,7 +19,7 @@ pub enum Error {
 
     #[fail(display = "invalid part: {}", _0)]
     InvalidPart(String),
-    
+
     #[fail(display = "invalid digit: {}", _0)]
     InvalidDigit(String),
 }
@@ -107,20 +108,4 @@ pub enum Day {
 pub enum Part {
     P01 = 1,
     P02 = 2,
-}
-
-pub trait Solution {
-    fn one(self) -> i32;
-    fn two(self) -> i32;
-}
-
-pub fn run<S>(input: &str, part: Part) -> Result<i32, Error>
-where S: str::FromStr<Err = Error> + Solution
-{
-    let solution = input.parse::<S>()?;
-    let output = match part {
-    | Part::P01 => solution.one(),
-    | Part::P02 => solution.two(),
-    };
-    Ok(output)
 }

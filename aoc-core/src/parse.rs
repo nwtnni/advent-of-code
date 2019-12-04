@@ -1,10 +1,12 @@
 use std::str;
 
-impl str::FromStr for crate::Digit {
-    type Err = crate::Error;
+use crate::*;
+
+impl str::FromStr for Digit {
+    type Err = Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use crate::Digit::*;
-        match s.parse::<u8>().map_err(crate::Error::InvalidInt)? {
+        use Digit::*;
+        match s.parse::<u8>().map_err(Error::InvalidInt)? {
         | 0 => Ok(D0),
         | 1 => Ok(D1),
         | 2 => Ok(D2),
@@ -15,30 +17,30 @@ impl str::FromStr for crate::Digit {
         | 7 => Ok(D7),
         | 8 => Ok(D8),
         | 9 => Ok(D9),
-        | _ => Err(crate::Error::InvalidDigit(s.to_string()))
+        | _ => Err(Error::InvalidDigit(s.to_string()))
         }
     }
 }
 
-impl str::FromStr for crate::Year {
-    type Err = crate::Error;
+impl str::FromStr for Year {
+    type Err = Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use crate::Year::*;
-        match s.parse::<u8>().map_err(crate::Error::InvalidInt)? {
+        use Year::*;
+        match s.parse::<u8>().map_err(Error::InvalidInt)? {
         | 15 => Ok(Y15),
         | 17 => Ok(Y17),
         | 18 => Ok(Y18),
         | 19 => Ok(Y19),
-        | _ => Err(crate::Error::InvalidYear(s.to_string())),
+        | _ => Err(Error::InvalidYear(s.to_string())),
         }
     }
 }
 
-impl str::FromStr for crate::Day {
-    type Err = crate::Error;
+impl str::FromStr for Day {
+    type Err = Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use crate::Day::*;
-        match s.parse::<u8>().map_err(crate::Error::InvalidInt)? {
+        use Day::*;
+        match s.parse::<u8>().map_err(Error::InvalidInt)? {
         | 01 => Ok(D01),
         | 02 => Ok(D02),
         | 03 => Ok(D03),
@@ -64,19 +66,19 @@ impl str::FromStr for crate::Day {
         | 23 => Ok(D23),
         | 24 => Ok(D24),
         | 25 => Ok(D25),
-        | _ => Err(crate::Error::InvalidDay(s.to_string())),
+        | _ => Err(Error::InvalidDay(s.to_string())),
         }
     }
 }
 
-impl str::FromStr for crate::Part {
-    type Err = crate::Error;
+impl str::FromStr for Part {
+    type Err = Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use crate::Part::*;
-        match s.parse::<u8>().map_err(crate::Error::InvalidInt)? {
+        use Part::*;
+        match s.parse::<u8>().map_err(Error::InvalidInt)? {
         | 1 => Ok(P01),
         | 2 => Ok(P02),
-        | _ => Err(crate::Error::InvalidPart(s.to_string())),
+        | _ => Err(Error::InvalidPart(s.to_string())),
         }
     }
 }
