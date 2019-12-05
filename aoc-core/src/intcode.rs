@@ -131,11 +131,19 @@ impl Program {
     }
 
     fn mode(&self, ip: i32, parameter: i32) -> Mode {
-        let mut n = self[ip] / 10;
-        for _ in 0..parameter {
-            n /= 10;
-        }
-        match n % 10 {
+        const LO: i32 = 10;
+        const HI: [i32; 9]  = [
+            0,
+            100,
+            1_000,
+            10_000,
+            100_000,
+            1_000_000,
+            10_000_000,
+            100_000_000,
+            1_000_000_000,
+        ];
+        match (self[ip] / HI[parameter as usize]) % LO {
         | 0 => Mode::Pos,
         | 1 => Mode::Val,
         | _ => unreachable!(),
