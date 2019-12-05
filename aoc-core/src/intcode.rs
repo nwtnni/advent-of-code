@@ -82,18 +82,16 @@ impl Program {
         }
         | 5 => {
             let brc = self.src(ip, 1);
-            let jmp = self.src(ip, 2);
             if brc != 0 {
-                Some(jmp)
+                Some(self.src(ip, 2))
             } else {
                 Some(ip + 3)
             }
         }
         | 6 => {
             let brc = self.src(ip, 1);
-            let jmp = self.src(ip, 2);
             if brc == 0 {
-                Some(jmp)
+                Some(self.src(ip, 2))
             } else {
                 Some(ip + 3)
             }
@@ -102,22 +100,14 @@ impl Program {
             let lhs = self.src(ip, 1);
             let rhs = self.src(ip, 2);
             let dst = self.dst(ip, 3);
-            if lhs < rhs {
-                self[dst] = 1;
-            } else {
-                self[dst] = 0;
-            }
+            self[dst] = (lhs < rhs) as i32;
             Some(ip + 4)
         }
         | 8 => {
             let lhs = self.src(ip, 1);
             let rhs = self.src(ip, 2);
             let dst = self.dst(ip, 3);
-            if lhs == rhs {
-                self[dst] = 1;
-            } else {
-                self[dst] = 0;
-            }
+            self[dst] = (lhs == rhs) as i32;
             Some(ip + 4)
         }
         | 99 => {
