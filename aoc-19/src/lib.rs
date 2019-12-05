@@ -4,6 +4,7 @@ mod day_01;
 mod day_02;
 mod day_03;
 mod day_04;
+mod day_05;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i32 {
     macro_rules! run {
@@ -16,6 +17,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i32 {
     | Day::D02 => run!(day_02::ProgramAlarm),
     | Day::D03 => run!(day_03::CrossedWires),
     | Day::D04 => run!(day_04::SecureContainer),
+    | Day::D05 => run!(day_05::Placeholder),
     | _ => unimplemented!(),
     }
 }
