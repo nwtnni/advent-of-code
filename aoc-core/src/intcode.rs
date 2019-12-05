@@ -1,30 +1,12 @@
-use std::fmt;
-use std::iter;
 use std::ops;
 use std::str;
 
 use crate::*;
 
+#[derive(Clone, Debug)]
 pub struct Program {
+    here: i32,
     data: Vec<i32>,
-    iter: Box<dyn Iterator<Item = i32>>,
-}
-
-impl Clone for Program {
-    fn clone(&self) -> Self {
-        Program {
-            data: self.data.clone(),
-            iter: Box::new(iter::empty()),
-        }
-    }
-}
-
-impl fmt::Debug for Program {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.debug_struct("Program")
-            .field("data", &self.data)
-            .finish()
-    }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -33,117 +15,112 @@ pub enum Mode {
     Val,
 }
 
+pub enum Yield {
+    Halt,
+    Step,
+    Input(i32),
+    Output(i32),
+}
+
 impl Program {
-    pub fn run_with_noun_verb(mut self, noun: i32, verb: i32) -> i32 {
+    pub fn run_nv(mut self, noun: i32, verb: i32) -> i32 {
         self[1] = noun;
         self[2] = verb;
-        self.run()
-    }
-
-    pub fn run_with_input<I: Iterator<Item = i32> + 'static>(mut self, input: I) -> i32 {
-        self.iter = Box::new(input);
-        self.run()
-    }
-
-    pub fn run(mut self) -> i32 {
-        let mut ip = 0;
-        while let Some(next) = self.step(ip) {
-            ip = next;
+        loop {
+            match self.step() {
+            | Yield::Halt => return self[0],
+            | _ => continue,
+            }
         }
-        self[0]
     }
 
-    // Execute current instruction and return next instruction pointer
-    fn step(&mut self, ip: i32) -> Option<i32> {
-        match self[ip] % 10 {
+    pub fn run_io<I: FnMut() -> i32, O: FnMut(i32)>(&mut self, mut input: I, mut output: O) {
+        loop {
+            match self.step() {
+            | Yield::Halt => return,
+            | Yield::Input(dst) => self[dst] = input(),
+            | Yield::Output(src) => output(src),
+            | Yield::Step => continue,
+            }
+        }
+    }
+
+    // Execute current instruction
+    fn step(&mut self) -> Yield {
+        match self.op() {
         | 1 => {
-            let lhs = self.src(ip, 1);
-            let rhs = self.src(ip, 2);
-            let dst = self.dst(ip, 3);
+            let lhs = self.src(1);
+            let rhs = self.src(2);
+            let dst = self.dst(3);
             self[dst] = lhs + rhs;
-            Some(ip + 4)
+            self.here += 4;
         }
         | 2 => {
-            let lhs = self.src(ip, 1);
-            let rhs = self.src(ip, 2);
-            let dst = self.dst(ip, 3);
+            let lhs = self.src(1);
+            let rhs = self.src(2);
+            let dst = self.dst(3);
             self[dst] = lhs * rhs;
-            Some(ip + 4)
+            self.here += 4;
         }
         | 3 => {
-            let dst = self.dst(ip, 1);
-            self[dst] = self.iter.give();
-            Some(ip + 2)
+            let dst = self.dst(1);
+            self.here += 2;
+            return Yield::Input(dst);
         }
         | 4 => {
-            let src = self.src(ip, 1);
-            println!("{}", src);
-            Some(ip + 2)
+            let src = self.src(1);
+            self.here += 2;
+            return Yield::Output(src);
         }
         | 5 => {
-            let brc = self.src(ip, 1);
-            if brc != 0 {
-                Some(self.src(ip, 2))
-            } else {
-                Some(ip + 3)
-            }
+            let cond = self.src(1);
+            self.here = if cond != 0 { self.src(2) } else { self.here + 3 };
         }
         | 6 => {
-            let brc = self.src(ip, 1);
-            if brc == 0 {
-                Some(self.src(ip, 2))
-            } else {
-                Some(ip + 3)
-            }
+            let cond = self.src(1);
+            self.here = if cond == 0 { self.src(2) } else { self.here + 3 };
         }
         | 7 => {
-            let lhs = self.src(ip, 1);
-            let rhs = self.src(ip, 2);
-            let dst = self.dst(ip, 3);
+            let lhs = self.src(1);
+            let rhs = self.src(2);
+            let dst = self.dst(3);
             self[dst] = (lhs < rhs) as i32;
-            Some(ip + 4)
+            self.here += 4;
         }
         | 8 => {
-            let lhs = self.src(ip, 1);
-            let rhs = self.src(ip, 2);
-            let dst = self.dst(ip, 3);
+            let lhs = self.src(1);
+            let rhs = self.src(2);
+            let dst = self.dst(3);
             self[dst] = (lhs == rhs) as i32;
-            Some(ip + 4)
+            self.here += 4;
         }
         | 99 => {
-            None
+            return Yield::Halt;
         }
         | _ => {
             unimplemented!()
         }
         }
+        Yield::Step
     }
 
-    fn src(&self, ip: i32, parameter: i32) -> i32 {
-        match self.mode(ip, parameter) {
-        | Mode::Pos => self[self[ip + parameter]],
-        | Mode::Val => self[ip + parameter],
+    fn op(&self) -> i32 {
+        self[self.here] % 100
+    }
+
+    fn src(&self, parameter: i32) -> i32 {
+        match self.mode(parameter) {
+        | Mode::Pos => self[self[self.here + parameter]],
+        | Mode::Val => self[self.here + parameter],
         }
     }
 
-    fn dst(&self, ip: i32, parameter: i32) -> i32 {
-        self[ip + parameter]
+    fn dst(&self, parameter: i32) -> i32 {
+        self[self.here + parameter]
     }
 
-    fn mode(&self, ip: i32, parameter: i32) -> Mode {
-        const LO: i32 = 10;
-        const HI: [i32; 9]  = [
-            0,
-            100,
-            1_000,
-            10_000,
-            100_000,
-            1_000_000,
-            10_000_000,
-            100_000_000,
-            1_000_000_000,
-        ];
-        match (self[ip] / HI[parameter as usize]) % LO {
+    fn mode(&self, parameter: i32) -> Mode {
+        match self[self.here].digit(1 + parameter) {
         | 0 => Mode::Pos,
         | 1 => Mode::Val,
         | _ => unreachable!(),
@@ -158,8 +135,8 @@ impl Fro for Program {
             .map(|line| line.to::<i32>())
             .collect::<Vec<_>>();
         Program {
+            here: 0,
             data,
-            iter: Box::new(iter::empty()),
         }
     }
 }

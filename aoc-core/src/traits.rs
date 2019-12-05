@@ -67,3 +67,27 @@ impl<T, I: Iterator<Item = T>> Give for I {
         self.next().unwrap()
     }
 }
+
+static DIV: [i32; 10] = [
+             1,
+            10,
+           100,
+         1_000,
+        10_000,
+       100_000,
+     1_000_000,
+    10_000_000,
+   100_000_000,
+ 1_000_000_000,
+];
+
+pub trait Digits {
+    fn digit(&self, i: i32) -> Self;
+}
+
+impl Digits for i32 {
+    fn digit(&self, i: i32) -> Self {
+        assert!(i >= 0 && i < 10);
+        (self / DIV[i as usize]) % 10
+    }
+}

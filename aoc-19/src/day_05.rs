@@ -1,4 +1,3 @@
-use std::iter;
 use std::str;
 
 use aoc::*;
@@ -12,11 +11,15 @@ impl Fro for Placeholder {
 }
 
 impl Solution for Placeholder {
-    fn one(self) -> i32 {
-        self.0.run_with_input(iter::repeat(1))
+    fn one(mut self) -> i32 {
+        let mut out = 0;
+        self.0.run_io(|| 1, |output| out = output);
+        out
     }
 
-    fn two(self) -> i32 {
-        self.0.run_with_input(iter::repeat(5))
+    fn two(mut self) -> i32 {
+        let mut out = 0;
+        self.0.run_io(|| 5, |output| out = output);
+        out
     }
 }
