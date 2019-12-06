@@ -1,3 +1,5 @@
+use std::iter;
+
 use petgraph::algo;
 use petgraph::prelude::*;
 
@@ -25,19 +27,12 @@ impl Fro for UniversalOrbitMap {
 
 impl Solution for UniversalOrbitMap {
     fn one(self) -> i32 {
-        let mut direct = 0;
-        let mut indirect = 0;
-        for planet in self.di.nodes() {
-            for neighbor in self.di.neighbors(planet) {
-                direct += 1;
-                let mut dfs = Dfs::new(&self.di, neighbor);
-                dfs.next(&self.di);
-                while let Some(_) = dfs.next(&self.di) {
-                    indirect += 1;
-                }
-            }
-        }
-        direct + indirect
+        self.di
+            .nodes()
+            .map(|planet| Dfs::new(&self.di, planet))
+            .map(|mut dfs| iter::from_fn(|| dfs.next(&self.di)).count())
+            .map(|count| count as i32 - 1)
+            .sum()
     }
 
     fn two(self) -> i32 {
