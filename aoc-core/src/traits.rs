@@ -91,3 +91,13 @@ impl Digits for i32 {
         (self / DIV[i as usize]) % 10
     }
 }
+
+pub trait Leak {
+    fn leak(&self) -> &'static Self;
+}
+
+impl Leak for str {
+    fn leak(&self) -> &'static Self {
+        Box::leak(self.to_owned().into_boxed_str())
+    }
+}

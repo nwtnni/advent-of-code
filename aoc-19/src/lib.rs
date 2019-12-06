@@ -19,7 +19,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i32 {
     | Day::D03 => run!(day_03::CrossedWires),
     | Day::D04 => run!(day_04::SecureContainer),
     | Day::D05 => run!(day_05::SunnyWithAChanceOfAsteroids),
-    | Day::D06 => run!(day_06::Placeholder),
+    | Day::D06 => run!(day_06::UniversalOrbitMap),
     | _ => unimplemented!(),
     }
 }
