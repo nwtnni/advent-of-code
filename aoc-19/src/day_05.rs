@@ -2,15 +2,15 @@ use std::str;
 
 use aoc::*;
 
-pub struct Placeholder(intcode::Program);
+pub struct SunnyWithAChanceOfAsteroids(intcode::Program);
 
-impl Fro for Placeholder {
+impl Fro for SunnyWithAChanceOfAsteroids {
     fn fro(input: &str) -> Self {
-        Placeholder(intcode::Program::fro(input))
+        SunnyWithAChanceOfAsteroids(intcode::Program::fro(input))
     }
 }
 
-impl Solution for Placeholder {
+impl Solution for SunnyWithAChanceOfAsteroids {
     fn one(mut self) -> i32 {
         let mut out = 0;
         self.0.run_io(|| 1, |output| out = output);
