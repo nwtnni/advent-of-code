@@ -7,6 +7,7 @@ use crate::*;
 pub struct Program {
     here: i32,
     data: Vec<i32>,
+    init: Vec<i32>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -23,7 +24,15 @@ pub enum Yield {
 }
 
 impl Program {
-    pub fn run_nv(mut self, noun: i32, verb: i32) -> i32 {
+    pub fn reset(&mut self) {
+        self.here = 0;
+        self.data
+            .iter_mut()
+            .zip(&self.init)
+            .for_each(|(d, i)| *d = *i);
+    }
+
+    pub fn run_nv(&mut self, noun: i32, verb: i32) -> i32 {
         self[1] = noun;
         self[2] = verb;
         loop {
@@ -45,25 +54,30 @@ impl Program {
         }
     }
 
-    pub fn run_input(&mut self, input: i32) -> bool {
+    pub fn input(&mut self, input: i32) -> Option<()> {
         loop {
             match self.step() {
-            | Yield::Input(i) => { self[i] = input; return false },
-            | Yield::Halt => return true,
+            | Yield::Input(i) => { self[i] = input; return Some(()) },
+            | Yield::Halt => return None,
             | _ => continue,
             }
         }
     
     }
 
-    pub fn run_output(&mut self) -> Option<i32> {
+    pub fn output(&mut self) -> Option<i32> {
         loop {
             match self.step() {
-            | Yield::Output(i) => break Some(i),
-            | Yield::Halt => break None,
+            | Yield::Output(i) => return Some(i),
+            | Yield::Halt => return None,
             | _ => continue,
             }
         }
+    }
+
+    pub fn pipe(&mut self, input: i32) -> Option<i32> {
+        self.input(input)?;
+        self.output()
     }
 
     // Execute current instruction
@@ -157,6 +171,7 @@ impl Fro for Program {
             .collect::<Vec<_>>();
         Program {
             here: 0,
+            init: data.clone(),
             data,
         }
     }
