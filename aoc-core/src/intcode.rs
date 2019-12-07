@@ -47,9 +47,9 @@ impl Program {
         loop {
             match self.step() {
             | Yield::Halt => return,
+            | Yield::Step => continue,
             | Yield::Input(dst) => self[dst] = input(),
             | Yield::Output(src) => output(src),
-            | Yield::Step => continue,
             }
         }
     }
@@ -57,9 +57,10 @@ impl Program {
     pub fn input(&mut self, input: i32) -> Option<()> {
         loop {
             match self.step() {
-            | Yield::Input(i) => { self[i] = input; return Some(()) },
             | Yield::Halt => return None,
-            | _ => continue,
+            | Yield::Step => continue,
+            | Yield::Input(i) => return Some(self[i] = input),
+            | Yield::Output(_) => unreachable!(),
             }
         }
     
@@ -68,9 +69,10 @@ impl Program {
     pub fn output(&mut self) -> Option<i32> {
         loop {
             match self.step() {
-            | Yield::Output(i) => return Some(i),
             | Yield::Halt => return None,
-            | _ => continue,
+            | Yield::Step => continue,
+            | Yield::Input(_) => unreachable!(),
+            | Yield::Output(i) => return Some(i),
             }
         }
     }
