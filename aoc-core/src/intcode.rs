@@ -45,8 +45,29 @@ impl Program {
         }
     }
 
+    pub fn run_input(&mut self, input: i32) -> bool {
+        loop {
+            match self.step() {
+            | Yield::Input(i) => { self[i] = input; return false },
+            | Yield::Halt => return true,
+            | _ => continue,
+            }
+        }
+    
+    }
+
+    pub fn run_output(&mut self) -> Option<i32> {
+        loop {
+            match self.step() {
+            | Yield::Output(i) => break Some(i),
+            | Yield::Halt => break None,
+            | _ => continue,
+            }
+        }
+    }
+
     // Execute current instruction
-    fn step(&mut self) -> Yield {
+    pub fn step(&mut self) -> Yield {
         match self.op() {
         | 1 => {
             let lhs = self.src(1);
