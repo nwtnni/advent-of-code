@@ -1,7 +1,6 @@
-use std::iter;
-
 use petgraph::algo;
 use petgraph::prelude::*;
+use petgraph::visit::Walker;
 
 use aoc::*;
 
@@ -29,9 +28,8 @@ impl Solution for UniversalOrbitMap {
     fn one(self) -> i32 {
         self.di
             .nodes()
-            .map(|planet| Dfs::new(&self.di, planet))
-            .map(|mut dfs| iter::from_fn(|| dfs.next(&self.di)).count())
-            .map(|count| count as i32 - 1)
+            .map(|planet| Dfs::new(&self.di, planet).iter(&self.di))
+            .map(|dfs| dfs.count() as i32 - 1)
             .sum()
     }
 
