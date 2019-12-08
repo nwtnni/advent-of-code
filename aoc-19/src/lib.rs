@@ -23,7 +23,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i32 {
     | Day::D05 => run!(day_05::SunnyWithAChanceOfAsteroids),
     | Day::D06 => run!(day_06::UniversalOrbitMap),
     | Day::D07 => run!(day_07::AmplificationCircuit),
-    | Day::D08 => run!(day_08::Placeholder),
+    | Day::D08 => run!(day_08::SpaceImageFormat),
     | _ => unimplemented!(),
     }
 }
