@@ -25,7 +25,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     | Day::D06 => run!(day_06::UniversalOrbitMap),
     | Day::D07 => run!(day_07::AmplificationCircuit),
     | Day::D08 => run!(day_08::SpaceImageFormat),
-    | Day::D09 => run!(day_09::Placeholder),
+    | Day::D09 => run!(day_09::SensorBoost),
     | _ => unimplemented!(),
     }
 }

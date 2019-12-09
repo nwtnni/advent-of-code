@@ -1,15 +1,15 @@
 use aoc::*;
 
 #[derive(Clone, Debug)]
-pub struct Placeholder(intcode::Program);
+pub struct SensorBoost(intcode::Program);
 
-impl Fro for Placeholder {
+impl Fro for SensorBoost {
     fn fro(input: &str) -> Self {
-        Placeholder(intcode::Program::fro(input))
+        SensorBoost(intcode::Program::fro(input))
     }
 }
 
-impl Solution for Placeholder {
+impl Solution for SensorBoost {
     fn one(mut self) -> i64 {
         self.0.pipe(1).unwrap()
     }
