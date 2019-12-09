@@ -5,6 +5,7 @@ use crate::*;
 
 #[derive(Clone, Debug)]
 pub struct Program {
+    base: i64,
     here: i64,
     data: Vec<i64>,
     init: Vec<i64>,
@@ -14,6 +15,7 @@ pub struct Program {
 pub enum Mode {
     Pos,
     Val,
+    Rel,
 }
 
 pub enum Yield {
@@ -25,6 +27,7 @@ pub enum Yield {
 
 impl Program {
     pub fn reset(&mut self) {
+        self.base = 0;
         self.here = 0;
         self.data
             .iter_mut()
@@ -131,6 +134,11 @@ impl Program {
             self[dst] = (lhs == rhs) as i64;
             self.here += 4;
         }
+        | 9 => {
+            let src = self.src(1);
+            self.base += src;
+            self.here += 2;
+        }
         | 99 => {
             return Yield::Halt;
         }
@@ -149,17 +157,23 @@ impl Program {
         match self.mode(parameter) {
         | Mode::Pos => self[self[self.here + parameter]],
         | Mode::Val => self[self.here + parameter],
+        | Mode::Rel => self[self[self.here + parameter] + self.base],
         }
     }
 
     fn dst(&self, parameter: i64) -> i64 {
-        self[self.here + parameter]
+        match self.mode(parameter) {
+        | Mode::Pos => self[self.here + parameter],
+        | Mode::Val => unreachable!(),
+        | Mode::Rel => self[self.here + parameter] + self.base,
+        }
     }
 
     fn mode(&self, parameter: i64) -> Mode {
         match self[self.here].digit(1 + parameter) {
         | 0 => Mode::Pos,
         | 1 => Mode::Val,
+        | 2 => Mode::Rel,
         | _ => unreachable!(),
         }
     }
@@ -175,6 +189,7 @@ impl Fro for Program {
             data.push(0);
         }
         Program {
+            base: 0,
             here: 0,
             init: data.clone(),
             data,
