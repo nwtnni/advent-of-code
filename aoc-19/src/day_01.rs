@@ -2,25 +2,25 @@ use std::str;
 
 use aoc::*;
 
-pub struct TheTyrannyOfTheRocketEquation(Vec<i32>);
+pub struct TheTyrannyOfTheRocketEquation(Vec<i64>);
 
 impl Fro for TheTyrannyOfTheRocketEquation {
     fn fro(input: &str) -> Self {
         input.split_whitespace()
-            .map(i32::fro)
+            .map(i64::fro)
             .collect::<Vec<_>>()
             .tap(TheTyrannyOfTheRocketEquation)
     }
 }
 
 impl Solution for TheTyrannyOfTheRocketEquation {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         self.0.iter()
             .map(|mass| mass / 3 - 2)
             .sum()
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         self.0.iter()
             .map(|mass| {
                 let mut fuel = mass / 3 - 2;

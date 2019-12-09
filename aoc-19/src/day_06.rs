@@ -25,15 +25,15 @@ impl Fro for UniversalOrbitMap {
 }
 
 impl Solution for UniversalOrbitMap {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         self.di
             .nodes()
             .map(|planet| Dfs::new(&self.di, planet).iter(&self.di))
-            .map(|dfs| dfs.count() as i32 - 1)
+            .map(|dfs| dfs.count() as i64 - 1)
             .sum()
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         algo::dijkstra(&self.un, "YOU", Some("SAN"), |_| 1)["SAN"] - 2
     }
 }

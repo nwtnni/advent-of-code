@@ -6,7 +6,7 @@ mod day_01;
 mod day_02;
 mod day_03;
 
-pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i32 {
+pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     macro_rules! run {
         ($solution:ty) => {
             <$solution>::run(input, part)

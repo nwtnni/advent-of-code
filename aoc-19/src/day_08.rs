@@ -76,7 +76,7 @@ impl Fro for SpaceImageFormat {
 }
 
 impl Solution for SpaceImageFormat {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         let (layer, _) = self.0.iter()
             .enumerate()
             .map(|(i, layer)| (i, layer.0.iter().filter(|d| **d == Pixel::Black).count()))
@@ -85,16 +85,16 @@ impl Solution for SpaceImageFormat {
 
         let w = self.0[layer].0.iter()
             .filter(|p| **p == Pixel::White)
-            .count() as i32;
+            .count() as i64;
 
         let t = self.0[layer].0.iter()
             .filter(|p| **p == Pixel::Transparent)
-            .count() as i32;
+            .count() as i64;
 
         w * t
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         let mut layer = Layer(Vec::new());
         for row in 0..H {
             for col in 0..W {

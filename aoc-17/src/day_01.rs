@@ -16,25 +16,25 @@ impl str::FromStr for InverseCaptcha {
 }
 
 impl aoc::Solution for InverseCaptcha {
-    fn one(mut self) -> i32 {
+    fn one(mut self) -> i64 {
         if !self.0.is_empty() {
             self.0.push(self.0[0]);
         }
         self.0.windows(2)
             .filter(|ns| ns[0] == ns[1])
             .map(|ns| ns[0])
-            .map(|n| n as i32)
+            .map(|n| n as i64)
             .sum()
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         let full = self.0.len();
         let half = full / 2;
         self.0.iter()
             .enumerate()
             .filter(|(i, n)| **n == self.0[(i + half) % full])
             .map(|(_, n)| n)
-            .map(|n| *n as i32)
+            .map(|n| *n as i64)
             .sum()
     }
 }

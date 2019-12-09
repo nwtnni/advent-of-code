@@ -18,14 +18,14 @@ impl str::FromStr for TheIdealStockingStuffer {
 
 impl TheIdealStockingStuffer {
     #[inline(always)]
-    fn hash(&mut self, salt: i32) -> md5::Digest {
+    fn hash(&mut self, salt: i64) -> md5::Digest {
         self.buf.truncate(self.len);
         write!(self.buf, "{}", salt).ok();
         md5::compute(&self.buf)
     }
 
-    fn find(&mut self, len: usize) -> i32 {
-        (1i32..).find(|&salt| {
+    fn find(&mut self, len: usize) -> i64 {
+        (1i64..).find(|&salt| {
             let digest = self.hash(salt).0;
             (0..len).all(|i| {
                 let byte = digest[i >> 1];
@@ -37,11 +37,11 @@ impl TheIdealStockingStuffer {
 }
 
 impl aoc::Solution for TheIdealStockingStuffer {
-    fn one(mut self) -> i32 {
+    fn one(mut self) -> i64 {
         self.find(5)
     }
 
-    fn two(mut self) -> i32 {
+    fn two(mut self) -> i64 {
         self.find(6)
     }
 }

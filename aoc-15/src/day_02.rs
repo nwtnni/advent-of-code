@@ -14,27 +14,27 @@ impl str::FromStr for IWasToldThereWouldBeNoMath {
 }
 
 impl aoc::Solution for IWasToldThereWouldBeNoMath {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         self.0.iter().map(Present::wrapping).sum()
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         self.0.iter().map(Present::ribbon).sum()
     }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct Present {
-    l: i32,
-    w: i32,
-    h: i32,
+    l: i64,
+    w: i64,
+    h: i64,
 }
 
 impl str::FromStr for Present {
     type Err = aoc::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut iter = s.split('x')
-            .map(i32::from_str)
+            .map(i64::from_str)
             .filter_map(Result::ok);
         let l = iter.next().unwrap();
         let w = iter.next().unwrap();
@@ -44,25 +44,25 @@ impl str::FromStr for Present {
 }
 
 impl Present {
-    pub fn area(&self) -> i32 {
+    pub fn area(&self) -> i64 {
         2 * self.l * self.w +
         2 * self.w * self.h +
         2 * self.h * self.l
     }
 
-    pub fn volume(&self) -> i32 {
+    pub fn volume(&self) -> i64 {
         self.l * self.w * self.h
     }
 
-    pub fn slack(&self) -> i32 {
+    pub fn slack(&self) -> i64 {
         cmp::min(self.l * self.w, cmp::min(self.w * self.h, self.h * self.l))
     }
 
-    pub fn wrapping(&self) -> i32 {
+    pub fn wrapping(&self) -> i64 {
         self.area() + self.slack()
     }
 
-    pub fn ribbon(&self) -> i32 {
+    pub fn ribbon(&self) -> i64 {
         let lw = 2 * (self.l + self.w);
         let wh = 2 * (self.w + self.h);
         let hl = 2 * (self.h + self.l);

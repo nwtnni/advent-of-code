@@ -1,22 +1,22 @@
 use std::str;
 
 #[derive(Debug)]
-pub struct SpiralMemory(i32);
+pub struct SpiralMemory(i64);
 
 impl str::FromStr for SpiralMemory {
     type Err = aoc::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.parse::<i32>()
+        s.parse::<i64>()
             .map(SpiralMemory)
             .map_err(aoc::Error::InvalidInt)
     }
 }
 
 impl aoc::Solution for SpiralMemory {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
 
         // Bottom-right corner is a square
-        let inner = match (1i32..)
+        let inner = match (1i64..)
             .step_by(2)
             .take_while(|n| n.pow(2) < self.0)
             .last()
@@ -45,7 +45,7 @@ impl aoc::Solution for SpiralMemory {
         x + y
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         unimplemented!()
     }
 }

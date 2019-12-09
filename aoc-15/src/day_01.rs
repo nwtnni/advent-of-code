@@ -9,7 +9,7 @@ impl str::FromStr for NotQuiteLisp {
     }
 }
 
-fn delta(c: char) -> i32 {
+fn delta(c: char) -> i64 {
     match c {
     | '(' =>  1,
     | ')' => -1,
@@ -18,19 +18,19 @@ fn delta(c: char) -> i32 {
 }
 
 impl aoc::Solution for NotQuiteLisp {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         self.0.chars()
             .map(delta)
             .sum()
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         self.0.chars()
             .map(delta)
             .scan(0, |this, next| {
                 if *this == -1 { None } else { Some(*this += next) }
             })
-            .count() as i32
+            .count() as i64
     }
 }
 

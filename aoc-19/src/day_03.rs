@@ -10,7 +10,7 @@ pub struct CrossedWires(Vec<Wire>, Vec<Wire>);
 #[derive(Copy, Clone, Debug)]
 struct Wire {
     dir: Dir,
-    len: i32,
+    len: i64,
 }
 
 impl Fro for Wire {
@@ -25,7 +25,7 @@ impl Fro for Wire {
         };
         let len = iter
             .as_str()
-            .to::<i32>();
+            .to::<i64>();
         Wire {
             dir,
             len,
@@ -50,7 +50,7 @@ impl str::FromStr for CrossedWires {
 }
 
 impl Solution for CrossedWires {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         let mut l_seen = HashSet::new();
         let mut p = Pos::default();
         for wire in &self.0 {
@@ -75,7 +75,7 @@ impl Solution for CrossedWires {
             .unwrap()
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         let mut l_dist = HashMap::new();
         let mut l_seen = HashSet::new();
         let mut p = Pos::default();

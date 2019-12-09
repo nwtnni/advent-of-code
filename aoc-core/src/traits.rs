@@ -4,9 +4,9 @@ use std::str;
 use crate::types::Part;
 
 pub trait Solution: Fro + Sized {
-    fn one(self) -> i32;
-    fn two(self) -> i32;
-    fn run(input: &str, part: Part) -> i32 {
+    fn one(self) -> i64;
+    fn two(self) -> i64;
+    fn run(input: &str, part: Part) -> i64 {
         let solution = input.to::<Self>();
         let output = match part {
         | Part::P01 => solution.one(),
@@ -68,7 +68,7 @@ impl<T, I: Iterator<Item = T>> Give for I {
     }
 }
 
-static DIV: [i32; 10] = [
+static DIV: [i64; 10] = [
              1,
             10,
            100,
@@ -82,11 +82,11 @@ static DIV: [i32; 10] = [
 ];
 
 pub trait Digits {
-    fn digit(&self, i: i32) -> Self;
+    fn digit(&self, i: i64) -> Self;
 }
 
-impl Digits for i32 {
-    fn digit(&self, i: i32) -> Self {
+impl Digits for i64 {
+    fn digit(&self, i: i64) -> Self {
         assert!(i >= 0 && i < 10);
         (self / DIV[i as usize]) % 10
     }

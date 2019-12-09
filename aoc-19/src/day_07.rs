@@ -11,7 +11,7 @@ impl Fro for AmplificationCircuit {
 }
 
 impl Solution for AmplificationCircuit {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         let mut max = 0;
         let mut settings = [0, 1, 2, 3, 4];
         let mut programs = vec![self.0; 5];
@@ -35,7 +35,7 @@ impl Solution for AmplificationCircuit {
         max
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         let mut max = 0;
         let mut settings = [5, 6, 7, 8, 9];
         let mut programs = vec![self.0; 5];

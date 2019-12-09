@@ -8,7 +8,7 @@ mod day_03;
 mod day_04;
 mod day_05;
 
-pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i32 {
+pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     macro_rules! run {
         ($solution:ty) => {
             <$solution>::run(input, part)

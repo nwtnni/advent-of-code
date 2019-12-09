@@ -34,7 +34,7 @@ fn is_naughty(cs: &&[char]) -> bool {
 }
 
 impl aoc::Solution for DoesntHeHaveInternElvesForThis {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         self.0
             .split_whitespace()
             .filter(|string| {
@@ -45,10 +45,10 @@ impl aoc::Solution for DoesntHeHaveInternElvesForThis {
                 vowels >= 3 && twice >= 1 && naughty == 0
             })
             .count()
-            as i32
+            as i64
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         self.0
             .split_whitespace()
             .filter(|string| {
@@ -67,6 +67,6 @@ impl aoc::Solution for DoesntHeHaveInternElvesForThis {
                 sandwich > 0 && repeat > 0
             })
             .count()
-            as i32
+            as i64
     }
 }

@@ -11,13 +11,13 @@ impl Fro for SunnyWithAChanceOfAsteroids {
 }
 
 impl Solution for SunnyWithAChanceOfAsteroids {
-    fn one(mut self) -> i32 {
+    fn one(mut self) -> i64 {
         let mut out = 0;
         self.0.run_io(|| 1, |output| out = output);
         out
     }
 
-    fn two(mut self) -> i32 {
+    fn two(mut self) -> i64 {
         let mut out = 0;
         self.0.run_io(|| 5, |output| out = output);
         out

@@ -5,9 +5,9 @@ use crate::*;
 
 #[derive(Clone, Debug)]
 pub struct Program {
-    here: i32,
-    data: Vec<i32>,
-    init: Vec<i32>,
+    here: i64,
+    data: Vec<i64>,
+    init: Vec<i64>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -19,8 +19,8 @@ pub enum Mode {
 pub enum Yield {
     Halt,
     Step,
-    Input(i32),
-    Output(i32),
+    Input(i64),
+    Output(i64),
 }
 
 impl Program {
@@ -32,7 +32,7 @@ impl Program {
             .for_each(|(d, i)| *d = *i);
     }
 
-    pub fn run_nv(&mut self, noun: i32, verb: i32) -> i32 {
+    pub fn run_nv(&mut self, noun: i64, verb: i64) -> i64 {
         self[1] = noun;
         self[2] = verb;
         loop {
@@ -43,7 +43,7 @@ impl Program {
         }
     }
 
-    pub fn run_io<I: FnMut() -> i32, O: FnMut(i32)>(&mut self, mut input: I, mut output: O) {
+    pub fn run_io<I: FnMut() -> i64, O: FnMut(i64)>(&mut self, mut input: I, mut output: O) {
         loop {
             match self.step() {
             | Yield::Halt => return,
@@ -54,7 +54,7 @@ impl Program {
         }
     }
 
-    pub fn input(&mut self, input: i32) -> Option<()> {
+    pub fn input(&mut self, input: i64) -> Option<()> {
         loop {
             match self.step() {
             | Yield::Halt => return None,
@@ -66,7 +66,7 @@ impl Program {
     
     }
 
-    pub fn output(&mut self) -> Option<i32> {
+    pub fn output(&mut self) -> Option<i64> {
         loop {
             match self.step() {
             | Yield::Halt => return None,
@@ -77,7 +77,7 @@ impl Program {
         }
     }
 
-    pub fn pipe(&mut self, input: i32) -> Option<i32> {
+    pub fn pipe(&mut self, input: i64) -> Option<i64> {
         self.input(input)?;
         self.output()
     }
@@ -121,14 +121,14 @@ impl Program {
             let lhs = self.src(1);
             let rhs = self.src(2);
             let dst = self.dst(3);
-            self[dst] = (lhs < rhs) as i32;
+            self[dst] = (lhs < rhs) as i64;
             self.here += 4;
         }
         | 8 => {
             let lhs = self.src(1);
             let rhs = self.src(2);
             let dst = self.dst(3);
-            self[dst] = (lhs == rhs) as i32;
+            self[dst] = (lhs == rhs) as i64;
             self.here += 4;
         }
         | 99 => {
@@ -141,22 +141,22 @@ impl Program {
         Yield::Step
     }
 
-    fn op(&self) -> i32 {
+    fn op(&self) -> i64 {
         self[self.here] % 100
     }
 
-    fn src(&self, parameter: i32) -> i32 {
+    fn src(&self, parameter: i64) -> i64 {
         match self.mode(parameter) {
         | Mode::Pos => self[self[self.here + parameter]],
         | Mode::Val => self[self.here + parameter],
         }
     }
 
-    fn dst(&self, parameter: i32) -> i32 {
+    fn dst(&self, parameter: i64) -> i64 {
         self[self.here + parameter]
     }
 
-    fn mode(&self, parameter: i32) -> Mode {
+    fn mode(&self, parameter: i64) -> Mode {
         match self[self.here].digit(1 + parameter) {
         | 0 => Mode::Pos,
         | 1 => Mode::Val,
@@ -167,10 +167,13 @@ impl Program {
 
 impl Fro for Program {
     fn fro(input: &str) -> Self {
-        let data = input.trim()
+        let mut data = input.trim()
             .split(',')
-            .map(|line| line.to::<i32>())
+            .map(|line| line.to::<i64>())
             .collect::<Vec<_>>();
+        for _ in 0..1000 {
+            data.push(0);
+        }
         Program {
             here: 0,
             init: data.clone(),
@@ -179,15 +182,15 @@ impl Fro for Program {
     }
 }
 
-impl ops::Index<i32> for Program {
-    type Output = i32;
-    fn index(&self, i: i32) -> &Self::Output {
+impl ops::Index<i64> for Program {
+    type Output = i64;
+    fn index(&self, i: i64) -> &Self::Output {
         &self.data[i as usize]
     }
 }
 
-impl ops::IndexMut<i32> for Program {
-    fn index_mut(&mut self, i: i32) -> &mut Self::Output {
+impl ops::IndexMut<i64> for Program {
+    fn index_mut(&mut self, i: i64) -> &mut Self::Output {
         &mut self.data[i as usize]
     }
 }

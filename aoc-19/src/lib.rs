@@ -9,7 +9,7 @@ mod day_06;
 mod day_07;
 mod day_08;
 
-pub fn solve(day: Day, part: Part, input: &str) -> i32 {
+pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
         ($solution:ty) => {
             <$solution>::run(input, part)

@@ -26,16 +26,16 @@ fn parse_dir(c: char) -> aoc::Dir {
 }
 
 impl aoc::Solution for PerfectlySphericalHousesInAVacuum {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
         use aoc::Pos;
         self.0.iter()
             .chain(&[aoc::Dir::N]) // Dummy
             .scan(Pos::default(), |pos, dir| Some(mem::replace(pos, pos.shift(*dir))))
             .collect::<Set<_>>()
-            .len() as i32
+            .len() as i64
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
         use aoc::Pos;
         self.0.iter()
             .chain(&[aoc::Dir::N, aoc::Dir::N]) // Dummy
@@ -47,7 +47,7 @@ impl aoc::Solution for PerfectlySphericalHousesInAVacuum {
                 }
             })
             .collect::<Set<_>>()
-            .len() as i32
+            .len() as i64
     }
 }
 

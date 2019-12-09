@@ -6,14 +6,14 @@ use std::io::Write;
 
 use nom::types::CompleteStr;
 
-named!(parse_int<CompleteStr, i32>,
+named!(parse_int<CompleteStr, i64>,
     switch!(take_s!(1),
-        CompleteStr("-") => map!(nom::digit, |s| -s.parse::<i32>().unwrap()) |
-        CompleteStr(" ") => map!(nom::digit, |s| s.parse::<i32>().unwrap())
+        CompleteStr("-") => map!(nom::digit, |s| -s.parse::<i64>().unwrap()) |
+        CompleteStr(" ") => map!(nom::digit, |s| s.parse::<i64>().unwrap())
     )
 );
 
-named!(parse_vector<CompleteStr, (i32, i32)>,
+named!(parse_vector<CompleteStr, (i64, i64)>,
     do_parse!(
            tag_s!("<")  >>
         x: parse_int    >>
@@ -24,7 +24,7 @@ named!(parse_vector<CompleteStr, (i32, i32)>,
     )
 );
 
-named!(parse_points<CompleteStr, Vec<((i32, i32), (i32, i32))>>,
+named!(parse_points<CompleteStr, Vec<((i64, i64), (i64, i64))>>,
     separated_list!(
         tag_s!("\n"),
         do_parse!(
@@ -38,8 +38,8 @@ named!(parse_points<CompleteStr, Vec<((i32, i32), (i32, i32))>>,
 );
 
 const INPUT: &'static str = include_str!("input.txt");
-const ROWS: i32 = 12;
-const COLS: i32 = 80;
+const ROWS: i64 = 12;
+const COLS: i64 = 80;
 
 fn main() -> Result<(), std::io::Error> {
 
@@ -58,14 +58,14 @@ fn main() -> Result<(), std::io::Error> {
     let mut round = 0;
 
     loop {
-        let (mut min_x, mut min_y) = (i32::max_value(), i32::max_value());
+        let (mut min_x, mut min_y) = (i64::max_value(), i64::max_value());
         let (mut max_x, mut max_y) = (0, 0);
 
         for (x, y) in position.values() {
-            min_x = i32::min(*x, min_x);    
-            max_x = i32::max(*x, max_x);
-            min_y = i32::min(*y, min_y);
-            max_y = i32::max(*y, max_y);
+            min_x = i64::min(*x, min_x);    
+            max_x = i64::max(*x, max_x);
+            min_y = i64::min(*y, min_y);
+            max_y = i64::max(*y, max_y);
         }
 
         if max_x - min_x < 200 && max_y - min_y < 200 {

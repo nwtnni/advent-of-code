@@ -5,8 +5,8 @@ use aoc::*;
 
 #[derive(Clone, Debug)]
 pub struct SecureContainer {
-    lo: i32,
-    hi: i32,
+    lo: i64,
+    hi: i64,
 }
 
 impl Fro for SecureContainer {
@@ -14,10 +14,10 @@ impl Fro for SecureContainer {
         let mut iter = input.trim().split('-');
         let lo = iter
             .give()
-            .to::<i32>();
+            .to::<i64>();
         let hi = iter
             .give()
-            .to::<i32>();
+            .to::<i64>();
         SecureContainer {
             lo,
             hi,
@@ -26,7 +26,7 @@ impl Fro for SecureContainer {
 }
 
 impl Solution for SecureContainer {
-    fn one(self) -> i32 {
+    fn one(self) -> i64 {
 
         let mut count = 0;
 
@@ -53,7 +53,7 @@ impl Solution for SecureContainer {
         count
     }
 
-    fn two(self) -> i32 {
+    fn two(self) -> i64 {
 
         let mut count = 0;
         let mut double = HashSet::new();
