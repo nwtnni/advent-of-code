@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 use std::collections::BinaryHeap;
+use std::collections::BTreeSet;
 use std::cmp;
 
 use aoc::*;
@@ -21,44 +22,38 @@ impl Fro for MonitoringStation {
     }
 }
 
+// Vertical vector
+const X_AXIS: Pos = Pos { x: 1, y:  0 };
+const Y_AXIS: Pos = Pos { x: 0, y: -1 };
+
+/// Compute the angle between vectors AB and AC,
+/// treating AB as the zero axis.
+fn angle(ab: Pos, ac: Pos) -> f64 {
+    // sin(θ) ∝ AB X AC
+    let sin = (ab.x * ac.y - ac.x * ab.y) as f64;
+
+    // cos(θ) ∝ AB ⋅ AC
+    let cos = (ab.x * ac.x + ab.y * ac.y) as f64;
+
+    // Map θ from (-π, π] to [0, 2π)
+    match f64::atan2(sin, cos) {
+    | theta if theta.is_sign_negative() => theta + 2.0 * std::f64::consts::PI,
+    | theta => theta,
+    }
+}
+
 impl MonitoringStation {
     fn visible(&self, a: Pos) -> i64 {
-
-        // Collect asteroids visible from A
-        let mut visible = self.0.clone();
-        visible.retain(|p| *p != a);
-
-        for b in self.0.iter().filter(|p| **p != a) {
-
-            // Remove asteroids occluded by B
-            visible.retain(|c| {
-
-                // B can never occlude itself
-                if b == c { return true }
-
-                // Dot product is given by
-                // |AB| * |AC| * cos(θ) = AB ⋅ AC
-                //
-                // cos(θ) == ±1 ⇒ AB || AC
+        self.0
+            .iter()
+            .filter(|p| **p != a)
+            .map(|b| {
                 let ab = Pos { x: b.x - a.x, y: b.y - a.y };
-                let ac = Pos { x: c.x - a.x, y: c.y - a.y };
-                let dot = (ab.x * ac.x + ab.y * ac.y) as f64;
-
-                // Facing opposite directions, cannot occlude
-                if dot.is_sign_negative() {
-                    return true;
-                }
-
-                let dist_ab = ((ab.x.pow(2) + ab.y.pow(2)) as f64).sqrt();
-                let dist_ac = ((ac.x.pow(2) + ac.y.pow(2)) as f64).sqrt();
-
-                // C is visible if cos(θ) != 1 or if C is closer than B
-                Approx(dot) != Approx(dist_ab * dist_ac) || dist_ac < dist_ab
-            });
-        }
-
-        // Count number of remaining candidates
-        visible.len() as i64
+                angle(X_AXIS, ab)
+            })
+            .map(Approx)
+            .collect::<BTreeSet<_>>()
+            .len() as i64
     }
 }
 
@@ -113,9 +108,6 @@ impl Solution for MonitoringStation {
             .copied()
             .unwrap();
 
-        // Vertical vector
-        let sv = Pos { x: 0, y: -1 };
-
         // Primary data structure: ordered map from
         // unique angles to heaps of asteroids, sorted
         // by their proximity to the monitoring station.
@@ -126,17 +118,7 @@ impl Solution for MonitoringStation {
             // Compute relative vector from station S to asteroid A
             let sa = Pos { x: a.x - s.x, y: a.y - s.y };
 
-            // sin(θ) ∝ SV X SA
-            let sin = (sv.x * sa.y - sa.x * sv.y) as f64;
-
-            // cos(θ) ∝ SV ⋅ SA
-            let cos = (sv.x * sa.x + sv.y * sa.y) as f64;
-
-            // Map θ from (-π, π] to [0, 2π)
-            let theta = match f64::atan2(sin, cos) {
-            | theta if theta.is_sign_negative() => theta + 2.0 * std::f64::consts::PI,
-            | theta => theta,
-            };
+            let theta = angle(Y_AXIS, sa);
 
             // Group A in sorted order by distance to S
             // with other asteroids along angle θ.
