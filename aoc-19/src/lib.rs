@@ -29,7 +29,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     | Day::D08 => run!(day_08::SpaceImageFormat),
     | Day::D09 => run!(day_09::SensorBoost),
     | Day::D10 => run!(day_10::MonitoringStation),
-    | Day::D11 => run!(day_11::Placeholder),
+    | Day::D11 => run!(day_11::SpacePolice),
     | _ => unimplemented!(),
     }
 }

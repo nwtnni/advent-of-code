@@ -3,28 +3,11 @@ use std::collections::HashMap;
 use aoc::*;
 
 #[derive(Clone, Debug)]
-pub struct Placeholder {
+pub struct SpacePolice {
     pos: Pos,
     dir: Dir,
     paint: HashMap<Pos, Paint>,
     program: intcode::Program,
-}
-
-fn turn(dir: Dir, way: i64) -> Dir {
-    match (dir, way) {
-    | (Dir::N, 0) => Dir::W,
-    | (Dir::N, 1) => Dir::E,
-
-    | (Dir::S, 0) => Dir::E,
-    | (Dir::S, 1) => Dir::W,
-
-    | (Dir::W, 0) => Dir::S,
-    | (Dir::W, 1) => Dir::N,
-
-    | (Dir::E, 0) => Dir::N,
-    | (Dir::E, 1) => Dir::S,
-    | _ => unreachable!(),
-    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -33,9 +16,38 @@ enum Paint {
     W = 1,
 }
 
-impl Fro for Placeholder {
+#[derive(Copy, Clone, PartialEq, Eq)]
+enum Mode {
+    Paint,
+    Turn,
+}
+
+impl Mode {
+    fn toggle(&mut self) {
+        *self = match self {
+        | Mode::Paint => Mode::Turn,
+        | Mode::Turn => Mode::Paint,
+        };
+    }
+}
+
+fn turn(dir: Dir, way: i64) -> Dir {
+    match (dir, way) {
+    | (Dir::N, 0) => Dir::W,
+    | (Dir::N, 1) => Dir::E,
+    | (Dir::S, 0) => Dir::E,
+    | (Dir::S, 1) => Dir::W,
+    | (Dir::W, 0) => Dir::S,
+    | (Dir::W, 1) => Dir::N,
+    | (Dir::E, 0) => Dir::N,
+    | (Dir::E, 1) => Dir::S,
+    | _ => unreachable!(),
+    }
+}
+
+impl Fro for SpacePolice {
     fn fro(input: &str) -> Self {
-        Placeholder {
+        SpacePolice {
             pos: Pos::default(),
             dir: Dir::N,
             paint: HashMap::default(),
@@ -44,59 +56,42 @@ impl Fro for Placeholder {
     }
 }
 
-impl Solution for Placeholder {
-    fn one(mut self) -> i64 {
-        let mut first = true;
+impl SpacePolice {
+    fn run(&mut self, default: Paint) {
+        let mut mode = Mode::Paint;
         loop {
             use intcode::Yield::*;
-            match self.program.step() {
-            | Halt => return self.paint.len() as i64,
-            | Input(i) => {
-                let p = *self.paint.get(&self.pos).unwrap_or(&Paint::B) as i64;
-                self.program[i] = p;
+            match (self.program.step(), mode) {
+            | (Halt, _) => break,
+            | (Input(i), _) => {
+                let paint = self.paint
+                    .get(&self.pos)
+                    .unwrap_or(&default);
+                self.program[i] = *paint as i64;
             }
-            | Output(i) if first => {
-                first = !first;
+            | (Output(i), Mode::Paint) => {
                 self.paint.insert(self.pos, if i == 0 { Paint::B } else { Paint::W });
+                mode.toggle();
             }
-            | Output(i) => {
-                first = !first;
+            | (Output(i), Mode::Turn) => {
                 self.dir = turn(self.dir, i);
                 self.pos.shift_mut(self.dir);
+                mode.toggle();
             }
-            | Step => (),
+            | (Step, _) => (),
             }
         }
     }
+}
+
+impl Solution for SpacePolice {
+    fn one(mut self) -> i64 {
+        self.run(Paint::B);
+        self.paint.len() as i64
+    }
 
     fn two(mut self) -> i64 {
-        let mut first = true;
-        loop {
-            use intcode::Yield::*;
-            match self.program.step() {
-            | Halt => break,
-            | Input(i) => {
-                const P: Pos = Pos { x: 0, y: 0 };
-                let p = if self.pos == P {
-                    *self.paint.get(&self.pos).unwrap_or(&Paint::W) as i64
-                } else {
-                    *self.paint.get(&self.pos).unwrap_or(&Paint::B) as i64
-                };
-                self.program[i] = p;
-            }
-            | Output(i) if first => {
-                first = !first;
-                self.paint.insert(self.pos, if i == 0 { Paint::B } else { Paint::W });
-            }
-            | Output(i) => {
-                first = !first;
-                self.dir = turn(self.dir, i);
-                self.pos.shift_mut(self.dir);
-            }
-            | Step => (),
-            }
-        }
-
+        self.run(Paint::W);
         for y in (-100..100).rev() {
             for x in -100..100 {
                 match self.paint.get(&Pos { x, y }) {
@@ -106,7 +101,6 @@ impl Solution for Placeholder {
             }
             println!("");
         }
-
         0
     }
 }
