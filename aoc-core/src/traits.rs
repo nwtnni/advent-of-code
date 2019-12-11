@@ -50,7 +50,7 @@ pub trait Tap: Sized {
         apply(self)
     }
 
-    fn tap_mut<T, F: FnOnce(&mut Self)>(mut self, apply: F) -> Self {
+    fn tap_mut<F: FnOnce(&mut Self)>(mut self, apply: F) -> Self {
         apply(&mut self);
         self
     }
