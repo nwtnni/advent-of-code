@@ -1,6 +1,7 @@
 use std::io;
 use std::num;
 use std::str;
+use std::ops;
 
 #[derive(Debug, failure::Fail)]
 pub enum Error {
@@ -46,7 +47,36 @@ impl Pos {
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-pub enum Dir { N, S, E, W }
+pub enum Dir { N, S, W, E }
+
+impl Dir {
+    pub fn flip(&self) -> Dir {
+        match self {
+        | Dir::N => Dir::S,
+        | Dir::S => Dir::N,
+        | Dir::E => Dir::W,
+        | Dir::W => Dir::E,
+        }
+    }
+
+    pub fn flip_mut(&mut self) {
+        *self = self.flip();
+    }
+}
+
+impl ops::Neg for Dir {
+    type Output = Dir;
+    fn neg(self) -> Self::Output {
+        self.flip()
+    }
+}
+
+impl ops::Neg for &Dir {
+    type Output = Dir;
+    fn neg(self) -> Self::Output {
+        self.flip()
+    }
+}
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
