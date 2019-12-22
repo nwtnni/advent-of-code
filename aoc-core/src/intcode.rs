@@ -63,7 +63,7 @@ impl Program {
             | Yield::Halt => return None,
             | Yield::Step => continue,
             | Yield::Input(i) => return Some(self[i] = input),
-            | Yield::Output(_) => unreachable!(),
+            | Yield::Output(_) => panic!("Output step while running input"),
             }
         }
     
@@ -74,7 +74,7 @@ impl Program {
             match self.step() {
             | Yield::Halt => return None,
             | Yield::Step => continue,
-            | Yield::Input(_) => unreachable!(),
+            | Yield::Input(_) => panic!("Input step while running output"),
             | Yield::Output(i) => return Some(i),
             }
         }
