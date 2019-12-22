@@ -8,7 +8,7 @@ use priority_queue::PriorityQueue;
 
 #[derive(Clone, Debug)]
 pub struct ManyWorldsInterpretation {
-    entrance: Pos,
+    entrances: Vec<Pos>,
     grid: HashMap<Pos, Block>,
 }
 
@@ -30,7 +30,7 @@ impl Block {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Collapsed {
-    Start,
+    Start(u8),
     Key(char),
     Door(char),
 }
@@ -55,7 +55,7 @@ impl KeySet {
 impl Fro for ManyWorldsInterpretation {
     fn fro(input: &str) -> Self {
         let mut grid = HashMap::new();
-        let mut entrance = Pos::default();
+        let mut entrances = Vec::new();
         for (y, line) in input.trim().split_whitespace().enumerate() {
             for (x, char) in line.trim().chars().enumerate() {
                 let pos = Pos {
@@ -64,7 +64,7 @@ impl Fro for ManyWorldsInterpretation {
                 };
                 match char {
                 | '#' => { grid.insert(pos, Block::Wall); },
-                | '@' => entrance = pos,
+                | '@' => entrances.push(pos),
                 | c if c.is_ascii_lowercase() => {
                     grid.insert(pos, Block::Key(c));
                 },
@@ -76,7 +76,7 @@ impl Fro for ManyWorldsInterpretation {
             }
         }
         ManyWorldsInterpretation {
-            entrance,
+            entrances,
             grid,
         }
     }
@@ -115,14 +115,17 @@ impl ManyWorldsInterpretation {
     }
 
     fn collapse(&self) -> HashMap<Collapsed, Vec<(Collapsed, i64)>> {
-        let all = self.grid.iter()
+        let mut all = self.grid.iter()
             .filter_map(|(&pos, &block)| match block {
                 Block::Key(k) => Some((pos, Collapsed::Key(k))),
                 Block::Door(d) => Some((pos, Collapsed::Door(d))),
                 _ => None,
             })
-            .collect::<Vec<_>>()
-            .tap_mut(|all| all.insert(0, (self.entrance, Collapsed::Start)));
+            .collect::<Vec<_>>();
+
+        for (i, entrance) in self.entrances.iter().copied().enumerate() {
+            all.push((entrance, Collapsed::Start(i as u8)));
+        }
 
         let mut collapsed = HashMap::new();
 
@@ -143,6 +146,25 @@ impl ManyWorldsInterpretation {
 
         collapsed
     }
+
+    /// ```text
+    /// ...    @#@
+    /// .@. => ###
+    /// ...    @#@
+    /// ```
+    fn split(&mut self) {
+        let p = self.entrances[0];
+        self.grid.insert(p, Block::Wall);
+        self.grid.insert(Pos { x: p.x + 1, y: p.y }, Block::Wall);
+        self.grid.insert(Pos { x: p.x - 1, y: p.y }, Block::Wall);
+        self.grid.insert(Pos { x: p.x, y: p.y + 1 }, Block::Wall);
+        self.grid.insert(Pos { x: p.x, y: p.y - 1 }, Block::Wall);
+        self.entrances.clear();
+        self.entrances.push(Pos { x: p.x - 1, y: p.y - 1 });
+        self.entrances.push(Pos { x: p.x + 1, y: p.y - 1 });
+        self.entrances.push(Pos { x: p.x - 1, y: p.y + 1 });
+        self.entrances.push(Pos { x: p.x + 1, y: p.y + 1 });
+    }
 }
 
 impl Solution for ManyWorldsInterpretation {
@@ -157,7 +179,7 @@ impl Solution for ManyWorldsInterpretation {
         let mut queue = PriorityQueue::new();
         let mut seen = HashSet::new();
 
-        queue.push((Collapsed::Start, KeySet::empty()), cmp::Reverse(0));
+        queue.push((Collapsed::Start(0), KeySet::empty()), cmp::Reverse(0));
 
         while let Some(((node, set), cmp::Reverse(dis))) = queue.pop() {
 
@@ -169,7 +191,7 @@ impl Solution for ManyWorldsInterpretation {
 
             for &(next, delta) in &collapsed[&node] {
                 let next_set = match next {
-                | Collapsed::Start => continue,
+                | Collapsed::Start(_) => continue,
                 | Collapsed::Door(d) if !set.contains(d) => continue,
                 | Collapsed::Door(_) => set,
                 | Collapsed::Key(k) => set.insert(k),
@@ -194,8 +216,64 @@ impl Solution for ManyWorldsInterpretation {
         unreachable!()
     }
 
-    fn two(self) -> i64 {
-        unimplemented!()
+    // Same as P1 except each node is [Collapsed; 4] instead of Collapsed,
+    // so we track the position of four robots at a time.
+    fn two(mut self) -> i64 {
+
+        let count = self.grid.values()
+            .filter(|b| b.is_key())
+            .count();
+
+        let full = (0b1 << count) - 1;
+
+        self.split();
+        let collapsed = self.collapse();
+
+        let mut queue = PriorityQueue::new();
+        let mut seen = HashSet::new();
+        let mut start = [Collapsed::Start(0); 4];
+        for i in 0..4 {
+            start[i] = Collapsed::Start(i as u8);
+        }
+        queue.push((start, KeySet::empty()), cmp::Reverse(0));
+
+        while let Some(((pos, set), cmp::Reverse(dis))) = queue.pop() {
+
+            if set.0 == full {
+                return dis;
+            }
+
+            seen.insert((pos, set));
+
+            for i in 0..4 {
+                let mut next_pos = pos.clone();
+                for &(next, delta) in &collapsed[&pos[i]] {
+                    next_pos[i] = next;
+                    let next_set = match next {
+                    | Collapsed::Start(_) => continue,
+                    | Collapsed::Door(d) if !set.contains(d) => continue,
+                    | Collapsed::Door(_) => set,
+                    | Collapsed::Key(k) => set.insert(k),
+                    };
+
+                    if seen.contains(&(next_pos, next_set)) {
+                        continue;
+                    }
+
+                    match queue.get_priority(&(next_pos, next_set)) {
+                    | Some(cmp::Reverse(old)) if dis + delta >= *old => (),
+                    | Some(_) => {
+                        queue.change_priority(&(next_pos, next_set), cmp::Reverse(dis + delta));
+                    }
+                    | None => {
+                        queue.push((next_pos, next_set), cmp::Reverse(dis + delta));
+                    }
+                    }
+                }
+            }
+        }
+
+        unreachable!()
     }
 }
 
