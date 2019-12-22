@@ -22,6 +22,68 @@ impl str::FromStr for Digit {
     }
 }
 
+impl Digit {
+    pub fn from_char(c: char) -> Option<Self> {
+        use Digit::*;
+        match c {
+        | '0' => Some(D0),
+        | '1' => Some(D1),
+        | '2' => Some(D2),
+        | '3' => Some(D3),
+        | '4' => Some(D4),
+        | '5' => Some(D5),
+        | '6' => Some(D6),
+        | '7' => Some(D7),
+        | '8' => Some(D8),
+        | '9' => Some(D9),
+        | _ => None,
+        }
+    }
+
+    pub fn from_char_unchecked(c: char) -> Self {
+        Self::from_char(c).unwrap()
+    }
+
+    pub fn from_int(i: i64) -> Option<Self> {
+        use Digit::*;
+        match i {
+        | 0 => Some(D0),
+        | 1 => Some(D1),
+        | 2 => Some(D2),
+        | 3 => Some(D3),
+        | 4 => Some(D4),
+        | 5 => Some(D5),
+        | 6 => Some(D6),
+        | 7 => Some(D7),
+        | 8 => Some(D8),
+        | 9 => Some(D9),
+        | _ => None,
+        }
+    }
+
+    pub fn from_int_unchecked(i: i64) -> Self {
+        Self::from_int(i).unwrap()
+    }
+}
+
+impl From<Digit> for char {
+    fn from(digit: Digit) -> Self {
+        use Digit::*;
+        match digit {
+        | D0 => '0',
+        | D1 => '1',
+        | D2 => '2',
+        | D3 => '3',
+        | D4 => '4',
+        | D5 => '5',
+        | D6 => '6',
+        | D7 => '7',
+        | D8 => '8',
+        | D9 => '9',
+        }
+    }
+}
+
 impl str::FromStr for Year {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
