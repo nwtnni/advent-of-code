@@ -185,7 +185,7 @@ impl Fro for Program {
             .split(',')
             .map(|line| line.to::<i64>())
             .collect::<Vec<_>>();
-        for _ in 0..1000 {
+        for _ in 0..10000 {
             data.push(0);
         }
         Program {
