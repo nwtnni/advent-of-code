@@ -1,4 +1,5 @@
 use std::io;
+use std::iter;
 use std::num;
 use std::str;
 use std::ops;
@@ -50,6 +51,13 @@ impl Pos {
 pub enum Dir { N, S, W, E }
 
 impl Dir {
+    pub fn all() -> impl Iterator<Item = Self> {
+        iter::once(Dir::N)
+            .chain(iter::once(Dir::S))
+            .chain(iter::once(Dir::E))
+            .chain(iter::once(Dir::W))
+    }
+
     pub fn flip(&self) -> Dir {
         match self {
         | Dir::N => Dir::S,
@@ -137,4 +145,10 @@ pub enum Day {
 pub enum Part {
     P01 = 1,
     P02 = 2,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Or<L, R> {
+    L(L),
+    R(R),
 }
