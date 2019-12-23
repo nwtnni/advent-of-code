@@ -280,7 +280,56 @@ impl Solution for DonutMaze {
     }
 
     fn two(self) -> i64 {
-        todo!()
+
+        let mut queue = PriorityQueue::new();
+        let mut seen = HashSet::new();
+
+        queue.push((self.start, 0), cmp::Reverse(0));
+
+        while let Some(((node, depth), cmp::Reverse(dis))) = queue.pop() {
+
+            if node == self.end && depth == 0 {
+                return dis;
+            }
+
+            seen.insert((node, depth));
+
+            if let Some(label) = self.labels.get(&node) {
+                if let Some((next, depth)) = self.portals[label].get_depth(&node, depth) {
+                    if !seen.contains(&(next, depth)) {
+                        queue.push((next, depth), cmp::Reverse(dis + 1));
+                    }
+                }
+            }
+
+            for next in Dir::all().map(|dir| (node.shift(dir), depth)) {
+                if seen.contains(&next) {
+                    continue;
+                }
+
+                match self.grid.get(&next.0) {
+                | Some(Block::Tile) => (),
+                | Some(Block::Wall)
+                | None => continue,
+                }
+
+                match queue.get_priority(&next) {
+                | Some(cmp::Reverse(old)) if *old <= dis + 1 => {
+                    continue;
+                }
+                | Some(_) => {
+                    queue.change_priority(&next, cmp::Reverse(dis + 1));
+                    continue;
+                }
+                | None => {
+                    queue.push(next, cmp::Reverse(dis + 1));
+                }
+                }
+            }
+        }
+
+        unreachable!()
+
     }
 }
 
@@ -357,4 +406,46 @@ YN......#               VT..#....QG
         assert_eq!(maze.one(), 58)
     }
 
+    #[test]
+    fn test_2_396() {
+        let maze = DonutMaze::fro(
+"             Z L X W       C                 
+             Z P Q B       K                 
+  ###########.#.#.#.#######.###############  
+  #...#.......#.#.......#.#.......#.#.#...#  
+  ###.#.#.#.#.#.#.#.###.#.#.#######.#.#.###  
+  #.#...#.#.#...#.#.#...#...#...#.#.......#  
+  #.###.#######.###.###.#.###.###.#.#######  
+  #...#.......#.#...#...#.............#...#  
+  #.#########.#######.#.#######.#######.###  
+  #...#.#    F       R I       Z    #.#.#.#  
+  #.###.#    D       E C       H    #.#.#.#  
+  #.#...#                           #...#.#  
+  #.###.#                           #.###.#  
+  #.#....OA                       WB..#.#..ZH
+  #.###.#                           #.#.#.#  
+CJ......#                           #.....#  
+  #######                           #######  
+  #.#....CK                         #......IC
+  #.###.#                           #.###.#  
+  #.....#                           #...#.#  
+  ###.###                           #.#.#.#  
+XF....#.#                         RF..#.#.#  
+  #####.#                           #######  
+  #......CJ                       NM..#...#  
+  ###.#.#                           #.###.#  
+RE....#.#                           #......RF
+  ###.###        X   X       L      #.#.#.#  
+  #.....#        F   Q       P      #.#.#.#  
+  ###.###########.###.#######.#########.###  
+  #.....#...#.....#.......#...#.....#.#...#  
+  #####.#.###.#######.#######.###.###.#.#.#  
+  #.......#.......#.#.#.#.#...#...#...#.#.#  
+  #####.###.#####.#.#.#.#.###.###.#.###.###  
+  #.......#.....#.#...#...............#...#  
+  #############.#.#.###.###################  
+               A O F   N                     
+               A A D   M                     ");
+        assert_eq!(maze.two(), 396);
+    }
 }
