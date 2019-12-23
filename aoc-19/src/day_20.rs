@@ -14,21 +14,42 @@ pub struct DonutMaze {
     end: Pos,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Default)]
+pub struct Portal {
+    inner: Pos,
+    outer: Pos,
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Portal(Pos, Pos);
+enum Orient {
+    Inner,
+    Outer,
+}
 
 impl Portal {
-    fn new(pos: Pos) -> Self {
-        Portal(pos, Pos::default())
-    }
-
-    fn set(&mut self, pos: Pos) {
-        self.1 = pos;
-    }
-
     fn get(&self, pos: &Pos) -> Pos {
-        let Portal(a, b) = self;
-        if a == pos { *b } else { *a }
+        if self.inner == *pos {
+            self.outer
+        } else {
+            self.inner
+        }
+    }
+
+    fn set(&mut self, pos: Pos, orient: Orient) {
+        match orient {
+        | Orient::Inner => { assert!(self.inner == Pos::default()); self.inner = pos },
+        | Orient::Outer => { assert!(self.outer == Pos::default()); self.outer = pos },
+        }
+    }
+
+    fn get_depth(&self, pos: &Pos, depth: usize) -> Option<(Pos, usize)> {
+        if self.inner == *pos {
+            Some((self.outer, depth + 1))
+        } else if depth > 0 {
+            Some((self.inner, depth - 1))
+        } else {
+            None
+        }
     }
 }
 
@@ -40,97 +61,129 @@ pub enum Block {
 
 impl Fro for DonutMaze {
     fn fro(input: &str) -> Self {
+        // 2D grid of characters
         let chars = input.lines()
             .map(|line| line.chars().collect::<Vec<_>>())
             .collect::<Vec<_>>();
 
         let mut grid = HashMap::new();
-        let mut portals = HashMap::new();
+        let mut portals = HashMap::<&'static str, Portal>::new();
         let mut labels = HashMap::new();
         let mut start = Pos::default();
         let mut end = Pos::default();
 
-        let portal = |i: usize, j: usize| -> Option<&'static str> {
-            if chars[i + 1][j].is_ascii_alphabetic() && chars[i + 2][j].is_ascii_alphabetic() {
-                Some(format!("{}{}", chars[i + 1][j], chars[i + 2][j]).leak())
-            } else if chars[i - 2][j].is_ascii_alphabetic() && chars[i - 1][j].is_ascii_alphabetic() {
-                Some(format!("{}{}", chars[i - 2][j], chars[i - 1][j]).leak())
-            } else if chars[i][j + 1].is_ascii_alphabetic() && chars[i][j + 2].is_ascii_alphabetic() {
-                Some(format!("{}{}", chars[i][j + 1], chars[i][j + 2]).leak())
-            } else if chars[i][j - 2].is_ascii_alphabetic() && chars[i][j - 1].is_ascii_alphabetic() {
-                Some(format!("{}{}", chars[i][j - 2], chars[i][j - 1]).leak())
-            } else {
-                None
-            }
+        // ############## |
+        // ############## | r
+        // ############## |
+        // ###       |###
+        // ###       |###
+        // ###       |###
+        // ###       |###
+        // ###     ry|###
+        // ###       |###
+        // ###       |###
+        // ###   rx  |###
+        // ###-------+###
+        // ##############
+        // ##############
+        // ##############
+        //            ---
+        //             r
+        let r = chars.iter()
+            .skip(2)
+            .position(|line| {
+                line[2..line.len() - 2]
+                    .iter()
+                    .any(|&c| c == ' ' || c.is_ascii_alphabetic())
+            })
+            .unwrap();
+
+        let rx = chars.iter()
+            .skip(2 + r)
+            .next()
+            .map(|line| {
+                line[2..line.len() - 2]
+                    .iter()
+                    .filter(|&&c| c == ' ' || c.is_ascii_alphabetic())
+                    .count()
+            })
+            .unwrap();
+
+        let ry = chars.len() - 4 - r * 2;
+
+        // Grid has 5 X-regions, 5 Y-regions:
+        //
+        // ```text
+        //   01234
+        // 0 _____
+        // 1 _###_
+        // 2 _#_#_
+        // 3 _###_
+        // 4 _____
+        // ```
+        let region = |d: usize, rd: usize| -> usize {
+            if d < 2 { 0 } else
+            if d < 2 + r { 1 } else
+            if d < 2 + r + rd { 2 } else
+            if d < 2 + r + rd + r { 3 }
+            else { 4 }
         };
 
-        for (y, (i, line)) in chars.iter()
-            .enumerate()
-            .filter(|(_, line)| line.contains(&'#'))
-            .enumerate()
-        {
+        let alpha = |x: usize, y: usize| -> Option<char> {
+            match chars[y][x] {
+            | c if c.is_ascii_alphabetic() => Some(c),
+            | _ => None,
+            }
+        };
+        for y in 2..chars.len() - 2 {
+            for x in 2..chars[y].len() - 2 {
+                let pos = Pos {
+                    x: x as i64,
+                    y: y as i64,
+                };
 
-            //  ___###___###___
-            //   0  1  2  3  4
-            let mut region = 0;
-            let mut x = -1;
-
-            for (j, c) in line.iter().enumerate() {
-
-                match (c, region) {
-                | ('#', 0) | ('.', 0) => {
-                    region = 1;
-                    x += 1;
-                }
-                | (_, 0) => continue,
-                | ('#', 1) | ('.', 1) => {
-                    x += 1;
-                }
-                | (_, 1) => {
-                    region = 2;
-                    x += 1;
-                }
-                | ('#', 2) | ('.', 2) => {
-                    region = 3;
-                    x += 1;
-                }
-                | (_, 2) => {
-                    x += 1;
-                }
-                | ('#', 3) | ('.', 3) => {
-                    x += 1;
-                }
-                | (_, 3) => {
-                    region = 4;
-                }
-                | _ => break,
+                if chars[y][x] == '#' {
+                    grid.insert(pos, Block::Wall);
+                    continue;
                 }
 
-                let pos = Pos { x, y: y as i64 };
+                if chars[y][x] != '.' {
+                    continue;
+                }
 
-                match c {
-                | '#' => { grid.insert(pos, Block::Wall); },
-                | '.' => {
-                    grid.insert(pos, Block::Tile);
-                    if let Some(label) = portal(i, j) {
-                        if label == "AA" {
-                            start = pos;
-                            continue;
-                        }
+                grid.insert(pos, Block::Tile);
 
-                        if label == "ZZ" {
-                            end = pos;
-                            continue;
-                        }
-
-                        labels.insert(pos, label);
-                        match portals.get_mut(label) {
-                        | None => { portals.insert(label, Portal::new(pos)); },
-                        | Some(portal) => portal.set(pos),
-                        }
+                if let Some((portal, orient)) = match (
+                    region(x, rx), region(y, ry),
+                    alpha(x - 2, y), alpha(x - 1, y),
+                    alpha(x + 1, y), alpha(x + 2, y),
+                    alpha(x, y - 2), alpha(x, y - 1),
+                    alpha(x, y + 1), alpha(x, y + 2),
+                ) {
+                | (1, _, Some(a), Some(b), None, None, None, None, None, None)
+                | (3, _, None, None, Some(a), Some(b), None, None, None, None)
+                | (_, 1, None, None, None, None, Some(a), Some(b), None, None)
+                | (_, 3, None, None, None, None, None, None, Some(a), Some(b)) => {
+                    Some((format!("{}{}", a, b).leak(), Orient::Outer))
+                }
+                | (3, _, Some(a), Some(b), None, None, None, None, None, None)
+                | (1, _, None, None, Some(a), Some(b), None, None, None, None)
+                | (_, 3, None, None, None, None, Some(a), Some(b), None, None)
+                | (_, 1, None, None, None, None, None, None, Some(a), Some(b)) => {
+                    Some((format!("{}{}", a, b).leak(), Orient::Inner))
+                }
+                | _ => None,
+                } {
+                    if portal == "AA" {
+                        start = pos;
+                    } else if portal == "ZZ" {
+                        end = pos;
+                    } else {
+                        labels.insert(pos, portal);
+                        portals.entry(portal)
+                            .or_default()
+                            .set(pos, orient);
                     }
-                }
-                | _ => (),
                 }
             }
         }
@@ -156,8 +209,8 @@ impl DonutMaze {
             .map(|pos| pos.y)
             .max()
             .unwrap();
-        for y in 0..max_y {
-            for x in 0..max_x {
+        for y in 0..=max_y {
+            for x in 0..=max_x {
                 let pos = Pos { x: x as i64, y: y as i64 };
                 if self.labels.contains_key(&pos) {
                     print!("*");
@@ -176,9 +229,12 @@ impl DonutMaze {
 
 impl Solution for DonutMaze {
     fn one(self) -> i64 {
+        self.plot();
 
         let mut queue = PriorityQueue::new();
         let mut seen = HashSet::new();
+
+        println!("{:?}", self.start);
 
         queue.push(self.start, cmp::Reverse(0));
 
@@ -235,71 +291,69 @@ mod tests {
 
     #[test]
     fn test_1_23() {
-        let maze = DonutMaze::fro("
-                   A           
-                   A           
-            #######.#########  
-            #######.........#  
-            #######.#######.#  
-            #######.#######.#  
-            #######.#######.#  
-            #####  B    ###.#  
-          BC...##  C    ###.#  
-            ##.##       ###.#  
-            ##...DE  F  ###.#  
-            #####    G  ###.#  
-            #########.#####.#  
-          DE..#######...###.#  
-            #.#########.###.#  
-          FG..#########.....#  
-            ###########.#####  
-                       Z       
-                       Z       
-        ");
+        let maze = DonutMaze::fro(
+"         A           
+         A           
+  #######.#########  
+  #######.........#  
+  #######.#######.#  
+  #######.#######.#  
+  #######.#######.#  
+  #####  B    ###.#  
+BC...##  C    ###.#  
+  ##.##       ###.#  
+  ##...DE  F  ###.#  
+  #####    G  ###.#  
+  #########.#####.#  
+DE..#######...###.#  
+  #.#########.###.#  
+FG..#########.....#  
+  ###########.#####  
+             Z       
+             Z       ");
         assert_eq!(maze.one(), 23)
     }
 
     #[test]
     fn test_1_58() {
-        let maze = DonutMaze::fro("
-                               A               
-                               A               
-              #################.#############  
-              #.#...#...................#.#.#  
-              #.#.#.###.###.###.#########.#.#  
-              #.#.#.......#...#.....#.#.#...#  
-              #.#########.###.#####.#.#.###.#  
-              #.............#.#.....#.......#  
-              ###.###########.###.#####.#.#.#  
-              #.....#        A   C    #.#.#.#  
-              #######        S   P    #####.#  
-              #.#...#                 #......VT
-              #.#.#.#                 #.#####  
-              #...#.#               YN....#.#  
-              #.###.#                 #####.#  
-            DI....#.#                 #.....#  
-              #####.#                 #.###.#  
-            ZZ......#               QG....#..AS
-              ###.###                 #######  
-            JO..#.#.#                 #.....#  
-              #.#.#.#                 ###.#.#  
-              #...#..DI             BU....#..LF
-              #####.#                 #.#####  
-            YN......#               VT..#....QG
-              #.###.#                 #.###.#  
-              #.#...#                 #.....#  
-              ###.###    J L     J    #.#.###  
-              #.....#    O F     P    #.#...#  
-              #.###.#####.#.#####.#####.###.#  
-              #...#.#.#...#.....#.....#.#...#  
-              #.#####.###.###.#.#.#########.#  
-              #...#.#.....#...#.#.#.#.....#.#  
-              #.###.#####.###.###.#.#.#######  
-              #.#.........#...#.............#  
-              #########.###.###.#############  
-                       B   J   C               
-                       U   P   P               
-        ");
+        let maze = DonutMaze::fro(
+"                   A               
+                   A               
+  #################.#############  
+  #.#...#...................#.#.#  
+  #.#.#.###.###.###.#########.#.#  
+  #.#.#.......#...#.....#.#.#...#  
+  #.#########.###.#####.#.#.###.#  
+  #.............#.#.....#.......#  
+  ###.###########.###.#####.#.#.#  
+  #.....#        A   C    #.#.#.#  
+  #######        S   P    #####.#  
+  #.#...#                 #......VT
+  #.#.#.#                 #.#####  
+  #...#.#               YN....#.#  
+  #.###.#                 #####.#  
+DI....#.#                 #.....#  
+  #####.#                 #.###.#  
+ZZ......#               QG....#..AS
+  ###.###                 #######  
+JO..#.#.#                 #.....#  
+  #.#.#.#                 ###.#.#  
+  #...#..DI             BU....#..LF
+  #####.#                 #.#####  
+YN......#               VT..#....QG
+  #.###.#                 #.###.#  
+  #.#...#                 #.....#  
+  ###.###    J L     J    #.#.###  
+  #.....#    O F     P    #.#...#  
+  #.###.#####.#.#####.#####.###.#  
+  #...#.#.#...#.....#.....#.#...#  
+  #.#####.###.###.#.#.#########.#  
+  #...#.#.....#...#.#.#.#.....#.#  
+  #.###.#####.###.###.#.#.#######  
+  #.#.........#...#.............#  
+  #########.###.###.#############  
+           B   J   C               
+           U   P   P               ");
         assert_eq!(maze.one(), 58)
     }
 
