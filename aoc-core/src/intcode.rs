@@ -66,7 +66,6 @@ impl Program {
             | Yield::Output(_) => panic!("Output step while running input"),
             }
         }
-    
     }
 
     pub fn output(&mut self) -> Option<i64> {
