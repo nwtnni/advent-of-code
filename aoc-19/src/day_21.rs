@@ -66,7 +66,33 @@ impl Solution for SpringdroidAdventure {
     }
 
     fn two(mut self) -> i64 {
-        unimplemented!()
+        let input = [
+            // Hole at A, B, or C
+            "NOT A T",
+            "NOT B J",
+            "OR T J",
+            "NOT C T",
+            "OR T J",
+
+            // Future opportunity at E -> F or E -> I
+            "NOT I T",
+            "NOT T T",
+            "OR F T",
+            "AND E T",
+
+            // Future opportunity at D -> H
+            "OR H T",
+
+            "AND T J",
+
+            // Ground at D
+            "AND D J",
+
+            "RUN",
+        ].iter()
+            .copied()
+            .flat_map(ascii);
+        self.run(input)
     }
 }
 
