@@ -25,6 +25,16 @@ pub enum Error {
     InvalidDigit(String),
 }
 
+#[macro_export]
+macro_rules! pos {
+    ($x:expr, $y:expr) => {
+        Pos {
+            x: $x,
+            y: $y,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Pos {
     pub x: i64,
@@ -34,8 +44,8 @@ pub struct Pos {
 impl Pos {
     pub fn shift(&self, dir: Dir) -> Self {
         match dir {
-        | Dir::N => Pos { x: self.x, y: self.y + 1 },
-        | Dir::S => Pos { x: self.x, y: self.y - 1 },
+        | Dir::N => Pos { x: self.x, y: self.y - 1 },
+        | Dir::S => Pos { x: self.x, y: self.y + 1 },
         | Dir::E => Pos { x: self.x + 1, y: self.y },
         | Dir::W => Pos { x: self.x - 1, y: self.y },
         }
@@ -151,4 +161,17 @@ pub enum Part {
 pub enum Or<L, R> {
     L(L),
     R(R),
+}
+
+impl<L, R, T> Iterator for Or<L, R>
+where L: Iterator<Item = T>,
+      R: Iterator<Item = T>,
+{
+    type Item = T;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+        | Or::L(l) => l.next(),
+        | Or::R(r) => r.next(),
+        }
+    }
 }
