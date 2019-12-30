@@ -69,7 +69,7 @@ impl Solution for PlanetOfDiscord {
         for y in 0..5 {
             for x in 0..5 {
                 if self.prev.contains(&Pos { x, y }) {
-                    sum += pow;
+                    sum |= pow;
                 }
                 pow <<= 1;
             }
