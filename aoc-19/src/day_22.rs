@@ -97,8 +97,32 @@ impl Solution for SlamShuffle {
     }
 
     fn two(self) -> i64 {
-        const _M: i64 = 119315717514047;
-        const _S: i64 = 101741582076661;
-        todo!()
+        const M: i64 = 119315717514047;
+        const S: i64 = 101741582076661;
+
+        let mut double = self.0
+            .into_iter()
+            .fold(Shuffle::default(), |acc, shuffle| acc.compose(shuffle, M));
+
+        let mut total = Shuffle::default();
+
+        let mut mask = 0b1;
+        while mask <= S {
+            if S & mask > 0 {
+                total = total.compose(double, M);
+            }
+            double = double.compose(double, M);
+            mask <<= 1;
+        }
+
+        use std::ops::Mul;
+        use std::ops::Sub;
+
+        // ax + b = c
+        // (c - b) * a^-1 = x
+        2020.sub(total.b)
+            .rem_euclid(M) 
+            .mul(mod_inv(total.a, M))
+            .rem_euclid(M)
     }
 }
