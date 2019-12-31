@@ -21,6 +21,27 @@ pub fn gcd(mut a: i64, mut b: i64) -> i64 {
     a
 }
 
+// See https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
+pub fn mod_inv(a: i64, b: i64) -> i64 {
+    let mut i = true;
+    let mut r = [a, b];
+    let mut s = [1i64, 0i64];
+
+    macro_rules! prev { ($arr:expr) => { $arr[(i ^ true) as usize] } }
+    macro_rules! here { ($arr:expr) => { $arr[i as usize] } }
+
+    loop {
+        let qi = prev!(r).div_euclid(here!(r));
+        let ri = prev!(r).rem_euclid(here!(r));
+        if ri == 0 {
+            return here!(s).rem_euclid(b);
+        }
+        prev!(r) = ri;
+        prev!(s) -= qi * here!(s);
+        i ^= true;
+    }
+}
+
 pub fn permute(len: u8) -> impl Iterator<Item = (usize, usize)> {
     iter::once((0, 0)).chain(Permutations::new(len))
 }
