@@ -24,6 +24,7 @@ mod day_21;
 mod day_22;
 mod day_23;
 mod day_24;
+mod day_25;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -56,6 +57,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     | Day::D22 => run!(day_22::SlamShuffle),
     | Day::D23 => run!(day_23::CategorySix),
     | Day::D24 => run!(day_24::PlanetOfDiscord),
+    | Day::D25 => run!(day_25::Cryostasis),
     | _ => unimplemented!(),
     }
 }
