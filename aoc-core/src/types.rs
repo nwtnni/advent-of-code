@@ -1,27 +1,23 @@
-use std::io;
 use std::iter;
 use std::num;
-use std::str;
 use std::ops;
 
-#[derive(Debug, failure::Fail)]
+#[derive(thiserror::Error)]
+#[derive(Clone, Debug)]
 pub enum Error {
-    #[fail(display = "invalid integer: {}", _0)]
-    InvalidInt(#[fail(cause)] num::ParseIntError),
+    #[error("invalid integer: {}", _0)]
+    InvalidInt(#[from] num::ParseIntError),
 
-    #[fail(display = "I/O error: {:?}", _0)]
-    IO(#[fail(cause)] io::Error),
-
-    #[fail(display = "invalid year: {}", _0)]
+    #[error("invalid year: {}", _0)]
     InvalidYear(String),
 
-    #[fail(display = "invalid day: {}", _0)]
+    #[error("invalid day: {}", _0)]
     InvalidDay(String),
 
-    #[fail(display = "invalid part: {}", _0)]
+    #[error("invalid part: {}", _0)]
     InvalidPart(String),
 
-    #[fail(display = "invalid digit: {}", _0)]
+    #[error("invalid digit: {}", _0)]
     InvalidDigit(String),
 }
 
@@ -123,31 +119,31 @@ pub enum Year {
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Day {
-    D01 = 01, 
-    D02 = 02, 
-    D03 = 03, 
-    D04 = 04, 
-    D05 = 05, 
-    D06 = 06, 
-    D07 = 07, 
-    D08 = 08, 
-    D09 = 09, 
-    D10 = 10, 
-    D11 = 11, 
-    D12 = 12, 
-    D13 = 13, 
-    D14 = 14, 
-    D15 = 15, 
-    D16 = 16, 
-    D17 = 17, 
-    D18 = 18, 
-    D19 = 19, 
-    D20 = 20, 
-    D21 = 21, 
-    D22 = 22, 
-    D23 = 23, 
-    D24 = 24, 
-    D25 = 25, 
+    D01 = 01,
+    D02 = 02,
+    D03 = 03,
+    D04 = 04,
+    D05 = 05,
+    D06 = 06,
+    D07 = 07,
+    D08 = 08,
+    D09 = 09,
+    D10 = 10,
+    D11 = 11,
+    D12 = 12,
+    D13 = 13,
+    D14 = 14,
+    D15 = 15,
+    D16 = 16,
+    D17 = 17,
+    D18 = 18,
+    D19 = 19,
+    D20 = 20,
+    D21 = 21,
+    D22 = 22,
+    D23 = 23,
+    D24 = 24,
+    D25 = 25,
 }
 
 #[repr(u8)]
