@@ -7,8 +7,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-structopt = "0.3.1"
+anyhow = "1.0"
 aoc-core = { path = "../aoc-core" }
 aoc-15 = { path = "../aoc-15" }
 aoc-17 = { path = "../aoc-17" }
 aoc-19 = { path = "../aoc-19" }
+json = { version = "1.0", package = "serde_json" }
+reqwest = { version = "0.10", features = ["blocking"] }
+serde = { version = "1.0", features = ["derive"] }
+structopt = "0.3"
