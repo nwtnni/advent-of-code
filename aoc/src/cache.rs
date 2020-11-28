@@ -133,7 +133,7 @@ impl Cache {
         | Some(submitted) => submitted
             .trim()
             .split_whitespace()
-            .map(|submission| submission.parse::<i64>())
+            .map(|answer| answer.parse::<i64>())
             .collect::<Result<Vec<_>, _>>()
             .map_err(anyhow::Error::from),
         }
@@ -145,7 +145,7 @@ impl Cache {
         year: aoc_core::Year,
         day: aoc_core::Day,
         part: aoc_core::Part,
-        submission: i64,
+        answer: i64,
     ) -> anyhow::Result<()> {
         let path = self
             .0
@@ -155,7 +155,7 @@ impl Cache {
             .join(day.to_static_str())
             .join(part.to_static_str());
 
-        self.write(&path, "submitted", Some(&submission.to_string()), Mode::Append)
+        self.write(&path, "submitted", Some(&answer.to_string()), Mode::Append)
     }
 
     fn read(

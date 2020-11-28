@@ -10,8 +10,9 @@ static CORRECT: &str = "TODO";
 static INCORRECT: &str = "That's not the right answer.";
 
 pub struct Client {
-    _cache: cache::Cache,
+    cache: cache::Cache,
     inner: blocking::Client,
+    token: String,
 }
 
 #[derive(serde::Serialize)]
@@ -23,39 +24,51 @@ struct Submission {
 }
 
 impl Client {
-    pub fn new(token: Option<&str>) -> anyhow::Result<Self> {
+    pub fn new(token: String) -> anyhow::Result<Self> {
         let mut headers = header::HeaderMap::new();
 
-        if let Some(token) = token {
-            headers.insert(
-                header::COOKIE,
-                header::HeaderValue::from_str(&format!("session={}", token))?,
-            );
-        }
+        headers.insert(
+            header::COOKIE,
+            header::HeaderValue::from_str(&format!("session={}", token))?,
+        );
 
         Ok(Client {
-            _cache: cache::Cache::new()?,
+            cache: cache::Cache::new()?,
             inner: blocking::ClientBuilder::new()
                 .user_agent("aoc 0.1.0 (nwtnni@gmail.com) (https://github.com/nwtnni/advent-of-code)")
                 .default_headers(headers)
                 .build()?,
+            token,
         })
     }
 
     pub fn description(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<String> {
-        self.inner
+        if let Some(description) = self.cache.description(year, day)? {
+            return Ok(description);
+        }
+
+        // TODO: parse HTML to Markdown
+        let description = self.inner
             .get(&format!("{}/{}/{}", ROOT, year, day))
             .send()?
-            .text()
-            .map(Result::Ok)?
+            .text()?;
+
+        self.cache.set_description(year, day, &description)?;
+        Ok(description)
     }
 
     pub fn input(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<String> {
-        self.inner
+        if let Some(input) = self.cache.description(year, day)? {
+            return Ok(input);
+        }
+
+        let input = self.inner
             .get(&format!("{}/{}/{}/input", ROOT, year, day))
             .send()?
-            .text()
-            .map(Result::Ok)?
+            .text()?;
+
+        self.cache.set_input(&self.token, year, day, &input)?;
+        Ok(input)
     }
 
     pub fn submit(
@@ -65,7 +78,16 @@ impl Client {
         part: aoc_core::Part,
         answer: i64,
     ) -> anyhow::Result<bool> {
-        self.inner
+        let completed = self.cache.completed(&self.token, year, day, part);
+        let submitted = self.cache.submitted(&self.token, year, day, part)?;
+
+        match submitted.last() {
+        | Some(last) if completed && answer == *last => return Ok(true),
+        | _ if submitted.contains(&answer) => return Ok(false),
+        | _ => (),
+        }
+
+        let correct = self.inner
             .post(&format!("{}/{}/{}/answer", ROOT, year, day))
             .form(&Submission { part, answer })
             .send()?
@@ -79,6 +101,12 @@ impl Client {
                 } else {
                     Err(anyhow!("[INTERNAL ERROR]: outdated answer patterns"))
                 }
-            })
+            })?;
+
+        self.cache.append_submitted(&self.token, year, day, part, answer)?;
+        if correct {
+            self.cache.set_completed(&self.token, year, day, part)?;
+        }
+        Ok(correct)
     }
 }
