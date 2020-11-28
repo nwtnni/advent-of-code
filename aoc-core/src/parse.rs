@@ -1,3 +1,4 @@
+use std::fmt;
 use std::str;
 
 use crate::*;
@@ -84,6 +85,12 @@ impl From<Digit> for char {
     }
 }
 
+impl fmt::Display for Digit {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", char::from(*self))
+    }
+}
+
 impl str::FromStr for Year {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -95,6 +102,19 @@ impl str::FromStr for Year {
         | 19 => Ok(Y19),
         | _ => Err(Error::InvalidYear(s.to_string())),
         }
+    }
+}
+
+impl fmt::Display for Year {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        use Year::*;
+        let year = match self {
+        | Y15 => "2015",
+        | Y17 => "2017",
+        | Y18 => "2018",
+        | Y19 => "2019",
+        };
+        write!(fmt, "{}", year)
     }
 }
 
@@ -130,6 +150,40 @@ impl str::FromStr for Day {
         | 25 => Ok(D25),
         | _ => Err(Error::InvalidDay(s.to_string())),
         }
+    }
+}
+
+impl fmt::Display for Day {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        use Day::*;
+        let day = match self {
+        | D01 => "1",
+        | D02 => "2",
+        | D03 => "3",
+        | D04 => "4",
+        | D05 => "5",
+        | D06 => "6",
+        | D07 => "7",
+        | D08 => "8",
+        | D09 => "9",
+        | D10 => "10",
+        | D11 => "11",
+        | D12 => "12",
+        | D13 => "13",
+        | D14 => "14",
+        | D15 => "15",
+        | D16 => "16",
+        | D17 => "17",
+        | D18 => "18",
+        | D19 => "19",
+        | D20 => "20",
+        | D21 => "21",
+        | D22 => "22",
+        | D23 => "23",
+        | D24 => "24",
+        | D25 => "25",
+        };
+        write!(fmt, "{}", day)
     }
 }
 

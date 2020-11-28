@@ -31,6 +31,7 @@ macro_rules! pos {
     }
 }
 
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Pos {
     pub x: i64,
@@ -53,6 +54,7 @@ impl Pos {
 }
 
 #[repr(u8)]
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Dir { N, S, W, E }
 
@@ -93,6 +95,7 @@ impl ops::Neg for &Dir {
 }
 
 #[repr(u8)]
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Digit {
     D0 = 0,
@@ -108,6 +111,7 @@ pub enum Digit {
 }
 
 #[repr(u8)]
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Year {
     Y15 = 15,
@@ -117,6 +121,7 @@ pub enum Year {
 }
 
 #[repr(u8)]
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Day {
     D01 = 01,
@@ -147,12 +152,14 @@ pub enum Day {
 }
 
 #[repr(u8)]
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Part {
     P01 = 1,
     P02 = 2,
 }
 
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Or<L, R> {
     L(L),
