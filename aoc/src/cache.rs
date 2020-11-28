@@ -1,5 +1,6 @@
 use std::fs;
 use std::io;
+use std::io::Write as _;
 use std::path;
 
 use anyhow::anyhow;
@@ -7,6 +8,12 @@ use anyhow::Context as _;
 
 #[derive(Debug)]
 pub struct Cache(dirs::ProjectDirs);
+
+#[derive(Copy, Clone, PartialEq, Eq)]
+enum Mode {
+    Append,
+    Replace,
+}
 
 impl Cache {
     pub fn new() -> anyhow::Result<Self> {
@@ -16,24 +23,26 @@ impl Cache {
     }
 
     pub fn description(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<Option<String>> {
-        let dir = self
+        let path = self
             .0
             .cache_dir()
             .join(year.to_static_str())
-            .join(day.to_static_str());
+            .join(day.to_static_str())
+            .join("description");
 
-        self.read(&dir, "description")
+        self.read(&path)
     }
 
     pub fn input(&self, token: &str, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<Option<String>> {
-        let dir = self
+        let path = self
             .0
             .cache_dir()
             .join(token)
             .join(year.to_static_str())
-            .join(day.to_static_str());
+            .join(day.to_static_str())
+            .join("input");
 
-        self.read(&dir, "input")
+        self.read(&path)
     }
 
     pub fn completed(
@@ -60,15 +69,16 @@ impl Cache {
         day: aoc_core::Day,
         part: aoc_core::Part,
     ) -> anyhow::Result<Vec<i64>> {
-        let dir = self
+        let path = self
             .0
             .cache_dir()
             .join(token)
             .join(year.to_static_str())
             .join(day.to_static_str())
-            .join(part.to_static_str());
+            .join(part.to_static_str())
+            .join("submitted");
 
-        match self.read(&dir, "submitted")? {
+        match self.read(&path)? {
         | None => Ok(Vec::new()),
         | Some(submitted) => submitted
             .trim()
@@ -81,16 +91,42 @@ impl Cache {
 
     fn read(
         &self,
-        dir: &path::Path,
-        file: &'static str,
+        path: &path::Path,
     ) -> anyhow::Result<Option<String>> {
-        fs::create_dir_all(&dir)
-            .with_context(|| anyhow!("Could not create directory: {}", dir.display()))?;
-
-        match fs::read_to_string(dir.join(file)) {
+        match fs::read_to_string(path) {
         | Ok(description) => Ok(Some(description)),
         | Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
         | Err(error) => Err(anyhow::Error::from(error))
         }
+    }
+
+    fn write(
+        &self,
+        path: &path::Path,
+        file: &'static str,
+        data: Option<&str>,
+        mode: Mode,
+    ) -> anyhow::Result<()> {
+       fs::create_dir_all(path)
+           .with_context(|| anyhow!("Could not create cache directory: {}", path.display()))?;
+
+        let mut file = fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .append({
+                match mode {
+                | Mode::Append => true,
+                | Mode::Replace => false,
+                }
+            })
+            .open(path.join(file))
+            .map(io::BufWriter::new)
+            .with_context(|| anyhow!("Could not open cache file: {}", path.display()))?;
+
+        if let Some(data) = data {
+            writeln!(&mut file, "{}", data)?;
+        }
+
+        Ok(())
     }
 }
