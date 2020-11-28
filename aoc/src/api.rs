@@ -2,12 +2,15 @@ use anyhow::anyhow;
 use reqwest::blocking;
 use reqwest::header;
 
+use crate::cache;
+
 static ROOT: &str = "https://adventofcode.com";
 
 static CORRECT: &str = "TODO";
 static INCORRECT: &str = "That's not the right answer.";
 
 pub struct Client {
+    _cache: cache::Cache,
     inner: blocking::Client,
 }
 
@@ -31,6 +34,7 @@ impl Client {
         }
 
         Ok(Client {
+            _cache: cache::Cache::new()?,
             inner: blocking::ClientBuilder::new()
                 .user_agent("aoc 0.1.0 (nwtnni@gmail.com) (https://github.com/nwtnni/advent-of-code)")
                 .default_headers(headers)
