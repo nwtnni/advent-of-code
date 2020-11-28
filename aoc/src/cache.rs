@@ -33,6 +33,21 @@ impl Cache {
         self.read(&path)
     }
 
+    pub fn set_description(
+        &self,
+        year: aoc_core::Year,
+        day: aoc_core::Day,
+        description: &str,
+    ) -> anyhow::Result<()> {
+        let path = self
+            .0
+            .cache_dir()
+            .join(year.to_static_str())
+            .join(day.to_static_str());
+
+        self.write(&path, "description", Some(description), Mode::Replace)
+    }
+
     pub fn input(&self, token: &str, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<Option<String>> {
         let path = self
             .0
@@ -43,6 +58,23 @@ impl Cache {
             .join("input");
 
         self.read(&path)
+    }
+
+    pub fn set_input(
+        &self,
+        token: &str,
+        year: aoc_core::Year,
+        day: aoc_core::Day,
+        input: &str,
+    ) -> anyhow::Result<()> {
+        let path = self
+            .0
+            .cache_dir()
+            .join(token)
+            .join(year.to_static_str())
+            .join(day.to_static_str());
+
+        self.write(&path, "input", Some(input), Mode::Replace)
     }
 
     pub fn completed(
@@ -60,6 +92,24 @@ impl Cache {
             .join(part.to_static_str())
             .join("completed")
             .exists()
+    }
+
+    pub fn set_completed(
+        &self,
+        token: &str,
+        year: aoc_core::Year,
+        day: aoc_core::Day,
+        part: aoc_core::Part,
+    ) -> anyhow::Result<()> {
+        let path = self
+            .0
+            .cache_dir()
+            .join(token)
+            .join(year.to_static_str())
+            .join(day.to_static_str())
+            .join(part.to_static_str());
+
+        self.write(&path, "completed", None, Mode::Replace)
     }
 
     pub fn submitted(
@@ -87,6 +137,25 @@ impl Cache {
             .collect::<Result<Vec<_>, _>>()
             .map_err(anyhow::Error::from),
         }
+    }
+
+    pub fn append_submitted(
+        &self,
+        token: &str,
+        year: aoc_core::Year,
+        day: aoc_core::Day,
+        part: aoc_core::Part,
+        submission: i64,
+    ) -> anyhow::Result<()> {
+        let path = self
+            .0
+            .cache_dir()
+            .join(token)
+            .join(year.to_static_str())
+            .join(day.to_static_str())
+            .join(part.to_static_str());
+
+        self.write(&path, "submitted", Some(&submission.to_string()), Mode::Append)
     }
 
     fn read(
