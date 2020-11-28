@@ -98,56 +98,93 @@ impl ops::Neg for &Dir {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Digit {
+    #[serde(rename = "0")]
     D0 = 0,
+    #[serde(rename = "1")]
     D1 = 1,
+    #[serde(rename = "2")]
     D2 = 2,
+    #[serde(rename = "3")]
     D3 = 3,
+    #[serde(rename = "4")]
     D4 = 4,
+    #[serde(rename = "5")]
     D5 = 5,
+    #[serde(rename = "6")]
     D6 = 6,
+    #[serde(rename = "7")]
     D7 = 7,
+    #[serde(rename = "8")]
     D8 = 8,
+    #[serde(rename = "9")]
     D9 = 9,
 }
 
-#[repr(u8)]
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Year {
-    Y15 = 15,
-    Y17 = 17,
-    Y18 = 18,
-    Y19 = 19,
+    #[serde(rename = "2015")]
+    Y15,
+    #[serde(rename = "2017")]
+    Y17,
+    #[serde(rename = "2018")]
+    Y18,
+    #[serde(rename = "2019")]
+    Y19,
 }
 
-#[repr(u8)]
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Day {
+    #[serde(rename = "1")]
     D01 = 01,
+    #[serde(rename = "2")]
     D02 = 02,
+    #[serde(rename = "3")]
     D03 = 03,
+    #[serde(rename = "4")]
     D04 = 04,
+    #[serde(rename = "5")]
     D05 = 05,
+    #[serde(rename = "6")]
     D06 = 06,
+    #[serde(rename = "7")]
     D07 = 07,
+    #[serde(rename = "8")]
     D08 = 08,
+    #[serde(rename = "9")]
     D09 = 09,
+    #[serde(rename = "10")]
     D10 = 10,
+    #[serde(rename = "11")]
     D11 = 11,
+    #[serde(rename = "12")]
     D12 = 12,
+    #[serde(rename = "13")]
     D13 = 13,
+    #[serde(rename = "14")]
     D14 = 14,
+    #[serde(rename = "15")]
     D15 = 15,
+    #[serde(rename = "16")]
     D16 = 16,
+    #[serde(rename = "17")]
     D17 = 17,
+    #[serde(rename = "18")]
     D18 = 18,
+    #[serde(rename = "19")]
     D19 = 19,
+    #[serde(rename = "20")]
     D20 = 20,
+    #[serde(rename = "21")]
     D21 = 21,
+    #[serde(rename = "22")]
     D22 = 22,
+    #[serde(rename = "23")]
     D23 = 23,
+    #[serde(rename = "24")]
     D24 = 24,
+    #[serde(rename = "25")]
     D25 = 25,
 }
 
@@ -155,7 +192,9 @@ pub enum Day {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Part {
+    #[serde(rename = "1")]
     P01 = 1,
+    #[serde(rename = "2")]
     P02 = 2,
 }
 
