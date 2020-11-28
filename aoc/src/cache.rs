@@ -42,21 +42,15 @@ impl Cache {
         year: aoc_core::Year,
         day: aoc_core::Day,
         part: aoc_core::Part,
-    ) -> anyhow::Result<Option<bool>> {
-        let dir = self
-            .0
+    ) -> bool {
+        self.0
             .cache_dir()
             .join(token)
             .join(year.to_static_str())
             .join(day.to_static_str())
-            .join(part.to_static_str());
-
-        match self.read(&dir, "completed")?.as_deref() {
-        | Some("true") => Ok(Some(true)),
-        | Some("false") => Ok(Some(false)),
-        | Some(unknown) => Err(anyhow!("[INTERNAL ERROR]: unknown value for `completed`: '{}'", unknown)),
-        | None => Ok(None),
-        }
+            .join(part.to_static_str())
+            .join("completed")
+            .exists()
     }
 
     pub fn submitted(
@@ -75,7 +69,7 @@ impl Cache {
             .join(part.to_static_str());
 
         match self.read(&dir, "submitted")? {
-        | None => return Ok(Vec::new()),
+        | None => Ok(Vec::new()),
         | Some(submitted) => submitted
             .trim()
             .split_whitespace()
