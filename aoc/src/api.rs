@@ -49,7 +49,7 @@ impl Client {
 
         // TODO: parse HTML to Markdown
         let description = self.inner
-            .get(&format!("{}/{}/{}", ROOT, year, day))
+            .get(&format!("{}/{}/day/{}", ROOT, year, day))
             .send()?
             .text()?;
 
@@ -63,7 +63,7 @@ impl Client {
         }
 
         let input = self.inner
-            .get(&format!("{}/{}/{}/input", ROOT, year, day))
+            .get(&format!("{}/{}/day/{}/input", ROOT, year, day))
             .send()?
             .text()?;
 
@@ -88,7 +88,7 @@ impl Client {
         }
 
         let correct = self.inner
-            .post(&format!("{}/{}/{}/answer", ROOT, year, day))
+            .post(&format!("{}/{}/day/{}/answer", ROOT, year, day))
             .form(&Submission { part, answer })
             .send()?
             .text()
