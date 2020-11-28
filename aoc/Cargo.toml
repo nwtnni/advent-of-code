@@ -12,6 +12,7 @@ aoc-core = { path = "../aoc-core" }
 aoc-15 = { path = "../aoc-15" }
 aoc-17 = { path = "../aoc-17" }
 aoc-19 = { path = "../aoc-19" }
+dirs = { version = "2.0", package = "directories-next" }
 json = { version = "1.0", package = "serde_json" }
 reqwest = { version = "0.10", features = ["blocking"] }
 serde = { version = "1.0", features = ["derive"] }

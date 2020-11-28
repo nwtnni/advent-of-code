@@ -65,6 +65,22 @@ impl Digit {
     pub fn from_int_unchecked(i: i64) -> Self {
         Self::from_int(i).unwrap()
     }
+
+    pub fn to_static_str(&self) -> &'static str {
+        use Digit::*;
+        match self {
+        | D0 => "0",
+        | D1 => "1",
+        | D2 => "2",
+        | D3 => "3",
+        | D4 => "4",
+        | D5 => "5",
+        | D6 => "6",
+        | D7 => "7",
+        | D8 => "8",
+        | D9 => "9",
+        }
+    }
 }
 
 impl From<Digit> for char {
@@ -107,14 +123,19 @@ impl str::FromStr for Year {
 
 impl fmt::Display for Year {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.to_static_str())
+    }
+}
+
+impl Year {
+    pub fn to_static_str(&self) -> &'static str {
         use Year::*;
-        let year = match self {
+        match self {
         | Y15 => "2015",
         | Y17 => "2017",
         | Y18 => "2018",
         | Y19 => "2019",
-        };
-        write!(fmt, "{}", year)
+        }
     }
 }
 
@@ -155,8 +176,14 @@ impl str::FromStr for Day {
 
 impl fmt::Display for Day {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.to_static_str())
+    }
+}
+
+impl Day {
+    pub fn to_static_str(&self) -> &'static str {
         use Day::*;
-        let day = match self {
+        match self {
         | D01 => "1",
         | D02 => "2",
         | D03 => "3",
@@ -182,8 +209,7 @@ impl fmt::Display for Day {
         | D23 => "23",
         | D24 => "24",
         | D25 => "25",
-        };
-        write!(fmt, "{}", day)
+        }
     }
 }
 
@@ -195,6 +221,16 @@ impl str::FromStr for Part {
         | 1 => Ok(P01),
         | 2 => Ok(P02),
         | _ => Err(Error::InvalidPart(s.to_string())),
+        }
+    }
+}
+
+impl Part {
+    pub fn to_static_str(&self) -> &'static str {
+        use Part::*;
+        match self {
+        | P01 => "1",
+        | P02 => "2",
         }
     }
 }
