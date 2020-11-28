@@ -83,7 +83,7 @@ impl Client {
 
         match submitted.last() {
         | Some(last) if completed && answer == *last => return Ok(true),
-        | _ if submitted.contains(&answer) => return Ok(false),
+        | _ if completed || submitted.contains(&answer) => return Ok(false),
         | _ => (),
         }
 
