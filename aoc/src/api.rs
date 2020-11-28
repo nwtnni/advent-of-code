@@ -8,6 +8,7 @@ static ROOT: &str = "https://adventofcode.com";
 
 static CORRECT: &str = "TODO";
 static INCORRECT: &str = "That's not the right answer.";
+static COMPLETED: &str = "You don't seem to be solving the right level.";
 
 pub struct Client {
     cache: cache::Cache,
@@ -98,6 +99,8 @@ impl Client {
                     Ok(false)
                 } else if text.contains(CORRECT) {
                     Ok(true)
+                } else if text.contains(COMPLETED) {
+                    Err(anyhow!("[USAGE ERROR]: puzzle has already been solved"))
                 } else {
                     Err(anyhow!("[INTERNAL ERROR]: outdated answer patterns"))
                 }
