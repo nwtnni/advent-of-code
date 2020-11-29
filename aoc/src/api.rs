@@ -6,7 +6,7 @@ use crate::cache;
 
 static ROOT: &str = "https://adventofcode.com";
 
-static CORRECT: &str = "TODO";
+static CORRECT: &str = "That's the right answer!";
 static INCORRECT: &str = "That's not the right answer.";
 static COMPLETED: &str = "You don't seem to be solving the right level.";
 
@@ -102,7 +102,7 @@ impl Client {
                 } else if text.contains(COMPLETED) {
                     Err(anyhow!("[USAGE ERROR]: puzzle has already been solved"))
                 } else {
-                    Err(anyhow!("[INTERNAL ERROR]: outdated answer patterns"))
+                    Err(anyhow!("[INTERNAL ERROR]: unexpected response: {}", text))
                 }
             })?;
 
