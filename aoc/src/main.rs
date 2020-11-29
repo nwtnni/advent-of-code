@@ -8,10 +8,17 @@ use structopt::StructOpt;
 #[derive(Clone, Debug, StructOpt)]
 #[structopt(name = "aoc", about = "Advent of Code CLI utility")]
 struct Opt {
+    /// Advent of Code account name
+    ///
+    /// This is an arbitrary string used to associate the input and submission
+    /// caches for a single user across different session tokens.
+    #[structopt(short, long, env = "AOC_ACCOUNT")]
+    account: String,
+
     /// Advent of Code session token
     ///
     /// https://github.com/wimglenn/advent-of-code-wim/issues/1
-    #[structopt(long = "session-token", env = "SESSION_TOKEN")]
+    #[structopt(short, long = "session-token", env = "AOC_SESSION_TOKEN")]
     token: String,
 
     #[structopt(short = "y", long = "year")]
@@ -40,51 +47,45 @@ enum Command {
         input: Option<path::PathBuf>,
     },
 
-    /// Solve puzzle and submit solution
+    /// Solve puzzle and submit solution to Advent of Code server
     Submit {
         input: Option<path::PathBuf>,
     },
 }
 
 pub fn main() -> anyhow::Result<()> {
-    match Opt::from_args() {
-    | Opt { part: None, command: Command::Solve { .. }, .. } => {
+
+    let Opt { account, token, year, day, part, command } = Opt::from_args();
+    let cache = aoc::cache::Cache::new(account)?;
+    let client = aoc::api::Client::new(cache, &token)?;
+
+    match (command, part) {
+    | (Command::Solve { .. }, None) => {
         return Err(anyhow!("[USAGE ERROR]: subcommand `solve` requires flag `--part`"));
     }
-    | Opt { part: None, command: Command::Submit { .. }, .. } => {
+    | (Command::Submit { .. }, None)=> {
         return Err(anyhow!("[USAGE ERROR]: subcommand `submit` requires flag `--part`"));
     }
 
-    | Opt { token, year, day, part: Some(part), command: Command::Description } => {
-        let client = aoc::api::Client::new(token)?;
-        let description = client.description(year, day, part)?;
-        println!("{}", description);
+    | (Command::Description, Some(part)) => {
+        println!("{}", client.description(year, day, part)?);
     }
-    | Opt { token, year, day, part: None, command: Command::Description } => {
-        let client = aoc::api::Client::new(token)?;
-        let part_one = client.description(year, day, aoc_core::Part::P01)?;
-        println!("{}", part_one);
-        let part_two = client.description(year, day, aoc_core::Part::P02)?;
-        println!("{}", part_two);
+    | (Command::Description, None) => {
+        println!("{}", client.description(year, day, aoc_core::Part::P01)?);
+        println!("{}", client.description(year, day, aoc_core::Part::P02)?);
     }
-    | Opt { token, year, day, command: Command::Input, .. } => {
-        let client = aoc::api::Client::new(token)?;
-        let input = client.input(year, day)?;
-        println!("{}", input);
+    | (Command::Input, _) => {
+        println!("{}", client.input(year, day)?);
     }
-    | Opt { token, year, day, part: Some(part), command: Command::Solve { input } } => {
+    | (Command::Solve { input }, Some(part)) => {
         let input = match input {
         | Some(path) => read(&path)?,
-        | None => aoc::api::Client::new(token)?.input(year, day)?,
+        | None => client.input(year, day)?,
         };
 
-        let output = solve(year, day, part, &input);
-
-        println!("{}", output);
+        println!("{}", solve(year, day, part, &input));
     }
-    | Opt { token, year, day, part: Some(part), command: Command::Submit { input } } => {
-        let client = aoc::api::Client::new(token)?;
-
+    | (Command::Submit { input }, Some(part)) => {
         let input = match input {
         | Some(path) => read(&path)?,
         | None => client.input(year, day)?,

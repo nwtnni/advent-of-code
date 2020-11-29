@@ -7,7 +7,10 @@ use anyhow::anyhow;
 use anyhow::Context as _;
 
 #[derive(Debug)]
-pub struct Cache(dirs::ProjectDirs);
+pub struct Cache {
+    account: String,
+    project: dirs::ProjectDirs,
+}
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 enum Mode {
@@ -16,9 +19,9 @@ enum Mode {
 }
 
 impl Cache {
-    pub fn new() -> anyhow::Result<Self> {
+    pub fn new(account: String) -> anyhow::Result<Self> {
         dirs::ProjectDirs::from("", "", env!("CARGO_PKG_NAME"))
-            .map(Cache)
+            .map(|project| Cache { account, project })
             .ok_or_else(|| anyhow!("[INTERNAL ERROR]: could not retrieve a valid home directory"))
     }
 
@@ -29,7 +32,7 @@ impl Cache {
         part: aoc_core::Part,
     ) -> anyhow::Result<Option<String>> {
         let path = self
-            .0
+            .project
             .cache_dir()
             .join(year.to_static_str())
             .join(day.to_static_str())
@@ -47,7 +50,7 @@ impl Cache {
         description: &str,
     ) -> anyhow::Result<()> {
         let path = self
-            .0
+            .project
             .cache_dir()
             .join(year.to_static_str())
             .join(day.to_static_str())
@@ -56,11 +59,11 @@ impl Cache {
         self.write(&path, "description", Some(description), Mode::Replace)
     }
 
-    pub fn input(&self, token: &str, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<Option<String>> {
+    pub fn input(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<Option<String>> {
         let path = self
-            .0
+            .project
             .cache_dir()
-            .join(token)
+            .join(&self.account)
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join("input");
@@ -70,15 +73,14 @@ impl Cache {
 
     pub fn set_input(
         &self,
-        token: &str,
         year: aoc_core::Year,
         day: aoc_core::Day,
         input: &str,
     ) -> anyhow::Result<()> {
         let path = self
-            .0
+            .project
             .cache_dir()
-            .join(token)
+            .join(&self.account)
             .join(year.to_static_str())
             .join(day.to_static_str());
 
@@ -87,14 +89,13 @@ impl Cache {
 
     pub fn completed(
         &self,
-        token: &str,
         year: aoc_core::Year,
         day: aoc_core::Day,
         part: aoc_core::Part,
     ) -> bool {
-        self.0
+        self.project
             .cache_dir()
-            .join(token)
+            .join(&self.account)
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join(part.to_static_str())
@@ -104,15 +105,19 @@ impl Cache {
 
     pub fn set_completed(
         &self,
-        token: &str,
         year: aoc_core::Year,
         day: aoc_core::Day,
         part: aoc_core::Part,
+        correct: bool,
     ) -> anyhow::Result<()> {
+        if !correct {
+            return Ok(());
+        }
+
         let path = self
-            .0
+            .project
             .cache_dir()
-            .join(token)
+            .join(&self.account)
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join(part.to_static_str());
@@ -122,15 +127,14 @@ impl Cache {
 
     pub fn submitted(
         &self,
-        token: &str,
         year: aoc_core::Year,
         day: aoc_core::Day,
         part: aoc_core::Part,
     ) -> anyhow::Result<Vec<i64>> {
         let path = self
-            .0
+            .project
             .cache_dir()
-            .join(token)
+            .join(&self.account)
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join(part.to_static_str())
@@ -149,16 +153,15 @@ impl Cache {
 
     pub fn append_submitted(
         &self,
-        token: &str,
         year: aoc_core::Year,
         day: aoc_core::Day,
         part: aoc_core::Part,
         answer: i64,
     ) -> anyhow::Result<()> {
         let path = self
-            .0
+            .project
             .cache_dir()
-            .join(token)
+            .join(&self.account)
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join(part.to_static_str());

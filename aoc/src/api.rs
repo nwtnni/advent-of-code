@@ -14,7 +14,6 @@ static COMPLETED: &str = "You don't seem to be solving the right level.";
 pub struct Client {
     cache: cache::Cache,
     inner: blocking::Client,
-    token: String,
 }
 
 #[derive(serde::Serialize)]
@@ -26,7 +25,7 @@ struct Submission {
 }
 
 impl Client {
-    pub fn new(token: String) -> anyhow::Result<Self> {
+    pub fn new(cache: cache::Cache, token: &str) -> anyhow::Result<Self> {
         let mut headers = header::HeaderMap::new();
 
         headers.insert(
@@ -35,12 +34,11 @@ impl Client {
         );
 
         Ok(Client {
-            cache: cache::Cache::new()?,
+            cache,
             inner: blocking::ClientBuilder::new()
                 .user_agent("aoc 0.1.0 (nwtnni@gmail.com) (https://github.com/nwtnni/advent-of-code)")
                 .default_headers(headers)
                 .build()?,
-            token,
         })
     }
 
@@ -74,7 +72,7 @@ impl Client {
     }
 
     pub fn input(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<String> {
-        if let Some(input) = self.cache.input(&self.token, year, day)? {
+        if let Some(input) = self.cache.input(year, day)? {
             return Ok(input);
         }
 
@@ -83,7 +81,7 @@ impl Client {
             .send()?
             .text()?;
 
-        self.cache.set_input(&self.token, year, day, &input)?;
+        self.cache.set_input(year, day, &input)?;
         Ok(input)
     }
 
@@ -94,8 +92,8 @@ impl Client {
         part: aoc_core::Part,
         answer: i64,
     ) -> anyhow::Result<bool> {
-        let completed = self.cache.completed(&self.token, year, day, part);
-        let submitted = self.cache.submitted(&self.token, year, day, part)?;
+        let completed = self.cache.completed(year, day, part);
+        let submitted = self.cache.submitted(year, day, part)?;
 
         match submitted.last() {
         | Some(last) if completed && answer == *last => return Ok(true),
@@ -121,10 +119,8 @@ impl Client {
                 }
             })?;
 
-        self.cache.append_submitted(&self.token, year, day, part, answer)?;
-        if correct {
-            self.cache.set_completed(&self.token, year, day, part)?;
-        }
+        self.cache.append_submitted(year, day, part, answer)?;
+        self.cache.set_completed(year, day, part, correct)?;
         Ok(correct)
     }
 }
