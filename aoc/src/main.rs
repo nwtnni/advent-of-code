@@ -55,10 +55,17 @@ pub fn main() -> anyhow::Result<()> {
         return Err(anyhow!("[USAGE ERROR]: subcommand `submit` requires flag `--part`"));
     }
 
-    | Opt { token, year, day, command: Command::Description, .. } => {
+    | Opt { token, year, day, part: Some(part), command: Command::Description } => {
         let client = aoc::api::Client::new(token)?;
-        let description = client.description(year, day)?;
+        let description = client.description(year, day, part)?;
         println!("{}", description);
+    }
+    | Opt { token, year, day, part: None, command: Command::Description } => {
+        let client = aoc::api::Client::new(token)?;
+        let part_one = client.description(year, day, aoc_core::Part::P01)?;
+        println!("{}", part_one);
+        let part_two = client.description(year, day, aoc_core::Part::P02)?;
+        println!("{}", part_two);
     }
     | Opt { token, year, day, command: Command::Input, .. } => {
         let client = aoc::api::Client::new(token)?;

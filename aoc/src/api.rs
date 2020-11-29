@@ -3,6 +3,7 @@ use reqwest::blocking;
 use reqwest::header;
 
 use crate::cache;
+use crate::markdown;
 
 static ROOT: &str = "https://adventofcode.com";
 
@@ -43,23 +44,37 @@ impl Client {
         })
     }
 
-    pub fn description(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<String> {
-        if let Some(description) = self.cache.description(year, day)? {
+    pub fn description(
+        &self,
+        year: aoc_core::Year,
+        day: aoc_core::Day,
+        part: aoc_core::Part,
+    ) -> anyhow::Result<String> {
+        if let Some(description) = self.cache.description(year, day, part)? {
             return Ok(description);
         }
 
-        // TODO: parse HTML to Markdown
-        let description = self.inner
+        let html = self.inner
             .get(&format!("{}/{}/day/{}", ROOT, year, day))
             .send()?
-            .text()?;
+            .text()
+            .map(|text| scraper::Html::parse_document(&text))?;
 
-        self.cache.set_description(year, day, &description)?;
+        let selector = scraper::Selector::parse("article.day-desc")
+            .expect("[INTERNAL ERROR]: invalid CSS selector");
+
+        let description = html
+            .select(&selector)
+            .nth(part as usize)
+            .ok_or_else(|| anyhow!("Could not retrieve description for {}-{}-{}", year, day, part))
+            .map(markdown::from_html)?;
+
+        // self.cache.set_description(year, day, part, &description)?;
         Ok(description)
     }
 
     pub fn input(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<String> {
-        if let Some(input) = self.cache.description(year, day)? {
+        if let Some(input) = self.cache.input(&self.token, year, day)? {
             return Ok(input);
         }
 

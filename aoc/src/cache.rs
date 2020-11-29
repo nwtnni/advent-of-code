@@ -22,12 +22,18 @@ impl Cache {
             .ok_or_else(|| anyhow!("[INTERNAL ERROR]: could not retrieve a valid home directory"))
     }
 
-    pub fn description(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<Option<String>> {
+    pub fn description(
+        &self,
+        year: aoc_core::Year,
+        day: aoc_core::Day,
+        part: aoc_core::Part,
+    ) -> anyhow::Result<Option<String>> {
         let path = self
             .0
             .cache_dir()
             .join(year.to_static_str())
             .join(day.to_static_str())
+            .join(part.to_static_str())
             .join("description");
 
         self.read(&path)
@@ -37,13 +43,15 @@ impl Cache {
         &self,
         year: aoc_core::Year,
         day: aoc_core::Day,
+        part: aoc_core::Part,
         description: &str,
     ) -> anyhow::Result<()> {
         let path = self
             .0
             .cache_dir()
             .join(year.to_static_str())
-            .join(day.to_static_str());
+            .join(day.to_static_str())
+            .join(part.to_static_str());
 
         self.write(&path, "description", Some(description), Mode::Replace)
     }
