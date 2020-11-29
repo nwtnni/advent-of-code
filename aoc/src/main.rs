@@ -48,12 +48,6 @@ enum Command {
 
 pub fn main() -> anyhow::Result<()> {
     match Opt::from_args() {
-    | Opt { part: Some(_), command: Command::Description, .. } => {
-        return Err(anyhow!("[USAGE ERROR]: subcommand `description` does not use flag `--part`"));
-    }
-    | Opt { part: Some(_), command: Command::Input, .. } => {
-        return Err(anyhow!("[USAGE ERROR]: subcommand `input` does not use flag `--part`"));
-    }
     | Opt { part: None, command: Command::Solve { .. }, .. } => {
         return Err(anyhow!("[USAGE ERROR]: subcommand `solve` requires flag `--part`"));
     }
@@ -61,12 +55,12 @@ pub fn main() -> anyhow::Result<()> {
         return Err(anyhow!("[USAGE ERROR]: subcommand `submit` requires flag `--part`"));
     }
 
-    | Opt { token, year, day, part: None, command: Command::Description } => {
+    | Opt { token, year, day, command: Command::Description, .. } => {
         let client = aoc::api::Client::new(token)?;
         let description = client.description(year, day)?;
         println!("{}", description);
     }
-    | Opt { token, year, day, part: None, command: Command::Input } => {
+    | Opt { token, year, day, command: Command::Input, .. } => {
         let client = aoc::api::Client::new(token)?;
         let input = client.input(year, day)?;
         println!("{}", input);
