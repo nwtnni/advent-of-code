@@ -73,7 +73,7 @@ impl Present {
 
 #[cfg(test)]
 mod tests {
-    
+
     use super::*;
 
     #[test]

@@ -41,7 +41,7 @@ named!(parse_rect<CompleteStr, Rect>,
 
 named!(parse_claim<CompleteStr, Claim>,
     do_parse!(
-              tag_s!("#")   >>  
+              tag_s!("#")   >>
         id:   parse_usize   >>
               tag_s!(" @ ") >>
         rect: parse_rect    >>

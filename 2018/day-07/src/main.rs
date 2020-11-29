@@ -47,7 +47,7 @@ fn sort(graph: &mut DiGraphMap<Node, ()>) -> Vec<Node> {
     while !queue.is_empty() {
         let node = queue.remove(0);
         sorted.push(node);
-        graph.remove_node(node); 
+        graph.remove_node(node);
 
         let update = graph.nodes()
             .filter(|n| ready(n, graph))

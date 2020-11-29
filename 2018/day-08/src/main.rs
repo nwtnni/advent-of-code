@@ -50,13 +50,13 @@ fn parse_node<I>(stream: &mut I) -> Node
     let metadata = (0..metadata_count)
         .map(|_| parse_usize(stream))
         .collect();
-    
+
     Node { children, metadata }
 }
 
 fn main() {
     let root = parse_node(&mut INPUT.trim().split_whitespace());
-    let sum = root.sum_metadata();    
+    let sum = root.sum_metadata();
     println!("{}", sum);
     let value = root.value();
     println!("{}", value);

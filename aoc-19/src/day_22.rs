@@ -71,7 +71,7 @@ impl Shuffle {
         use std::ops::Sub;
         use std::ops::Mul;
         pos.sub(self.b)
-            .rem_euclid(modulo) 
+            .rem_euclid(modulo)
             .mul(mod_inv(self.a as i64, modulo as i64) as i128)
             .rem_euclid(modulo)
     }

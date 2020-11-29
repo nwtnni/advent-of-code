@@ -3,7 +3,7 @@ const INPUT: &'static str = include_str!("input.txt");
 const GRID_SIZE: usize = 300;
 
 fn main() {
-    
+
     let serial = INPUT.trim().parse::<isize>().unwrap();
     let mut power = vec![vec![0; GRID_SIZE]; GRID_SIZE];
 
@@ -13,7 +13,7 @@ fn main() {
             let rack_id = 10 + xi;
             let p = ((rack_id * yi) + serial) * rack_id;
             let p = if p < 100 { -5 } else { ((p % 1000) / 100) - 5 };
-            
+
             power[y][x] = p
                 + power.get(y - 1).map(|r| r[x]).unwrap_or(0)
                 + power[y].get(x - 1).unwrap_or(&0)

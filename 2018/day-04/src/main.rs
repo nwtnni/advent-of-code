@@ -36,13 +36,13 @@ named!(parse_usize<CompleteStr, usize>,
 named!(parse_time<CompleteStr, Time>,
     do_parse!(
                tag_s!("[") >>
-        year:  parse_usize >> 
+        year:  parse_usize >>
                tag_s!("-") >>
         month: parse_usize >>
                tag_s!("-") >>
-        day:   parse_usize >> 
+        day:   parse_usize >>
                tag_s!(" ") >>
-        hour:  parse_usize >> 
+        hour:  parse_usize >>
                tag_s!(":") >>
         min:   parse_usize >>
                tag_s!("]") >>
@@ -90,7 +90,7 @@ fn main() {
             guard = id;
         }
         | Event::Sleep => {
-            start = entry.time; 
+            start = entry.time;
         }
         | Event::Wake => {
             let guard_schedule = schedule

@@ -13,7 +13,7 @@ fn main() {
     let mut current = 0;
 
     for frequency in frequencies {
-        current += frequency; 
+        current += frequency;
         if seen.contains(&current) {
             break
         } else {

@@ -7,7 +7,7 @@ fn main() {
 
     for i in 0..ids.len() {
         for j in i + 1..ids.len() {
-            
+
             let differ = ids[i].chars()
                 .zip(ids[j].chars().enumerate())
                 .filter(|(a, (_, b))| a != b)

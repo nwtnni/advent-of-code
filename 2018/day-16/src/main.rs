@@ -21,7 +21,7 @@ fn flexible(threshold: usize, samples: &[(Reg, Op, Reg)]) -> usize {
         }
         flexible += if success >= threshold { 1 } else { 0 };
     }
-    flexible 
+    flexible
 }
 
 fn main() {

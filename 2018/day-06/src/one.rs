@@ -35,9 +35,9 @@ fn main() {
                 let d1 = dist(p, *p1);
                 let d2 = grid[yi][xi].0;
                 if d1 < d2 {
-                    grid[yi][xi] = (d1, Some(id)); 
+                    grid[yi][xi] = (d1, Some(id));
                 } else if d1 == d2 {
-                    grid[yi][xi].1 = None; 
+                    grid[yi][xi].1 = None;
                 }
             }
         }

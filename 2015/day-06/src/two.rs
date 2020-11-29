@@ -9,7 +9,7 @@ const INPUT: &'static str = include_str!("input.txt");
 fn main() {
 
     let mut grid = vec![vec![0isize; 1000]; 1000];
-    
+
     for insn in INPUT.trim().split('\n').map(Instruction::parse) {
         for pos in insn.start.to(insn.end) {
             grid[pos.y][pos.x] = match insn.mode {

@@ -57,7 +57,7 @@ named! {
 fn main() {
 
     let (_, (ip_reg, ops)) = program(Input(INPUT)).unwrap();
-    
+
     let mut ip = 0;
     let mut regs = [1, 0, 0, 0, 0, 0];
 

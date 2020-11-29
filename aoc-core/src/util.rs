@@ -1,7 +1,7 @@
 use std::iter;
 
 pub fn fst<A, B>((a, _): (A, B)) -> A {
-    a 
+    a
 }
 
 pub fn snd<A, B>((_, b): (A, B)) -> B {

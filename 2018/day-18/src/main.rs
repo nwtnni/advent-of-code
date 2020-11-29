@@ -91,7 +91,7 @@ fn main() {
                     | _ => (),
                     }
                 }
-                
+
                 if yard && tree { Acre::Yard } else { Acre::Open }
             }
             };
@@ -101,7 +101,7 @@ fn main() {
         std::mem::swap(&mut state, &mut next_state);
 
         if let Some(u) = seen.get(&state) {
-            break (u, t); 
+            break (u, t);
         }
 
         let rc = Rc::new(state.clone());

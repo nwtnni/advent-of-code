@@ -8,7 +8,7 @@ impl str::FromStr for PerfectlySphericalHousesInAVacuum {
     type Err = aoc::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(
-            s.chars() 
+            s.chars()
                 .map(parse_dir)
                 .collect()
         ))

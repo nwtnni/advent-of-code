@@ -21,7 +21,7 @@ fn react(mut polymer: Vec<&char>) -> usize {
 }
 
 fn main() {
-    
+
     let polymer = INPUT.trim()
         .chars()
         .collect::<Vec<_>>();

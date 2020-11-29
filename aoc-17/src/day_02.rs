@@ -4,7 +4,7 @@ use std::i64;
 
 #[derive(Debug)]
 pub struct CorruptionChecksum {
-    rows: usize, 
+    rows: usize,
     cols: usize,
     grid: Vec<i64>,
 }
@@ -25,10 +25,10 @@ impl str::FromStr for CorruptionChecksum {
             for n in line.split_whitespace() {
                 n.parse::<i64>()
                     .map_err(aoc::Error::InvalidInt)
-                    .map(|n| grid.push(n))?; 
+                    .map(|n| grid.push(n))?;
             }
         }
-        
+
         let rows = grid.len() / cols;
 
         Ok(CorruptionChecksum {

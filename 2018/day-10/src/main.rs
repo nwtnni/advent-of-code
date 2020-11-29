@@ -28,7 +28,7 @@ named!(parse_points<CompleteStr, Vec<((i64, i64), (i64, i64))>>,
     separated_list!(
         tag_s!("\n"),
         do_parse!(
-                    tag_s!("position=") >> 
+                    tag_s!("position=") >>
             position: parse_vector         >>
                     tag_s!(" velocity=") >>
             velocity: parse_vector         >>
@@ -62,7 +62,7 @@ fn main() -> Result<(), std::io::Error> {
         let (mut max_x, mut max_y) = (0, 0);
 
         for (x, y) in position.values() {
-            min_x = i64::min(*x, min_x);    
+            min_x = i64::min(*x, min_x);
             max_x = i64::max(*x, max_x);
             min_y = i64::min(*y, min_y);
             max_y = i64::max(*y, max_y);
@@ -83,7 +83,7 @@ fn main() -> Result<(), std::io::Error> {
                 write!(out, "\n")?;
             }
             std::thread::sleep(sleep);
-        } 
+        }
 
         round += 1;
         for (&i, (dx, dy)) in &velocity {

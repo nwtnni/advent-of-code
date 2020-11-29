@@ -122,17 +122,17 @@ impl Program {
     }
 
     pub fn run(self) -> Map<String, u16> {
-        let mut signals = Map::default(); 
+        let mut signals = Map::default();
         let mut current = self.0;
         let mut retain = Vec::default();
-        
+
         while !current.is_empty() {
             while let Some(stm) = current.pop() {
                 match stm.exp {
                 | Exp::Value(Value::Const(s)) => {
                     signals.insert(stm.var, s);
                 }
-                | Exp::Value(Value::Var(ref v)) 
+                | Exp::Value(Value::Var(ref v))
                     if signals.contains_key(v) => {
                     let v = signals[v];
                     signals.insert(stm.var, v);
@@ -140,7 +140,7 @@ impl Program {
                 | Exp::Binary(op, Value::Const(l), Value::Const(r)) => {
                     signals.insert(stm.var, op.eval(l, r));
                 }
-                | Exp::Binary(op, Value::Const(s), Value::Var(ref v)) 
+                | Exp::Binary(op, Value::Const(s), Value::Var(ref v))
                     if signals.contains_key(v) => {
                     let v = signals[v];
                     signals.insert(stm.var, op.eval(s, v));
