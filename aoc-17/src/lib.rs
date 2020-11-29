@@ -5,6 +5,7 @@ use aoc::Solution;
 mod day_01;
 mod day_02;
 mod day_03;
+mod day_04;
 
 pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     macro_rules! run {
@@ -16,6 +17,7 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     | aoc::Day::D01 => run!(day_01::InverseCaptcha),
     | aoc::Day::D02 => run!(day_02::CorruptionChecksum),
     | aoc::Day::D03 => run!(day_03::SpiralMemory),
+    | aoc::Day::D04 => run!(day_04::HighEntropyPassphrases),
     | _ => unimplemented!(),
     }
 }
