@@ -111,11 +111,11 @@ impl str::FromStr for Year {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use Year::*;
-        match s.parse::<u8>().map_err(Error::InvalidInt)? {
-        | 15 => Ok(Y15),
-        | 17 => Ok(Y17),
-        | 18 => Ok(Y18),
-        | 19 => Ok(Y19),
+        match s.trim().parse::<usize>().map_err(Error::InvalidInt)? {
+        | 15 | 2015 => Ok(Y15),
+        | 17 | 2017 => Ok(Y17),
+        | 18 | 2018 => Ok(Y18),
+        | 19 | 2019 => Ok(Y19),
         | _ => Err(Error::InvalidYear(s.to_string())),
         }
     }
@@ -222,6 +222,12 @@ impl str::FromStr for Part {
         | 2 => Ok(P02),
         | _ => Err(Error::InvalidPart(s.to_string())),
         }
+    }
+}
+
+impl fmt::Display for Part {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.to_static_str())
     }
 }
 
