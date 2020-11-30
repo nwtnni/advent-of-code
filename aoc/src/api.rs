@@ -71,7 +71,7 @@ impl Client {
         // https://users.rust-lang.org/t/trim-string-in-place/15809/7
         description.truncate(description.trim_end().len());
 
-        // self.cache.set_description(year, day, part, &description)?;
+        self.cache.set_description(year, day, part, &description)?;
         Ok(description)
     }
 
