@@ -10,3 +10,5 @@ Cargo.lock
 **/*.rs.bk
 
 *.tags
+description.md
+input.txt

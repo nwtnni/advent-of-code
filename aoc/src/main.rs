@@ -1,6 +1,7 @@
 use std::fs;
 use std::mem;
 use std::path;
+use std::process;
 
 use anyhow::anyhow;
 use anyhow::Context as _;
@@ -101,12 +102,13 @@ pub fn main() -> anyhow::Result<()> {
             println!("{} was correct!", output);
         } else {
             println!("{} was incorrect!", output);
+            process::exit(1);
         }
     }
     | (Command::Template, _) => {
-        let title = client
-            .description(year, day, aoc_core::Part::P01)
-            .map(title)?;
+        let description = client.description(year, day, aoc_core::Part::P01)?;
+        let input = client.input(year, day)?;
+        let title = title(&description);
 
         let root = path::PathBuf::from(format!("aoc-{}/src", &year.to_static_str()[2..]));
         let lib = root.join("lib.rs");
@@ -133,6 +135,8 @@ pub fn main() -> anyhow::Result<()> {
             out.push('\n');
         }
 
+        write(&path::Path::new("description.md"), description.as_bytes())?;
+        write(&path::Path::new("input.txt"), input.as_bytes())?;
         write(&r#mod, include_str!("template.rs").replace("$TITLE", &title).as_bytes())?;
         write(&lib, out.as_bytes())?;
     }
@@ -151,7 +155,7 @@ fn write(path: &path::Path, data: &[u8]) -> anyhow::Result<()> {
         .with_context(|| anyhow!("Could not write to file: '{}'", path.display()))
 }
 
-fn title(description: String) -> String {
+fn title(description: &str) -> String {
     description
         .chars()
         .skip_while(|char| *char != ':')
