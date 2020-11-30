@@ -1,4 +1,5 @@
 use std::fs;
+use std::mem;
 use std::path;
 
 use anyhow::anyhow;
@@ -103,13 +104,37 @@ pub fn main() -> anyhow::Result<()> {
         }
     }
     | (Command::Template, _) => {
-
         let title = client
             .description(year, day, aoc_core::Part::P01)
             .map(title)?;
 
-        println!("{}", title);
+        let root = path::PathBuf::from(format!("aoc-{}/src", &year.to_static_str()[2..]));
+        let lib = root.join("lib.rs");
+        let r#mod = root.join(format!("day_{:02}.rs", day as usize));
 
+        let r#in = read(&lib)?;
+        let mut out = String::new();
+
+        for (index, line) in r#in.trim().split('\n').enumerate() {
+            if index == ((day as usize - 1) * 1) + 2 {
+                out.push_str(&format!(
+                    "mod day_{:02};\n",
+                    day as usize,
+                ));
+            }
+            if index == ((day as usize - 1) * 2) + 10 {
+                out.push_str(&format!(
+                    "    | Day::D{day:02} => run!(day_{day:02}::{title}),\n",
+                    day = day as usize,
+                    title = title,
+                ));
+            }
+            out.push_str(line);
+            out.push('\n');
+        }
+
+        write(&r#mod, include_str!("template.rs").replace("$TITLE", &title).as_bytes())?;
+        write(&lib, out.as_bytes())?;
     }
     }
 
@@ -117,8 +142,13 @@ pub fn main() -> anyhow::Result<()> {
 }
 
 fn read(path: &path::Path) -> anyhow::Result<String> {
-    fs::read_to_string(&path)
+    fs::read_to_string(path)
         .with_context(|| anyhow!("Could not read file: '{}'", path.display()))
+}
+
+fn write(path: &path::Path, data: &[u8]) -> anyhow::Result<()> {
+    fs::write(path, data)
+        .with_context(|| anyhow!("Could not write to file: '{}'", path.display()))
 }
 
 fn title(description: String) -> String {
