@@ -1,6 +1,4 @@
-use std::str;
-
-use aoc::Solution;
+use aoc::*;
 
 mod day_01;
 mod day_02;
@@ -14,10 +12,10 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
         }
     }
     match day {
-    | aoc::Day::D01 => run!(day_01::InverseCaptcha),
-    | aoc::Day::D02 => run!(day_02::CorruptionChecksum),
-    | aoc::Day::D03 => run!(day_03::SpiralMemory),
-    | aoc::Day::D04 => run!(day_04::HighEntropyPassphrases),
+    | Day::D01 => run!(day_01::InverseCaptcha),
+    | Day::D02 => run!(day_02::CorruptionChecksum),
+    | Day::D03 => run!(day_03::SpiralMemory),
+    | Day::D04 => run!(day_04::HighEntropyPassphrases),
     | _ => unimplemented!(),
     }
 }
