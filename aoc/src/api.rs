@@ -5,7 +5,7 @@ use reqwest::header;
 use crate::cache;
 use crate::markdown;
 
-static ROOT: &str = "https://adventofcode.com";
+pub static ROOT: &str = "https://adventofcode.com";
 
 static CORRECT: &str = "That's the right answer!";
 static INCORRECT: &str = "That's not the right answer.";
@@ -56,16 +56,20 @@ impl Client {
             .get(&format!("{}/{}/day/{}", ROOT, year, day))
             .send()?
             .text()
-            .map(|text| scraper::Html::parse_document(&text))?;
+            .map(|text| scraper::Html::parse_document(dbg!(&text)))?;
 
         let selector = scraper::Selector::parse("article.day-desc")
             .expect("[INTERNAL ERROR]: invalid CSS selector");
 
-        let description = html
+        let mut description = html
             .select(&selector)
-            .nth(part as usize)
+            .nth(part as usize - 1)
             .ok_or_else(|| anyhow!("Could not retrieve description for {}-{}-{}", year, day, part))
-            .map(markdown::from_html)?;
+            .map(|html| markdown::from_html(html, year))?;
+
+        // Remove trailing whitespace
+        // https://users.rust-lang.org/t/trim-string-in-place/15809/7
+        description.truncate(description.trim_end().len());
 
         // self.cache.set_description(year, day, part, &description)?;
         Ok(description)
