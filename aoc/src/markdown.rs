@@ -41,6 +41,8 @@ pub fn from_html<'html>(
             // Handle relative links
             links.push(if href.starts_with("http") {
                 Cow::Borrowed(href)
+            } else if href.starts_with("/") {
+                Cow::Owned(format!("{}{}", api::ROOT, href))
             } else {
                 Cow::Owned(format!("{}/{}/day/{}", api::ROOT, year, href))
             });
