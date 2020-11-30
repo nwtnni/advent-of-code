@@ -56,7 +56,7 @@ impl Client {
             .get(&format!("{}/{}/day/{}", ROOT, year, day))
             .send()?
             .text()
-            .map(|text| scraper::Html::parse_document(dbg!(&text)))?;
+            .map(|text| scraper::Html::parse_document(&text))?;
 
         let selector = scraper::Selector::parse("article.day-desc")
             .expect("[INTERNAL ERROR]: invalid CSS selector");

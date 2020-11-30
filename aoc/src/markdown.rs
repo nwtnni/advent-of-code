@@ -48,10 +48,43 @@ pub fn from_html<'html>(
             format!("[{}][{}]", recurse!(), index)
         },
         | Html::Element(element) if element.name() == "article" => recurse!(),
+        | Html::Element(element) if element.name() == "br" => String::from("\n"),
         | Html::Element(element) if element.name() == "code" => format!("`{}`", recurse!()),
         | Html::Element(element) if element.name() == "em" => format!("**{}**", recurse!()),
         | Html::Element(element) if element.name() == "h2" => format!("## {}\n\n", recurse!()),
-        | Html::Element(element) if element.name() == "li" => format!("- {}\n", recurse!()),
+        | Html::Element(element) if element.name() == "li" => {
+            let item = recurse!();
+
+            if item.contains('\n') {
+                let mut buffer = String::new();
+                let mut lines = item.split('\n');
+
+                if let Some(line) = lines.next() {
+                    buffer.push_str("-");
+                    if !line.is_empty() {
+                        buffer.push(' ');
+                        buffer.push_str(line);
+                    }
+                    buffer.push('\n');
+                }
+
+                for line in lines {
+                    if !line.is_empty() {
+                        buffer.push_str("  ");
+                        buffer.push_str(line);
+                    }
+                    buffer.push('\n');
+                }
+
+                // Remove trailing newline
+                if buffer.ends_with("\n\n") {
+                    buffer.truncate(buffer.len() - 1);
+                }
+                buffer
+            } else {
+                format!("- {}\n", item)
+            }
+        }
         | Html::Element(element) if element.name() == "p" => format!("{}\n\n", recurse!()),
         | Html::Element(element) if element.name() == "pre" => {
             let block = recurse!();
