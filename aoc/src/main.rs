@@ -51,7 +51,7 @@ enum Command {
 
     /// Solve puzzle and submit solution to Advent of Code server
     Submit {
-        input: Option<path::PathBuf>,
+        output: Option<i64>,
     },
 
     /// Write out a template solution module
@@ -90,13 +90,11 @@ pub fn main() -> anyhow::Result<()> {
 
         println!("{}", solve(year, day, part, &input));
     }
-    | (Command::Submit { input }, Some(part)) => {
-        let input = match input {
-        | Some(path) => read(&path)?,
-        | None => client.input(year, day)?,
+    | (Command::Submit { output }, Some(part)) => {
+        let output = match output {
+        | Some(output) => output,
+        | None => solve(year, day, part, &client.input(year, day)?),
         };
-
-        let output = solve(year, day, part, &input);
 
         if client.submit(year, day, part, output)? {
             println!("{} was correct!", output);
