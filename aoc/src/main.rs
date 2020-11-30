@@ -51,6 +51,9 @@ enum Command {
     Submit {
         input: Option<path::PathBuf>,
     },
+
+    /// Write out a template solution module
+    Template,
 }
 
 pub fn main() -> anyhow::Result<()> {
@@ -99,6 +102,15 @@ pub fn main() -> anyhow::Result<()> {
             println!("{} was incorrect!", output);
         }
     }
+    | (Command::Template, _) => {
+
+        let title = client
+            .description(year, day, aoc_core::Part::P01)
+            .map(title)?;
+
+        println!("{}", title);
+
+    }
     }
 
     Ok(())
@@ -107,6 +119,22 @@ pub fn main() -> anyhow::Result<()> {
 fn read(path: &path::Path) -> anyhow::Result<String> {
     fs::read_to_string(&path)
         .with_context(|| anyhow!("Could not read file: '{}'", path.display()))
+}
+
+fn title(description: String) -> String {
+    description
+        .chars()
+        .skip_while(|char| *char != ':')
+        .take_while(|char| *char != '\n')
+        .scan(true, |capitalize, char| {
+            if mem::replace(capitalize, char.is_ascii_whitespace()) {
+                Some(char.to_ascii_uppercase())
+            } else {
+                Some(char)
+            }
+        })
+        .filter(char::is_ascii_alphanumeric)
+        .collect()
 }
 
 fn solve(
