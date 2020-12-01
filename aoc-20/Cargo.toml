@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 aoc = { package = "aoc-core", path = "../aoc-core" }
+priority-queue = "1.0"
+petgraph = "0.5"
+regex = "1.4"
