@@ -16,7 +16,6 @@ pub fn from_html<'html>(
         notes: &mut Vec<&'html str>,
         links: &mut Vec<Cow<'html, str>>,
     ) -> String {
-
         macro_rules! recurse {
             () => {
                 html.children()
@@ -32,9 +31,10 @@ pub fn from_html<'html>(
         | Html::Fragment
         | Html::ProcessingInstruction(_) => String::new(),
         | Html::Element(element) if element.name() == "a" => {
-            let href = element
-                .attr("href")
-                .expect("[INTERNAL ERROR]: no `href` attribute in `<a>` tag");
+            let href = match element.attr("href") {
+            | Some(href) => href,
+            | None => return recurse!(),
+            };
 
             let index = links.len();
 
@@ -57,35 +57,36 @@ pub fn from_html<'html>(
         | Html::Element(element) if element.name() == "li" => {
             let item = recurse!();
 
-            if item.contains('\n') {
-                let mut buffer = String::new();
-                let mut lines = item.split('\n');
-
-                if let Some(line) = lines.next() {
-                    buffer.push_str("-");
-                    if !line.is_empty() {
-                        buffer.push(' ');
-                        buffer.push_str(line);
-                    }
-                    buffer.push('\n');
-                }
-
-                for line in lines {
-                    if !line.is_empty() {
-                        buffer.push_str("  ");
-                        buffer.push_str(line);
-                    }
-                    buffer.push('\n');
-                }
-
-                // Remove trailing newline
-                if buffer.ends_with("\n\n") {
-                    buffer.truncate(buffer.len() - 1);
-                }
-                buffer
-            } else {
-                format!("- {}\n", item)
+            if !item.contains('\n') {
+                return format!("- {}\n", item);
             }
+
+            let mut buffer = String::new();
+            let mut lines = item.split('\n');
+
+            if let Some(line) = lines.next() {
+                buffer.push_str("-");
+                if !line.is_empty() {
+                    buffer.push(' ');
+                    buffer.push_str(line);
+                }
+                buffer.push('\n');
+            }
+
+            for line in lines {
+                if !line.is_empty() {
+                    buffer.push_str("  ");
+                    buffer.push_str(line);
+                }
+                buffer.push('\n');
+            }
+
+            // Remove trailing newline
+            if buffer.ends_with("\n\n") {
+                buffer.truncate(buffer.len() - 1);
+            }
+
+            buffer
         }
         | Html::Element(element) if element.name() == "p" => format!("{}\n\n", recurse!()),
         | Html::Element(element) if element.name() == "pre" => {
@@ -101,9 +102,10 @@ pub fn from_html<'html>(
             )
         }
         | Html::Element(element) if element.name() == "span" => {
-            let title = element
-                .attr("title")
-                .expect("[INTERNAL ERROR]: no `title` attribute in `<span>` tag");
+            let title = match element.attr("title") {
+            | Some(title) => title,
+            | None => return recurse!(),
+            };
 
             let index = notes.len();
 
