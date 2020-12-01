@@ -49,7 +49,10 @@ impl Client {
         part: aoc_core::Part,
     ) -> anyhow::Result<String> {
         if let Some(description) = self.cache.description(year, day, part)? {
+            log::info!("[DESCRIPTION] Cache hit for {}-{}-{}", year, day, part);
             return Ok(description);
+        } else {
+            log::info!("[DESCRIPTION] Cache miss for {}-{}-{}", year, day, part);
         }
 
         let html = self.inner
@@ -78,7 +81,10 @@ impl Client {
 
     pub fn input(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<String> {
         if let Some(input) = self.cache.input(year, day)? {
+            log::info!("[INPUT] Cache hit for {}-{}", year, day);
             return Ok(input);
+        } else {
+            log::info!("[INPUT] Cache miss for {}-{}", year, day);
         }
 
         let input = self.inner
@@ -102,9 +108,15 @@ impl Client {
         let submitted = self.cache.submitted(year, day, part)?;
 
         match submitted.last() {
-        | Some(last) if completed && answer == *last => return Ok(true),
-        | _ if completed || submitted.contains(&answer) => return Ok(false),
-        | _ => (),
+        | Some(last) if completed && answer == *last => {
+            log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
+            return Ok(true);
+        }
+        | _ if completed || submitted.contains(&answer) => {
+            log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
+            return Ok(false);
+        }
+        | _ => log::info!("[SUBMIT] Cache miss for {}-{}-{}", year, day, part),
         }
 
         let correct = self.inner

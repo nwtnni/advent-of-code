@@ -173,6 +173,8 @@ impl Cache {
         &self,
         path: &path::Path,
     ) -> anyhow::Result<Option<String>> {
+        log::info!("Reading from {}", path.display());
+
         match fs::read_to_string(path) {
         | Ok(description) => Ok(Some(description)),
         | Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
@@ -187,8 +189,12 @@ impl Cache {
         data: Option<&str>,
         mode: Mode,
     ) -> anyhow::Result<()> {
-       fs::create_dir_all(path)
-           .with_context(|| anyhow!("Could not create cache directory: {}", path.display()))?;
+        fs::create_dir_all(path)
+            .with_context(|| anyhow!("Could not create cache directory: {}", path.display()))?;
+
+        let path = path.join(file);
+
+        log::info!("Writing to {}", path.display());
 
         let mut file = fs::OpenOptions::new()
             .create(true)
@@ -199,12 +205,13 @@ impl Cache {
                 | Mode::Replace => false,
                 }
             })
-            .open(path.join(file))
+            .open(&path)
             .map(io::BufWriter::new)
             .with_context(|| anyhow!("Could not open cache file: {}", path.display()))?;
 
         if let Some(data) = data {
-            writeln!(&mut file, "{}", data)?;
+            write!(&mut file, "{}", data)?;
+            file.flush()?;
         }
 
         Ok(())

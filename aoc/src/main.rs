@@ -61,6 +61,8 @@ enum Command {
 
 pub fn main() -> anyhow::Result<()> {
 
+    env_logger::init();
+
     let Opt { account, token, year, day, part, command } = Opt::from_args();
     let cache = aoc::cache::Cache::new(account)?;
     let client = aoc::api::Client::new(cache, &token)?;
@@ -98,9 +100,17 @@ pub fn main() -> anyhow::Result<()> {
         };
 
         if client.submit(year, day, part, output)? {
-            println!("{} was correct!", output);
+            log::info!("{} was correct, writing complete description to `description.md`!", output);
+            write(
+                "description.md",
+                format!(
+                    "{}\n{}",
+                    client.description(year, day, aoc_core::Part::P01)?,
+                    client.description(year, day, aoc_core::Part::P02)?,
+                ),
+            )?;
         } else {
-            println!("{} was incorrect!", output);
+            log::info!("{} was incorrect!", output);
             process::exit(1);
         }
     }
@@ -118,33 +128,39 @@ pub fn main() -> anyhow::Result<()> {
         let r#mod = root.join(format!("day_{:02}.rs", day as usize));
         if !r#mod.exists() {
             write(r#mod, include_str!("template.rs").replace("$TITLE", &title))?;
+        } else {
+            log::info!("Skipping existing module: {}", r#mod.display());
         }
 
         let lib = root.join("lib.rs");
         let r#in = read(&lib)?;
-        if !r#in.contains(&title) {
-            let mut out = String::new();
 
-            for (index, line) in r#in.trim().split('\n').enumerate() {
-                if index == ((day as usize - 1) * 1) + 2 {
-                    out.push_str(&format!(
-                        "mod day_{:02};\n",
-                        day as usize,
-                    ));
-                }
-                if index == ((day as usize - 1) * 2) + 10 {
-                    out.push_str(&format!(
-                        "    | Day::D{day:02} => run!(day_{day:02}::{title}),\n",
-                        day = day as usize,
-                        title = title,
-                    ));
-                }
-                out.push_str(line);
-                out.push('\n');
-            }
-
-            write(lib, out)?;
+        if r#in.contains(&title) {
+            log::info!("Skipping updated library: {}", lib.display());
+            return Ok(());
         }
+
+        let mut out = String::new();
+
+        for (index, line) in r#in.trim().split('\n').enumerate() {
+            if index == ((day as usize - 1) * 1) + 2 {
+                out.push_str(&format!(
+                    "mod day_{:02};\n",
+                    day as usize,
+                ));
+            }
+            if index == ((day as usize - 1) * 2) + 10 {
+                out.push_str(&format!(
+                    "    | Day::D{day:02} => run!(day_{day:02}::{title}),\n",
+                    day = day as usize,
+                    title = title,
+                ));
+            }
+            out.push_str(line);
+            out.push('\n');
+        }
+
+        write(lib, out)?;
     }
     }
 
@@ -164,6 +180,9 @@ where
 {
     let path = path.as_ref();
     let data = data.as_ref();
+
+    log::info!("Writing to {}", path.display());
+
     fs::write(path, data)
         .with_context(|| anyhow!("Could not write to file: '{}'", path.display()))
 }

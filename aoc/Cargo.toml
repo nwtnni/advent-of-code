@@ -15,8 +15,10 @@ aoc-19 = { path = "../aoc-19" }
 aoc-20 = { path = "../aoc-20" }
 dirs = { version = "2.0", package = "directories-next" }
 ego-tree = "0.6"
+env_logger = "0.8"
 html = { version = "0.25", package = "html5ever" }
 json = { version = "1.0", package = "serde_json" }
+log = "0.4"
 reqwest = { version = "0.10", features = ["blocking"] }
 scraper = "0.12"
 serde = { version = "1.0", features = ["derive"] }
