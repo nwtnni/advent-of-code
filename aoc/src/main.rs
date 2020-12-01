@@ -54,8 +54,9 @@ enum Command {
         output: Option<i64>,
     },
 
-    /// Write out a template solution module
-    Template,
+    /// Download part one description and input, and template
+    /// out a dummy solution file
+    Init,
 }
 
 pub fn main() -> anyhow::Result<()> {
@@ -103,52 +104,66 @@ pub fn main() -> anyhow::Result<()> {
             process::exit(1);
         }
     }
-    | (Command::Template, _) => {
+    | (Command::Init, _) => {
         let description = client.description(year, day, aoc_core::Part::P01)?;
         let input = client.input(year, day)?;
         let title = title(&description);
 
+        write("description.md", &description)?;
+        write("input.txt", &input)?;
+
+        // Template out Rust code, avoiding clobbering
         let root = path::PathBuf::from(format!("aoc-{}/src", &year.to_static_str()[2..]));
-        let lib = root.join("lib.rs");
+
         let r#mod = root.join(format!("day_{:02}.rs", day as usize));
-
-        let r#in = read(&lib)?;
-        let mut out = String::new();
-
-        for (index, line) in r#in.trim().split('\n').enumerate() {
-            if index == ((day as usize - 1) * 1) + 2 {
-                out.push_str(&format!(
-                    "mod day_{:02};\n",
-                    day as usize,
-                ));
-            }
-            if index == ((day as usize - 1) * 2) + 10 {
-                out.push_str(&format!(
-                    "    | Day::D{day:02} => run!(day_{day:02}::{title}),\n",
-                    day = day as usize,
-                    title = title,
-                ));
-            }
-            out.push_str(line);
-            out.push('\n');
+        if !r#mod.exists() {
+            write(r#mod, include_str!("template.rs").replace("$TITLE", &title))?;
         }
 
-        write(&path::Path::new("description.md"), description.as_bytes())?;
-        write(&path::Path::new("input.txt"), input.as_bytes())?;
-        write(&r#mod, include_str!("template.rs").replace("$TITLE", &title).as_bytes())?;
-        write(&lib, out.as_bytes())?;
+        let lib = root.join("lib.rs");
+        let r#in = read(&lib)?;
+        if !r#in.contains(&title) {
+            let mut out = String::new();
+
+            for (index, line) in r#in.trim().split('\n').enumerate() {
+                if index == ((day as usize - 1) * 1) + 2 {
+                    out.push_str(&format!(
+                        "mod day_{:02};\n",
+                        day as usize,
+                    ));
+                }
+                if index == ((day as usize - 1) * 2) + 10 {
+                    out.push_str(&format!(
+                        "    | Day::D{day:02} => run!(day_{day:02}::{title}),\n",
+                        day = day as usize,
+                        title = title,
+                    ));
+                }
+                out.push_str(line);
+                out.push('\n');
+            }
+
+            write(lib, out)?;
+        }
     }
     }
 
     Ok(())
 }
 
-fn read(path: &path::Path) -> anyhow::Result<String> {
+fn read<P: AsRef<path::Path>>(path: P) -> anyhow::Result<String> {
+    let path = path.as_ref();
     fs::read_to_string(path)
         .with_context(|| anyhow!("Could not read file: '{}'", path.display()))
 }
 
-fn write(path: &path::Path, data: &[u8]) -> anyhow::Result<()> {
+fn write<P, D>(path: P, data: D) -> anyhow::Result<()>
+where
+    P: AsRef<path::Path>,
+    D: AsRef<[u8]>,
+{
+    let path = path.as_ref();
+    let data = data.as_ref();
     fs::write(path, data)
         .with_context(|| anyhow!("Could not write to file: '{}'", path.display()))
 }
