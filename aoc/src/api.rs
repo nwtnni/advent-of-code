@@ -55,6 +55,7 @@ impl Client {
         let html = self.inner
             .get(&format!("{}/{}/day/{}", ROOT, year, day))
             .send()?
+            .error_for_status()?
             .text()
             .map(|text| scraper::Html::parse_document(&text))?;
 
@@ -83,6 +84,7 @@ impl Client {
         let input = self.inner
             .get(&format!("{}/{}/day/{}/input", ROOT, year, day))
             .send()?
+            .error_for_status()?
             .text()?;
 
         self.cache.set_input(year, day, &input)?;
@@ -109,6 +111,7 @@ impl Client {
             .post(&format!("{}/{}/day/{}/answer", ROOT, year, day))
             .form(&Submission { part, answer })
             .send()?
+            .error_for_status()?
             .text()
             .map_err(anyhow::Error::from)
             .and_then(|text| {
