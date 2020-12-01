@@ -79,8 +79,11 @@ pub fn main() -> anyhow::Result<()> {
         println!("{}", client.description(year, day, part)?);
     }
     | (Command::Description, None) => {
-        println!("{}", client.description(year, day, aoc_core::Part::P01)?);
-        println!("{}", client.description(year, day, aoc_core::Part::P02)?);
+        println!(
+            "{}\n\n{}",
+            client.description(year, day, aoc_core::Part::P01)?,
+            client.description(year, day, aoc_core::Part::P02)?,
+        );
     }
     | (Command::Input, _) => {
         println!("{}", client.input(year, day)?);
@@ -104,7 +107,7 @@ pub fn main() -> anyhow::Result<()> {
             write(
                 "description.md",
                 format!(
-                    "{}\n{}",
+                    "{}\n\n{}",
                     client.description(year, day, aoc_core::Part::P01)?,
                     client.description(year, day, aoc_core::Part::P02)?,
                 ),

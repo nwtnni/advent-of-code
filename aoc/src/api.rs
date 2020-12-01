@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use aoc_core::Tap as _;
 use reqwest::blocking;
 use reqwest::header;
 
@@ -65,15 +66,12 @@ impl Client {
         let selector = scraper::Selector::parse("article.day-desc")
             .expect("[INTERNAL ERROR]: invalid CSS selector");
 
-        let mut description = html
+        let description = html
             .select(&selector)
             .nth(part as usize - 1)
             .ok_or_else(|| anyhow!("Could not retrieve description for {}-{}-{}", year, day, part))
-            .map(|html| markdown::from_html(html, year))?;
-
-        // Remove trailing whitespace
-        // https://users.rust-lang.org/t/trim-string-in-place/15809/7
-        description.truncate(description.trim_end().len());
+            .map(|html| markdown::from_html(html, year))?
+            .tap_mut(trim_end_mut);
 
         self.cache.set_description(year, day, part, &description)?;
         Ok(description)
@@ -91,7 +89,8 @@ impl Client {
             .get(&format!("{}/{}/day/{}/input", ROOT, year, day))
             .send()?
             .error_for_status()?
-            .text()?;
+            .text()?
+            .tap_mut(trim_end_mut);
 
         self.cache.set_input(year, day, &input)?;
         Ok(input)
@@ -142,4 +141,11 @@ impl Client {
         self.cache.set_completed(year, day, part, correct)?;
         Ok(correct)
     }
+}
+
+/// Remove trailing whitespace in-place
+///
+/// https://users.rust-lang.org/t/trim-string-in-place/15809/7
+fn trim_end_mut(string: &mut String) {
+    string.truncate(string.trim_end().len());
 }
