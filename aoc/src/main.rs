@@ -201,7 +201,7 @@ pub fn main() -> anyhow::Result<()> {
                 let day = member.completion_day_level.get(&day)?;
                 let ts = match part {
                 | aoc_core::Part::P01 => day.one.get_star_ts,
-                | aoc_core::Part::P02 => day.two.get_star_ts,
+                | aoc_core::Part::P02 => day.two?.get_star_ts,
                 };
                 Some((name, ts))
             })

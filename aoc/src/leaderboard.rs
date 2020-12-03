@@ -25,16 +25,16 @@ pub struct Member {
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Day {
     #[serde(rename = "1")]
     pub one: Part,
     #[serde(rename = "2")]
-    pub two: Part,
+    pub two: Option<Part>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Part {
     #[serde(with = "ts")]
     pub get_star_ts: chrono::DateTime<chrono::Local>,
