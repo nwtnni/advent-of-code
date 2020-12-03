@@ -14,6 +14,7 @@ static INCORRECT: &str = "That's not the right answer.";
 static COMPLETED: &str = "You don't seem to be solving the right level.";
 
 pub struct Client {
+    id: leaderboard::Id,
     cache: cache::Cache,
     inner: blocking::Client,
 }
@@ -36,6 +37,7 @@ impl Client {
         );
 
         Ok(Client {
+            id,
             cache: cache::Cache::new(id)?,
             inner: blocking::ClientBuilder::new()
                 .user_agent("aoc 0.1.0 (nwtnni@gmail.com) (https://github.com/nwtnni/advent-of-code)")
@@ -95,6 +97,25 @@ impl Client {
 
         self.cache.set_input(year, day, &input)?;
         Ok(input)
+    }
+
+    pub fn leaderboard(&self, year: aoc_core::Year) -> anyhow::Result<leaderboard::Leaderboard> {
+        if let Some(leaderboard) = self.cache.leaderboard(year)? {
+            log::info!("[LEADERBOARD] Cache hit for {}", year);
+            return Ok(leaderboard);
+        } else {
+            log::info!("[LEADERBOARD] Cache miss for {}", year);
+        }
+
+        let leaderboard = self
+            .inner
+            .get(&format!("{}/{}/leaderboard/private/view/{}.json", ROOT, year, self.id.0))
+            .send()?
+            .error_for_status()?
+            .json::<leaderboard::Leaderboard>()?;
+
+        self.cache.set_leaderboard(year, &leaderboard)?;
+        Ok(leaderboard)
     }
 
     pub fn submit(

@@ -2,6 +2,7 @@ use std::fs;
 use std::io;
 use std::io::Write as _;
 use std::path;
+use std::time;
 
 use anyhow::anyhow;
 use anyhow::Context as _;
@@ -41,7 +42,7 @@ impl Cache {
             .join(part.to_static_str())
             .join("description");
 
-        self.read(&path)
+        self.read(path)
     }
 
     pub fn set_description(
@@ -58,7 +59,7 @@ impl Cache {
             .join(day.to_static_str())
             .join(part.to_static_str());
 
-        self.write(&path, "description", Some(description), Mode::Replace)
+        self.write(path, "description", Some(description), Mode::Replace)
     }
 
     pub fn input(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<Option<String>> {
@@ -70,7 +71,7 @@ impl Cache {
             .join(day.to_static_str())
             .join("input");
 
-        self.read(&path)
+        self.read(path)
     }
 
     pub fn set_input(
@@ -86,7 +87,58 @@ impl Cache {
             .join(year.to_static_str())
             .join(day.to_static_str());
 
-        self.write(&path, "input", Some(input), Mode::Replace)
+        self.write(path, "input", Some(input), Mode::Replace)
+    }
+
+    pub fn leaderboard(&self, year: aoc_core::Year) -> anyhow::Result<Option<leaderboard::Leaderboard>> {
+        let dir = self
+            .project
+            .cache_dir()
+            .join(self.id.0.to_string())
+            .join(year.to_static_str());
+
+        let then = self
+            .read(dir.join("timestamp"))?
+            .and_then(|string| string.parse::<u64>().ok());
+
+        let leaderboard = self
+            .read(dir.join("leaderboard"))?
+            .and_then(|string| json::from_str::<leaderboard::Leaderboard>(&string).ok());
+
+        let now = time::SystemTime::now()
+            .duration_since(time::UNIX_EPOCH)?
+            .as_secs();
+
+        // > Please don't make frequent automated requests to this service - avoid sending
+        // > requests more often than once every 15 minutes (900 seconds).
+        //
+        // From: https://adventofcode.com/$YEAR/leaderboard/private/view/$AOC_ACCOUNT_ID
+        match (then, leaderboard) {
+        | (Some(then), Some(leaderboard)) if now < then || now - then < 15 * 60 => Ok(Some(leaderboard)),
+        | (_, _) => Ok(None),
+        }
+    }
+
+    pub fn set_leaderboard(
+        &self,
+        year: aoc_core::Year,
+        leaderboard: &leaderboard::Leaderboard,
+    ) -> anyhow::Result<()> {
+        let path = self
+            .project
+            .cache_dir()
+            .join(self.id.0.to_string())
+            .join(year.to_static_str());
+
+        let now = time::SystemTime::now()
+            .duration_since(time::UNIX_EPOCH)?
+            .as_secs()
+            .to_string();
+
+        let leaderboard = json::to_string(leaderboard)?;
+
+        self.write(&path, "timestamp", Some(&now), Mode::Replace)?;
+        self.write(path, "leaderboard", Some(&leaderboard), Mode::Replace)
     }
 
     pub fn completed(
@@ -124,7 +176,7 @@ impl Cache {
             .join(day.to_static_str())
             .join(part.to_static_str());
 
-        self.write(&path, "completed", None, Mode::Replace)
+        self.write(path, "completed", None, Mode::Replace)
     }
 
     pub fn submitted(
@@ -142,7 +194,7 @@ impl Cache {
             .join(part.to_static_str())
             .join("submitted");
 
-        match self.read(&path)? {
+        match self.read(path)? {
         | None => Ok(Vec::new()),
         | Some(submitted) => submitted
             .trim()
@@ -168,13 +220,15 @@ impl Cache {
             .join(day.to_static_str())
             .join(part.to_static_str());
 
-        self.write(&path, "submitted", Some(&answer.to_string()), Mode::Append)
+        self.write(path, "submitted", Some(&answer.to_string()), Mode::Append)
     }
 
-    fn read(
+    fn read<P: AsRef<path::Path>>(
         &self,
-        path: &path::Path,
+        path: P,
     ) -> anyhow::Result<Option<String>> {
+        let path = path.as_ref();
+
         log::info!("Reading from {}", path.display());
 
         match fs::read_to_string(path) {
@@ -184,13 +238,15 @@ impl Cache {
         }
     }
 
-    fn write(
+    fn write<P: AsRef<path::Path>>(
         &self,
-        path: &path::Path,
+        path: P,
         file: &'static str,
         data: Option<&str>,
         mode: Mode,
     ) -> anyhow::Result<()> {
+        let path = path.as_ref();
+
         fs::create_dir_all(path)
             .with_context(|| anyhow!("Could not create cache directory: {}", path.display()))?;
 
