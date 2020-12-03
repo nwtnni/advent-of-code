@@ -13,6 +13,7 @@ aoc-15 = { path = "../aoc-15" }
 aoc-17 = { path = "../aoc-17" }
 aoc-19 = { path = "../aoc-19" }
 aoc-20 = { path = "../aoc-20" }
+chrono = "0.4"
 dirs = { version = "2.0", package = "directories-next" }
 ego-tree = "0.6"
 env_logger = "0.8"
