@@ -6,9 +6,11 @@ use std::path;
 use anyhow::anyhow;
 use anyhow::Context as _;
 
+use crate::leaderboard;
+
 #[derive(Debug)]
 pub struct Cache {
-    account: String,
+    id: leaderboard::Id,
     project: dirs::ProjectDirs,
 }
 
@@ -19,9 +21,9 @@ enum Mode {
 }
 
 impl Cache {
-    pub fn new(account: String) -> anyhow::Result<Self> {
+    pub fn new(id: leaderboard::Id) -> anyhow::Result<Self> {
         dirs::ProjectDirs::from("", "", env!("CARGO_PKG_NAME"))
-            .map(|project| Cache { account, project })
+            .map(|project| Cache { id, project })
             .ok_or_else(|| anyhow!("[INTERNAL ERROR]: could not retrieve a valid home directory"))
     }
 
@@ -63,7 +65,7 @@ impl Cache {
         let path = self
             .project
             .cache_dir()
-            .join(&self.account)
+            .join(self.id.0.to_string())
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join("input");
@@ -80,7 +82,7 @@ impl Cache {
         let path = self
             .project
             .cache_dir()
-            .join(&self.account)
+            .join(self.id.0.to_string())
             .join(year.to_static_str())
             .join(day.to_static_str());
 
@@ -95,7 +97,7 @@ impl Cache {
     ) -> bool {
         self.project
             .cache_dir()
-            .join(&self.account)
+            .join(self.id.0.to_string())
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join(part.to_static_str())
@@ -117,7 +119,7 @@ impl Cache {
         let path = self
             .project
             .cache_dir()
-            .join(&self.account)
+            .join(self.id.0.to_string())
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join(part.to_static_str());
@@ -134,7 +136,7 @@ impl Cache {
         let path = self
             .project
             .cache_dir()
-            .join(&self.account)
+            .join(self.id.0.to_string())
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join(part.to_static_str())
@@ -161,7 +163,7 @@ impl Cache {
         let path = self
             .project
             .cache_dir()
-            .join(&self.account)
+            .join(self.id.0.to_string())
             .join(year.to_static_str())
             .join(day.to_static_str())
             .join(part.to_static_str());

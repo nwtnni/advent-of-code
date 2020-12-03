@@ -10,12 +10,15 @@ use structopt::StructOpt;
 #[derive(Clone, Debug, StructOpt)]
 #[structopt(name = "aoc", about = "Advent of Code CLI utility")]
 struct Opt {
-    /// Advent of Code account name
+    /// Advent of Code account ID
     ///
-    /// This is an arbitrary string used to associate the input and submission
-    /// caches for a single user across different session tokens.
-    #[structopt(short, long, env = "AOC_ACCOUNT")]
-    account: String,
+    /// This can be found in the URL of your [private leaderboard][pl]. Used to
+    /// correlate cache entries across different session tokens, and to access
+    /// the private leaderboard API.
+    ///
+    /// [pl]: https://adventofcode.com/2020/leaderboard/private
+    #[structopt(short, long, env = "AOC_ACCOUNT_ID")]
+    id: aoc::leaderboard::Id,
 
     /// Advent of Code session token
     ///
@@ -63,9 +66,8 @@ pub fn main() -> anyhow::Result<()> {
 
     env_logger::init();
 
-    let Opt { account, token, year, day, part, command } = Opt::from_args();
-    let cache = aoc::cache::Cache::new(account)?;
-    let client = aoc::api::Client::new(cache, &token)?;
+    let Opt { id, token, year, day, part, command } = Opt::from_args();
+    let client = aoc::api::Client::new(id, &token)?;
 
     match (command, part) {
     | (Command::Solve { .. }, None) => {

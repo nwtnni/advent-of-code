@@ -4,6 +4,7 @@ use reqwest::blocking;
 use reqwest::header;
 
 use crate::cache;
+use crate::leaderboard;
 use crate::markdown;
 
 pub static ROOT: &str = "https://adventofcode.com";
@@ -26,7 +27,7 @@ struct Submission {
 }
 
 impl Client {
-    pub fn new(cache: cache::Cache, token: &str) -> anyhow::Result<Self> {
+    pub fn new(id: leaderboard::Id, token: &str) -> anyhow::Result<Self> {
         let mut headers = header::HeaderMap::new();
 
         headers.insert(
@@ -35,7 +36,7 @@ impl Client {
         );
 
         Ok(Client {
-            cache,
+            cache: cache::Cache::new(id)?,
             inner: blocking::ClientBuilder::new()
                 .user_agent("aoc 0.1.0 (nwtnni@gmail.com) (https://github.com/nwtnni/advent-of-code)")
                 .default_headers(headers)
