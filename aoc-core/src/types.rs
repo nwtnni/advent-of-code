@@ -124,15 +124,15 @@ pub enum Digit {
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Year {
     #[serde(rename = "2015")]
-    Y15,
+    Y15 = 2015,
     #[serde(rename = "2017")]
-    Y17,
+    Y17 = 2017,
     #[serde(rename = "2018")]
-    Y18,
+    Y18 = 2018,
     #[serde(rename = "2019")]
-    Y19,
+    Y19 = 2019,
     #[serde(rename = "2020")]
-    Y20,
+    Y20 = 2020,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
