@@ -220,7 +220,7 @@ impl Cache {
             .join(day.to_static_str())
             .join(part.to_static_str());
 
-        self.write(path, "submitted", Some(&answer.to_string()), Mode::Append)
+        self.write(path, "submitted", Some(&format!("{}\n", answer)), Mode::Append)
     }
 
     fn read<P: AsRef<path::Path>>(
