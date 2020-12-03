@@ -3,6 +3,7 @@ use std::mem;
 use std::path;
 use std::process;
 
+use aoc_core::Tap as _;
 use anyhow::anyhow;
 use anyhow::Context as _;
 use structopt::StructOpt;
@@ -26,15 +27,6 @@ struct Opt {
     #[structopt(short, long = "session-token", env = "AOC_SESSION_TOKEN")]
     token: String,
 
-    #[structopt(short = "y", long = "year")]
-    year: aoc_core::Year,
-
-    #[structopt(short = "d", long = "day")]
-    day: aoc_core::Day,
-
-    #[structopt(short = "p", long = "part")]
-    part: Option<aoc_core::Part>,
-
     #[structopt(subcommand)]
     command: Command,
 }
@@ -42,84 +34,91 @@ struct Opt {
 #[derive(Clone, Debug, StructOpt)]
 enum Command {
     /// Fetch puzzle description
-    Description,
+    Description {
+        #[structopt(short, long)]
+        year: aoc_core::Year,
+
+        #[structopt(short, long)]
+        day: aoc_core::Day,
+
+        #[structopt(short, long)]
+        part: Option<aoc_core::Part>,
+    },
+
+    /// Download part one description and input, and template out a dummy solution file
+    Init {
+        #[structopt(short, long)]
+        year: aoc_core::Year,
+
+        #[structopt(short, long)]
+        day: aoc_core::Day,
+    },
 
     /// Fetch puzzle input
-    Input,
+    Input {
+        #[structopt(short, long)]
+        year: aoc_core::Year,
+
+        #[structopt(short, long)]
+        day: aoc_core::Day,
+    },
+
+    /// Fetch leaderboard
+    Leaderboard {
+        #[structopt(short, long)]
+        year: aoc_core::Year,
+    },
 
     /// Solve puzzle and print solution
     Solve {
+        #[structopt(short, long)]
+        year: aoc_core::Year,
+
+        #[structopt(short, long)]
+        day: aoc_core::Day,
+
+        #[structopt(short, long)]
+        part: aoc_core::Part,
+
+        /// Path to alternative input file
         input: Option<path::PathBuf>,
     },
 
     /// Solve puzzle and submit solution to Advent of Code server
     Submit {
+        #[structopt(short, long)]
+        year: aoc_core::Year,
+
+        #[structopt(short, long)]
+        day: aoc_core::Day,
+
+        #[structopt(short, long)]
+        part: aoc_core::Part,
+
+        /// Alternative answer to submit
         output: Option<i64>,
     },
-
-    /// Download part one description and input, and template
-    /// out a dummy solution file
-    Init,
 }
 
 pub fn main() -> anyhow::Result<()> {
 
     env_logger::init();
 
-    let Opt { id, token, year, day, part, command } = Opt::from_args();
+    let Opt { id, token, command } = Opt::from_args();
     let client = aoc::api::Client::new(id, &token)?;
 
-    match (command, part) {
-    | (Command::Solve { .. }, None) => {
-        return Err(anyhow!("[USAGE ERROR]: subcommand `solve` requires flag `--part`"));
-    }
-    | (Command::Submit { .. }, None)=> {
-        return Err(anyhow!("[USAGE ERROR]: subcommand `submit` requires flag `--part`"));
-    }
-
-    | (Command::Description, Some(part)) => {
+    match command {
+    | Command::Description { year, day, part: Some(part) } => {
         println!("{}", client.description(year, day, part)?);
     }
-    | (Command::Description, None) => {
+    | Command::Description { year, day, part: None } => {
         println!(
             "{}\n\n{}",
             client.description(year, day, aoc_core::Part::P01)?,
             client.description(year, day, aoc_core::Part::P02)?,
         );
     }
-    | (Command::Input, _) => {
-        println!("{}", client.input(year, day)?);
-    }
-    | (Command::Solve { input }, Some(part)) => {
-        let input = match input {
-        | Some(path) => read(&path)?,
-        | None => client.input(year, day)?,
-        };
-
-        println!("{}", solve(year, day, part, &input));
-    }
-    | (Command::Submit { output }, Some(part)) => {
-        let output = match output {
-        | Some(output) => output,
-        | None => solve(year, day, part, &client.input(year, day)?),
-        };
-
-        if client.submit(year, day, part, output)? {
-            log::info!("{} was correct, writing complete description to `description.md`!", output);
-            write(
-                "description.md",
-                format!(
-                    "{}\n\n{}",
-                    client.description(year, day, aoc_core::Part::P01)?,
-                    client.description(year, day, aoc_core::Part::P02)?,
-                ),
-            )?;
-        } else {
-            log::info!("{} was incorrect!", output);
-            process::exit(1);
-        }
-    }
-    | (Command::Init, _) => {
+    | Command::Init { year, day } => {
         let description = client.description(year, day, aoc_core::Part::P01)?;
         let input = client.input(year, day)?;
         let title = title(&description);
@@ -166,6 +165,48 @@ pub fn main() -> anyhow::Result<()> {
         }
 
         write(lib, out)?;
+    }
+    | Command::Input { year, day } => {
+        println!("{}", client.input(year, day)?);
+    }
+    | Command::Leaderboard { year: _ } => {
+        todo!()
+    }
+    | Command::Solve { year, day, part, input } => {
+        let input = input
+            .map(read)
+            .unwrap_or_else(|| client.input(year, day))?;
+
+        println!("{}", solve(year, day, part, &input));
+    }
+    | Command::Submit { year, day, part, output } => {
+        let output = match output {
+        | Some(output) => output,
+        | None => client
+            .input(year, day)?
+            .tap(|input| solve(year, day, part, &input)),
+        };
+
+        if !client.submit(year, day, part, output)? {
+            log::info!("{} was incorrect!", output);
+            process::exit(1);
+        }
+
+        log::info!("{} was correct!", output);
+
+        if part == aoc_core::Part::P02 {
+            return Ok(());
+        }
+
+        log::info!("Writing complete description to `description.md`...");
+        write(
+            "description.md",
+            format!(
+                "{}\n\n{}",
+                client.description(year, day, aoc_core::Part::P01)?,
+                client.description(year, day, aoc_core::Part::P02)?,
+            ),
+        )?;
     }
     }
 
