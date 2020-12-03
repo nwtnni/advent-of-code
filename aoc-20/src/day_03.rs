@@ -53,29 +53,36 @@ impl Fro for TobogganTrajectory {
 
 impl Solution for TobogganTrajectory {
     fn one(self) -> i64 {
-        (0i64..(self.rows as i64))
+        (0..self.rows)
             .into_iter()
             .filter(|row| {
-                let col = (row * 3) % (self.cols as i64);
-                self.contains(&Pos { x: col, y: *row })
+                let row = *row as i64;
+                self.contains(&Pos {
+                    x: (row * 3) % (self.cols as i64),
+                    y: row,
+                })
             })
             .count()
             as i64
     }
 
     fn two(self) -> i64 {
-        let mut product = 1;
-        for (dx, dy) in &[(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)] {
-            product *= (0i64..(self.rows as i64))
-                .step_by(*dy as usize)
-                .into_iter()
-                .filter(|row| {
-                    let col = ((row / dy) * dx) % (self.cols as i64);
-                    self.contains(&Pos { x: col, y: *row })
-                })
-                .count()
-                as i64;
-        }
-        product
+        [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
+            .iter()
+            .map(|(dx, dy)| {
+                (0..self.rows)
+                    .step_by(*dy as usize)
+                    .into_iter()
+                    .filter(|row| {
+                        let row = *row as i64;
+                        self.contains(&Pos {
+                            x: ((row / dy) * dx) % (self.cols as i64),
+                            y: row,
+                        })
+                    })
+                    .count()
+            })
+            .product::<usize>()
+            as i64
     }
 }
