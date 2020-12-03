@@ -1,3 +1,4 @@
+use std::cmp;
 use std::fs;
 use std::mem;
 use std::path;
@@ -6,6 +7,7 @@ use std::process;
 use aoc_core::Tap as _;
 use anyhow::anyhow;
 use anyhow::Context as _;
+use chrono::TimeZone as _;
 use structopt::StructOpt;
 
 #[derive(Clone, Debug, StructOpt)]
@@ -67,6 +69,15 @@ enum Command {
     Leaderboard {
         #[structopt(short, long)]
         year: aoc_core::Year,
+
+        #[structopt(short, long)]
+        day: aoc_core::Day,
+
+        #[structopt(short, long)]
+        part: aoc_core::Part,
+
+        /// Path to alternative leaderboard JSON file
+        leaderboard: Option<path::PathBuf>,
     },
 
     /// Solve puzzle and print solution
@@ -80,7 +91,7 @@ enum Command {
         #[structopt(short, long)]
         part: aoc_core::Part,
 
-        /// Path to alternative input file
+        /// Path to alternative input text file
         input: Option<path::PathBuf>,
     },
 
@@ -169,8 +180,54 @@ pub fn main() -> anyhow::Result<()> {
     | Command::Input { year, day } => {
         println!("{}", client.input(year, day)?);
     }
-    | Command::Leaderboard { year: _ } => {
-        todo!()
+    | Command::Leaderboard { year, day, part, leaderboard } => {
+        let leaderboard = match leaderboard {
+        | Some(path) => read(path)?
+            .tap(|string| json::from_str(&string))
+            .expect("[USAGE]: invalid leaderboard file"),
+        | None => client.leaderboard(year)?,
+        };
+
+        // 12AM ET in UTC
+        let start = chrono::Utc
+            .ymd(year as i32, 12, day as u32)
+            .and_hms(5, 0, 0);
+
+        let members = leaderboard
+            .members
+            .into_iter()
+            .filter_map(|(_, member)| {
+                let name = member.name;
+                let day = member.completion_day_level.get(&day)?;
+                let ts = match part {
+                | aoc_core::Part::P01 => day.one.get_star_ts,
+                | aoc_core::Part::P02 => day.two.get_star_ts,
+                };
+                Some((name, ts))
+            })
+            .collect::<Vec<_>>()
+            .tap_mut(|members| members.sort_by_key(|(_, ts)| ts.timestamp()));
+
+        let width = members
+            .iter()
+            .map(|(name, _)| name.len())
+            .fold(8, cmp::max);
+
+        println!("Rank | {:<width$} | Time", "Username", width = width);
+        println!("-----+-{:-<width$}-+---------", "-", width = width);
+
+        for (index, (name, finish)) in members.into_iter().enumerate() {
+            let duration = finish.signed_duration_since(start);
+            println!(
+                "{:02}   | {:<width$} | {:02}:{:02}:{:02}",
+                index,
+                name,
+                duration.num_hours(),
+                duration.num_minutes() % 60,
+                duration.num_seconds() % 60,
+                width = width,
+            );
+        }
     }
     | Command::Solve { year, day, part, input } => {
         let input = input
