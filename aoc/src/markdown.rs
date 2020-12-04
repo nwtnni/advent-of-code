@@ -66,7 +66,7 @@ pub fn from_html<'html>(
 
             if let Some(line) = lines.next() {
                 buffer.push_str("-");
-                if !line.is_empty() {
+                if !line.trim().is_empty() {
                     buffer.push(' ');
                     buffer.push_str(line);
                 }
@@ -74,7 +74,7 @@ pub fn from_html<'html>(
             }
 
             for line in lines {
-                if !line.is_empty() {
+                if !line.trim().is_empty() {
                     buffer.push_str("  ");
                     buffer.push_str(line);
                 }
