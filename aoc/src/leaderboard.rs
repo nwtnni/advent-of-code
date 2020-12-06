@@ -15,7 +15,7 @@ pub struct Leaderboard {
 #[derive(Clone, Debug)]
 pub struct Member {
     pub id: Id,
-    pub name: String,
+    pub name: Option<String>,
     pub local_score: usize,
     pub global_score: usize,
     #[serde(with = "ts_opt")]

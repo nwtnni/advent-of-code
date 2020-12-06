@@ -197,7 +197,10 @@ pub fn main() -> anyhow::Result<()> {
             .members
             .into_iter()
             .filter_map(|(_, member)| {
-                let name = member.name;
+                let id = member.id.0;
+                let name = member
+                    .name
+                    .unwrap_or_else(|| format!("anonymous user #{}", id));
                 let day = member.completion_day_level.get(&day)?;
                 let ts = match part {
                 | aoc_core::Part::P01 => day.one.get_star_ts,
