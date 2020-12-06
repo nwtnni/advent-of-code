@@ -46,17 +46,24 @@ pub fn permute(len: u8) -> impl Iterator<Item = (usize, usize)> {
     iter::once((0, 0)).chain(Permutations::new(len))
 }
 
-/// Bitset for case-insensitive ASCII letters
+/// Bitset for alphanumeric ASCII: `[a-zA-Z0-9]`
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct AlphaSet(u32);
+pub struct AsciiSet(u64);
 
-impl AlphaSet {
-    pub fn new() -> Self {
-        AlphaSet::default()
+impl AsciiSet {
+    pub fn none() -> Self {
+        Self::default()
     }
 
     pub fn all() -> Self {
-        AlphaSet(0b0000_0011_1111_1111_1111_1111_1111_1111)
+        Self(0x3FFF_FFFF_FFFF_FFFF)
+    }
+
+    pub fn from_case_insensitive(string: &str) -> Self {
+        string
+            .chars()
+            .map(|char| char.to_ascii_lowercase())
+            .collect()
     }
 
     pub fn insert(&mut self, alpha: char) -> bool {
@@ -98,21 +105,34 @@ impl AlphaSet {
         self.and(other.not())
     }
 
-    fn mask(alpha: char) -> u32 {
-        assert!(alpha.is_ascii_alphabetic());
-        1 << (((alpha.to_ascii_lowercase() as u32) as u8) - b'a')
+    fn mask(alpha: char) -> u64 {
+        let bit = match alpha {
+        | 'a'..='z' => (alpha as u8 - b'a') + 00,
+        | 'A'..='Z' => (alpha as u8 - b'A') + 26,
+        | '0'..='9' => (alpha as u8 - b'0') + 52,
+        | other => panic!(format!("Invalid value in `AsciiSet`: {:?}", other)),
+        };
+        1 << bit
     }
 }
 
-impl<'a> From<&'a str> for AlphaSet {
+impl<'a> From<&'a str> for AsciiSet {
     fn from(string: &'a str) -> Self {
         string.chars().collect()
     }
 }
 
-impl iter::FromIterator<char> for AlphaSet {
+impl From<char> for AsciiSet {
+    fn from(char: char) -> Self {
+        let mut set = AsciiSet::none();
+        set.insert(char);
+        set
+    }
+}
+
+impl iter::FromIterator<char> for AsciiSet {
     fn from_iter<T: IntoIterator<Item = char>>(iter: T) -> Self {
-        let mut set = AlphaSet::new();
+        let mut set = AsciiSet::none();
         for char in iter {
             set.insert(char);
         }

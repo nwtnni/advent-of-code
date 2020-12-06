@@ -1,13 +1,18 @@
 use aoc::*;
 
-pub struct CustomCustoms(Vec<String>);
+pub struct CustomCustoms(Vec<Vec<AsciiSet>>);
 
 impl Fro for CustomCustoms {
     fn fro(input: &str) -> Self {
         input
             .trim()
             .split("\n\n")
-            .map(String::from)
+            .map(|group| {
+                group
+                    .split_whitespace()
+                    .map(AsciiSet::from)
+                    .collect()
+            })
             .collect::<Vec<_>>()
             .tap(Self)
     }
@@ -19,9 +24,8 @@ impl Solution for CustomCustoms {
             .into_iter()
             .map(|group| {
                 group
-                    .split_whitespace()
-                    .map(AlphaSet::from)
-                    .fold(AlphaSet::new(), AlphaSet::or)
+                    .into_iter()
+                    .fold(AsciiSet::none(), AsciiSet::or)
                     .len()
             })
             .sum::<usize>()
@@ -33,9 +37,8 @@ impl Solution for CustomCustoms {
             .into_iter()
             .map(|group| {
                 group
-                    .split_whitespace()
-                    .map(AlphaSet::from)
-                    .fold(AlphaSet::all(), AlphaSet::and)
+                    .into_iter()
+                    .fold(AsciiSet::all(), AsciiSet::and)
                     .len()
             })
             .sum::<usize>()
