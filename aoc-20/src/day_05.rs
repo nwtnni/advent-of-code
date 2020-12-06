@@ -47,3 +47,15 @@ impl Solution for BinaryBoarding {
         unreachable!()
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use aoc::Fro as _;
+    use aoc::Solution as _;
+
+    #[test]
+    fn part_one() {
+        assert_eq!(super::BinaryBoarding::fro("FBFBBFFRLR").one(), 357);
+    }
+}

@@ -86,3 +86,34 @@ impl Solution for TobogganTrajectory {
             as i64
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use aoc::Fro as _;
+    use aoc::Solution as _;
+
+    static EXAMPLE: &str = "\
+        ..##.......\n\
+        #...#...#..\n\
+        .#....#..#.\n\
+        ..#.#...#.#\n\
+        .#...##..#.\n\
+        ..#.##.....\n\
+        .#.#.#....#\n\
+        .#........#\n\
+        #.##...#...\n\
+        #...##....#\n\
+        .#..#...#.#\
+    ";
+
+    #[test]
+    fn part_one() {
+        assert_eq!(super::TobogganTrajectory::fro(EXAMPLE).one(), 7);
+    }
+
+    #[test]
+    fn part_two() {
+        assert_eq!(super::TobogganTrajectory::fro(EXAMPLE).two(), 336);
+    }
+}

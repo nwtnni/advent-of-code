@@ -45,3 +45,38 @@ impl Solution for CustomCustoms {
             as i64
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use aoc::Fro as _;
+    use aoc::Solution as _;
+
+    static EXAMPLE: &str = "
+        abc\n\
+        \n\
+        a\n\
+        b\n\
+        c\n\
+        \n\
+        ab\n\
+        ac\n\
+        \n\
+        a\n\
+        a\n\
+        a\n\
+        a\n\
+        \n\
+        b\n\
+    ";
+
+    #[test]
+    fn part_one() {
+        assert_eq!(super::CustomCustoms::fro(EXAMPLE).one(), 11);
+    }
+
+    #[test]
+    fn part_two() {
+        assert_eq!(super::CustomCustoms::fro(EXAMPLE).two(), 6);
+    }
+}

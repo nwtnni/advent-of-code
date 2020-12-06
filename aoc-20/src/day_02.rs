@@ -61,3 +61,26 @@ impl Solution for PasswordPhilosophy {
             as i64
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use aoc::Fro as _;
+    use aoc::Solution as _;
+
+    static EXAMPLE: &str = "\
+        1-3 a: abcde\n\
+        1-3 b: cdefg\n\
+        2-9 c: ccccccccc\
+    ";
+
+    #[test]
+    fn part_one() {
+        assert_eq!(super::PasswordPhilosophy::fro(EXAMPLE).one(), 2);
+    }
+
+    #[test]
+    fn part_two() {
+        assert_eq!(super::PasswordPhilosophy::fro(EXAMPLE).two(), 1);
+    }
+}
