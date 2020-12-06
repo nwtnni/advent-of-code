@@ -1,15 +1,27 @@
-use std::collections::BTreeSet;
 use std::cmp;
 
 use aoc::*;
 
-pub struct BinaryBoarding(Vec<Vec<u8>>);
+pub struct BinaryBoarding(Vec<usize>);
 
 impl Fro for BinaryBoarding {
     fn fro(input: &str) -> Self {
-        input.trim()
-            .split('\n')
-            .map(|line| Vec::from(line.as_bytes()))
+        input
+            .trim()
+            .split_whitespace()
+            .map(|pass| {
+                pass.chars()
+                    .map(|bit| {
+                        match bit {
+                        | 'F' | 'L' => '0',
+                        | 'B' | 'R' => '1',
+                        | _ => unreachable!(),
+                        }
+                    })
+                    .collect::<String>()
+                    .tap(|pass| usize::from_str_radix(&pass, 2))
+                    .unwrap()
+            })
             .collect::<Vec<_>>()
             .tap(Self)
     }
@@ -19,61 +31,16 @@ impl Solution for BinaryBoarding {
     fn one(self) -> i64 {
         self.0
             .into_iter()
-            .map(|pass| {
-                let mut bot = 0;
-                let mut top = 128;
-
-                let mut left = 0;
-                let mut right = 8;
-
-                for byte in pass {
-                    let vertical = (bot + top) / 2;
-                    let horizontal = (left + right) / 2;
-                    match byte {
-                    | b'F' => top = vertical,
-                    | b'B' => bot = vertical,
-                    | b'R' => left = horizontal,
-                    | b'L' => right = horizontal,
-                    | _ => unreachable!(),
-                    }
-                }
-
-                bot * 8 + left
-            })
             .fold(0, cmp::max)
+            as i64
     }
 
-    fn two(self) -> i64 {
-        let mut seats = self.0
-            .into_iter()
-            .map(|pass| {
-                let mut bot = 0;
-                let mut top = 128;
+    fn two(mut self) -> i64 {
+        self.0.sort();
 
-                let mut left = 0;
-                let mut right = 8;
-
-                for byte in pass {
-                    let vertical = (bot + top) / 2;
-                    let horizontal = (left + right) / 2;
-                    match byte {
-                    | b'F' => top = vertical,
-                    | b'B' => bot = vertical,
-                    | b'R' => left = horizontal,
-                    | b'L' => right = horizontal,
-                    | _ => unreachable!(),
-                    }
-                }
-
-                bot * 8 + left
-            })
-            .collect::<BTreeSet<_>>()
-            .into_iter()
-            .peekable();
-
-        while let (Some(lo), Some(hi)) = (seats.next(), seats.peek()) {
-            if lo + 2 == *hi {
-                return lo + 1;
+        for passes in self.0.windows(2) {
+            if passes[0] + 2 == passes[1] {
+                return passes[0] as i64 + 1;
             }
         }
 
