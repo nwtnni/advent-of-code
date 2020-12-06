@@ -55,6 +55,10 @@ impl AlphaSet {
         AlphaSet::default()
     }
 
+    pub fn all() -> Self {
+        AlphaSet(0b0000_0011_1111_1111_1111_1111_1111_1111)
+    }
+
     pub fn insert(&mut self, alpha: char) -> bool {
         let mask = Self::mask(alpha);
         if self.0 & mask > 0 {
@@ -70,24 +74,28 @@ impl AlphaSet {
         self.0 & mask > 0
     }
 
-    pub fn and(&self, other: &Self) -> Self {
+    pub fn len(&self) -> usize {
+        self.0.count_ones() as usize
+    }
+
+    pub fn and(self, other: Self) -> Self {
         Self(self.0 & other.0)
     }
 
-    pub fn or(&self, other: &Self) -> Self {
+    pub fn or(self, other: Self) -> Self {
         Self(self.0 | other.0)
     }
 
-    pub fn xor(&self, other: &Self) -> Self {
+    pub fn xor(self, other: Self) -> Self {
         Self(self.0 ^ other.0)
     }
 
-    pub fn not(&self) -> Self {
-        Self(!self.0 & 0b0000_0011_1111_1111_1111_1111_1111_1111)
+    pub fn not(self) -> Self {
+        Self(!self.0 & Self::all().0)
     }
 
-    pub fn sub(&self, other: &Self) -> Self {
-        self.and(&other.not())
+    pub fn sub(self, other: Self) -> Self {
+        self.and(other.not())
     }
 
     fn mask(alpha: char) -> u32 {
