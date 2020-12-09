@@ -66,17 +66,38 @@ impl Client {
             .text()
             .map(|text| scraper::Html::parse_document(&text))?;
 
-        let selector = scraper::Selector::parse("article.day-desc")
+        let description = scraper::Selector::parse("article.day-desc")
             .expect("[INTERNAL ERROR]: invalid CSS selector");
 
         let description = html
-            .select(&selector)
+            .select(&description)
             .nth(part as usize - 1)
-            .ok_or_else(|| anyhow!("Could not retrieve description for {}-{}-{}", year, day, part))
-            .map(|html| markdown::from_html(html, year))?
+            .ok_or_else(|| anyhow!("Could not retrieve description for {}-{}-{}", year, day, part))?
+            .tap(|html| markdown::from_html(html, year))
             .tap_mut(trim_end_mut);
 
+        let solution = scraper::Selector::parse("article.day-desc + p")
+            .expect("[INTERNAL ERROR]: invalid CSS selector");
+
+        let solution = html
+            .select(&solution)
+            .nth(part as usize - 1)
+            .map(|html| markdown::from_html(html, year))
+            .map(|text| {
+                text.trim()
+                    .trim_start_matches("Your puzzle answer was `")
+                    .trim_end_matches("`.")
+                    .to_owned()
+            })
+            .and_then(|answer| answer.parse::<i64>().ok());
+
         self.cache.set_description(year, day, part, &description)?;
+
+        if let Some(solution) = solution {
+            self.cache.append_submitted(year, day, part, solution)?;
+            self.cache.set_completed(year, day, part, true)?;
+        }
+
         Ok(description)
     }
 
