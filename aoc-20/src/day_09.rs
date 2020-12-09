@@ -1,6 +1,3 @@
-use std::collections::HashSet;
-use std::collections::VecDeque;
-
 use aoc::*;
 
 #[derive(Clone)]
@@ -19,30 +16,17 @@ impl Fro for EncodingError {
 
 impl Solution for EncodingError {
     fn one(self) -> i64 {
-        let mut set = HashSet::<i64>::new();
-        let mut queue = VecDeque::new();
-
-        for i in 0..25 {
-            queue.push_back(self.0[i]);
-            set.insert(self.0[i]);
-        }
-
         'outer: for i in 25..self.0.len() {
-
-            let search = self.0[i];
-
-            for item in &queue {
-                if set.contains(&(search - item)) {
-                    set.remove(&queue.pop_front().unwrap());
-                    set.insert(search);
-                    queue.push_back(search);
-                    continue 'outer;
+            let sum = self.0[i];
+            for j in i - 25..i {
+                for k in j + 1..i {
+                    if self.0[j] + self.0[k] == sum {
+                        continue 'outer;
+                    }
                 }
             }
-
-            return search;
+            return sum;
         }
-
         unreachable!()
     }
 
