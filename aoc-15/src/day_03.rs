@@ -1,44 +1,44 @@
-use std::collections::HashSet as Set;
+use std::collections::HashSet;
 use std::mem;
-use std::str;
 
-pub struct PerfectlySphericalHousesInAVacuum(Vec<aoc::Dir>);
+use aoc::*;
 
-impl str::FromStr for PerfectlySphericalHousesInAVacuum {
-    type Err = aoc::Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
-            s.chars()
-                .map(parse_dir)
-                .collect()
-        ))
+#[derive(Clone, Debug)]
+pub struct PerfectlySphericalHousesInAVacuum(Vec<Dir>);
+
+impl Fro for PerfectlySphericalHousesInAVacuum {
+    fn fro(input: &str) -> Self {
+        input
+            .chars()
+            .map(|char| {
+                match char {
+                | '^' => Dir::N,
+                | 'v' => Dir::S,
+                | '>' => Dir::E,
+                | '<' => Dir::W,
+                | _ => unreachable!(),
+                }
+            })
+            .collect::<Vec<_>>()
+            .tap(Self)
     }
 }
 
-fn parse_dir(c: char) -> aoc::Dir {
-    match c {
-    | '^' => aoc::Dir::N,
-    | 'v' => aoc::Dir::S,
-    | '>' => aoc::Dir::E,
-    | '<' => aoc::Dir::W,
-    | _ => unreachable!(),
-    }
-}
-
-impl aoc::Solution for PerfectlySphericalHousesInAVacuum {
+impl Solution for PerfectlySphericalHousesInAVacuum {
     fn one(self) -> i64 {
-        use aoc::Pos;
-        self.0.iter()
-            .chain(&[aoc::Dir::N]) // Dummy
+        self.0
+            .iter()
+            .chain(&[Dir::N])
             .scan(Pos::default(), |pos, dir| Some(mem::replace(pos, pos.shift(*dir))))
-            .collect::<Set<_>>()
-            .len() as i64
+            .collect::<HashSet<_>>()
+            .len()
+            as i64
     }
 
     fn two(self) -> i64 {
-        use aoc::Pos;
-        self.0.iter()
-            .chain(&[aoc::Dir::N, aoc::Dir::N]) // Dummy
+        self.0
+            .iter()
+            .chain(&[Dir::N, Dir::N])
             .scan((Pos::default(), Pos::default(), false), |(human, robot, flip), dir| {
                 if mem::replace(flip, !*flip) {
                     Some(mem::replace(human, human.shift(*dir)))
@@ -46,45 +46,45 @@ impl aoc::Solution for PerfectlySphericalHousesInAVacuum {
                     Some(mem::replace(robot, robot.shift(*dir)))
                 }
             })
-            .collect::<Set<_>>()
-            .len() as i64
+            .collect::<HashSet<_>>()
+            .len()
+            as i64
     }
 }
 
 #[cfg(test)]
 mod tests {
 
-    use aoc::Solution;
-
-    type PSHV = super::PerfectlySphericalHousesInAVacuum;
+    use aoc::Fro as _;
+    use aoc::Solution as _;
 
     #[test]
     fn test_1_0() {
-        assert_eq!(">".parse::<PSHV>().unwrap().one(), 2)
+        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro(">").one(), 2)
     }
 
     #[test]
     fn test_1_1() {
-        assert_eq!("^>v<".parse::<PSHV>().unwrap().one(), 4)
+        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^>v<").one(), 4)
     }
 
     #[test]
     fn test_1_2() {
-        assert_eq!("^v^v^v^v^v".parse::<PSHV>().unwrap().one(), 2)
+        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^v^v^v^v^v").one(), 2)
     }
 
     #[test]
     fn test_2_0() {
-        assert_eq!("^v".parse::<PSHV>().unwrap().two(), 3)
+        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^v").two(), 3)
     }
 
     #[test]
     fn test_2_1() {
-        assert_eq!("^>v<".parse::<PSHV>().unwrap().two(), 3)
+        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^>v<").two(), 3)
     }
 
     #[test]
     fn test_2_2() {
-        assert_eq!("^v^v^v^v^v".parse::<PSHV>().unwrap().two(), 11)
+        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^v^v^v^v^v").two(), 11)
     }
 }
