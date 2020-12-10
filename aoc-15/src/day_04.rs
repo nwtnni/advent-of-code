@@ -1,18 +1,19 @@
 use std::fmt::Write;
-use std::str;
 
+use aoc::*;
+
+#[derive(Clone, Debug)]
 pub struct TheIdealStockingStuffer {
     buf: String,
     len: usize,
 }
 
-impl str::FromStr for TheIdealStockingStuffer {
-    type Err = aoc::Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self {
-            buf: s.trim().to_owned(),
-            len: s.trim().len(),
-        })
+impl Fro for TheIdealStockingStuffer {
+    fn fro(input: &str) -> Self {
+        Self {
+            buf: input.trim().to_owned(),
+            len: input.trim().len(),
+        }
     }
 }
 
@@ -36,7 +37,7 @@ impl TheIdealStockingStuffer {
     }
 }
 
-impl aoc::Solution for TheIdealStockingStuffer {
+impl Solution for TheIdealStockingStuffer {
     fn one(mut self) -> i64 {
         self.find(5)
     }
@@ -49,17 +50,16 @@ impl aoc::Solution for TheIdealStockingStuffer {
 #[cfg(test)]
 mod tests {
 
-    use aoc::Solution;
-
-    type ISS = super::TheIdealStockingStuffer;
+    use aoc::Fro as _;
+    use aoc::Solution as _;
 
     #[test]
     fn test_0() {
-        assert_eq!("abcdef".parse::<ISS>().unwrap().one(), 609043)
+        assert_eq!(super::TheIdealStockingStuffer::fro("abcdef").one(), 609043)
     }
 
     #[test]
     fn test_1() {
-        assert_eq!("pqrstuv".parse::<ISS>().unwrap().one(), 1048970)
+        assert_eq!(super::TheIdealStockingStuffer::fro("pqrstuv").one(), 1048970)
     }
 }
