@@ -1,3 +1,4 @@
+use std::cmp;
 use std::iter;
 use std::num;
 use std::ops;
@@ -39,7 +40,37 @@ pub struct Pos {
 }
 
 impl Pos {
-    pub fn shift(&self, dir: Dir) -> Self {
+    pub fn to_inclusive(self, other: Self) -> impl Iterator<Item = Self> {
+        (self.y..=other.y).flat_map(move |y| {
+            (self.x..=other.x).map(move |x| {
+                Pos { x, y }
+            })
+        })
+    }
+
+    pub fn to_exclusive(self, other: Self) -> impl Iterator<Item = Self> {
+        (self.y..other.y).flat_map(move |y| {
+            (self.x..other.x).map(move |x| {
+                Pos { x, y }
+            })
+        })
+    }
+
+    pub fn min(self, other: Pos) -> Self {
+        Pos {
+            x: cmp::min(self.x, other.x),
+            y: cmp::min(self.y, other.y),
+        }
+    }
+
+    pub fn max(self, other: Pos) -> Self {
+        Pos {
+            x: cmp::max(self.x, other.x),
+            y: cmp::max(self.y, other.y),
+        }
+    }
+
+    pub fn shift(self, dir: Dir) -> Self {
         match dir {
         | Dir::N => Pos { x: self.x, y: self.y - 1 },
         | Dir::S => Pos { x: self.x, y: self.y + 1 },
