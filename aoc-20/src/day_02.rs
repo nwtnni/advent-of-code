@@ -1,7 +1,9 @@
 use aoc::*;
 
+#[derive(Clone, Debug)]
 pub struct PasswordPhilosophy(Vec<Policy>);
 
+#[derive(Clone, Debug)]
 struct Policy {
     lo: usize,
     hi: usize,

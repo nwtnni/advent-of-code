@@ -2,6 +2,7 @@ use std::cmp;
 
 use aoc::*;
 
+#[derive(Clone, Debug)]
 pub struct BinaryBoarding(Vec<usize>);
 
 impl Fro for BinaryBoarding {

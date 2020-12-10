@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use aoc::*;
 
+#[derive(Clone, Debug)]
 pub struct PassportProcessing(Vec<HashMap<String, String>>);
 
 impl Fro for PassportProcessing {

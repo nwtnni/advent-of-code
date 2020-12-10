@@ -3,6 +3,7 @@ use std::ops;
 
 use aoc::*;
 
+#[derive(Clone, Debug)]
 pub struct TobogganTrajectory {
     rows: usize,
     cols: usize,

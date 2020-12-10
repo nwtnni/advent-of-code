@@ -4,6 +4,7 @@ use std::mem;
 use aoc::*;
 use petgraph::prelude::*;
 
+#[derive(Clone, Debug)]
 pub struct HandyHaversacks(DiGraphMap<&'static str, i64>);
 
 impl Fro for HandyHaversacks {

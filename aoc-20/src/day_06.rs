@@ -1,5 +1,6 @@
 use aoc::*;
 
+#[derive(Clone, Debug)]
 pub struct CustomCustoms(Vec<Vec<AsciiSet>>);
 
 impl Fro for CustomCustoms {

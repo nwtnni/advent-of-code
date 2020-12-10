@@ -1,5 +1,6 @@
 use aoc::*;
 
+#[derive(Clone, Debug)]
 pub struct ReportRepair(Vec<i64>);
 
 impl Fro for ReportRepair {

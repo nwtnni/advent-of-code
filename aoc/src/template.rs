@@ -3,6 +3,7 @@ use std::collections::HashSet;
 
 use aoc::*;
 
+#[derive(Clone, Debug)]
 pub struct $TITLE(Vec<...>);
 pub struct $TITLE(HashSet<...>);
 pub struct $TITLE {
@@ -11,7 +12,6 @@ pub struct $TITLE {
     grid: HashMap<Pos, ...>,
 }
 
-// Line-based parsing
 impl Fro for $TITLE {
     fn fro(input: &str) -> Self {
         input
@@ -27,7 +27,6 @@ impl Fro for $TITLE {
     }
 }
 
-// Grid-based parsing
 impl Fro for $TITLE {
     fn fro(input: &str) -> Self {
         let mut grid = HashMap::new();

@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use aoc::*;
 
+#[derive(Clone, Debug)]
 pub struct HandheldHalting(Vec<(Op, i64)>);
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]

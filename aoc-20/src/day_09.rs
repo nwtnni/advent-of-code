@@ -1,6 +1,6 @@
 use aoc::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct EncodingError(Vec<i64>);
 
 impl Fro for EncodingError {
