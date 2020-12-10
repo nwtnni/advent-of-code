@@ -1,13 +1,13 @@
-use std::str;
-use std::collections::HashMap as Map;
+use std::collections::HashMap;
 
-#[derive(Debug)]
+use aoc::*;
+
+#[derive(Clone, Debug)]
 pub struct DoesntHeHaveInternElvesForThis(String);
 
-impl str::FromStr for DoesntHeHaveInternElvesForThis {
-    type Err = aoc::Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(DoesntHeHaveInternElvesForThis(s.to_owned()))
+impl Fro for DoesntHeHaveInternElvesForThis {
+    fn fro(input: &str) -> Self {
+        Self(input.to_owned())
     }
 }
 
@@ -33,7 +33,7 @@ fn is_naughty(cs: &&[char]) -> bool {
     }
 }
 
-impl aoc::Solution for DoesntHeHaveInternElvesForThis {
+impl Solution for DoesntHeHaveInternElvesForThis {
     fn one(self) -> i64 {
         self.0
             .split_whitespace()
@@ -57,11 +57,11 @@ impl aoc::Solution for DoesntHeHaveInternElvesForThis {
                 let (_, repeat) = chars
                     .windows(2)
                     .enumerate()
-                    .fold((Map::<&[char], usize>::default(), 0), |(mut seen, count), (i, cs)| {
-                        match seen.get(cs) {
-                        | Some(j) if i > j + 1 => { (seen, count + 1) }
-                        | Some(_)              => { (seen, count) }
-                        | None                 => { seen.insert(cs, i); (seen, count) }
+                    .fold((HashMap::<&[char], usize>::default(), 0), |(mut seen, count), (i, cs)| {
+                        if i > *seen.entry(cs).or_insert(i) + 1 {
+                            (seen, count + 1)
+                        } else {
+                            (seen, count)
                         }
                     });
                 sandwich > 0 && repeat > 0
