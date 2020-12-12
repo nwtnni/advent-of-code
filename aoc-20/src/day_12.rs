@@ -43,17 +43,19 @@ impl Fro for RainRisk {
 impl Solution for RainRisk {
     fn one(self) -> i64 {
 
-        let mut dir = Dir::E;
+        let dirs = [Dir::E, Dir::N, Dir::W, Dir::S];
+
+        let mut dir = 0;
         let mut pos = Pos::default();
 
         for (r#move, dist) in self.0 {
-            match (r#move, dir) {
+            match (r#move, dirs[dir]) {
             | (Move::N, _) | (Move::F, Dir::N) => pos = Pos { x: pos.x, y: pos.y + dist },
             | (Move::S, _) | (Move::F, Dir::S) => pos = Pos { x: pos.x, y: pos.y - dist },
             | (Move::E, _) | (Move::F, Dir::E) => pos = Pos { x: pos.x + dist, y: pos.y },
             | (Move::W, _) | (Move::F, Dir::W) => pos = Pos { x: pos.x - dist, y: pos.y },
-            | (Move::L, _) => rotate(&mut dir, dist),
-            | (Move::R, _) => rotate(&mut dir, -dist),
+            | (Move::L, _) => dir = (dir + dist as usize / 90) % 4,
+            | (Move::R, _) => dir = (dir + 4 - dist as usize / 90) % 4,
             }
         }
 
@@ -80,42 +82,6 @@ impl Solution for RainRisk {
         }
 
         pos.x.abs() + pos.y.abs()
-    }
-}
-
-fn rotate(dir: &mut Dir, by: i64) {
-    match (*dir, by / 90) {
-    | (_, 0) => (),
-
-    | (Dir::N, -1) => *dir = Dir::E,
-    | (Dir::N, -2) => *dir = Dir::S,
-    | (Dir::N, -3) => *dir = Dir::W,
-    | (Dir::N,  1) => *dir = Dir::W,
-    | (Dir::N,  2) => *dir = Dir::S,
-    | (Dir::N,  3) => *dir = Dir::E,
-
-    | (Dir::S,  1) => *dir = Dir::E,
-    | (Dir::S,  2) => *dir = Dir::N,
-    | (Dir::S,  3) => *dir = Dir::W,
-    | (Dir::S, -1) => *dir = Dir::W,
-    | (Dir::S, -2) => *dir = Dir::N,
-    | (Dir::S, -3) => *dir = Dir::E,
-
-    | (Dir::E, -1) => *dir = Dir::S,
-    | (Dir::E, -2) => *dir = Dir::W,
-    | (Dir::E, -3) => *dir = Dir::N,
-    | (Dir::E,  1) => *dir = Dir::N,
-    | (Dir::E,  2) => *dir = Dir::W,
-    | (Dir::E,  3) => *dir = Dir::S,
-
-    | (Dir::W,  1) => *dir = Dir::S,
-    | (Dir::W,  2) => *dir = Dir::E,
-    | (Dir::W,  3) => *dir = Dir::N,
-    | (Dir::W, -1) => *dir = Dir::N,
-    | (Dir::W, -2) => *dir = Dir::E,
-    | (Dir::W, -3) => *dir = Dir::S,
-
-    | _ => unreachable!(),
     }
 }
 
