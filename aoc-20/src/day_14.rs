@@ -100,19 +100,26 @@ impl Solution for DockingData {
                     set >>= 1;
                 }
             }
-            | Op::Write { address, value } => {
-                for select in 0..1 << float.len() {
-                    let mut floating = *address;
+            | Op::Write { mut address, value } => {
+                for mask in &float {
+                    address &= !mask;
+                }
 
-                    for bit in 0..float.len() {
-                        if (1 << bit) & select == 0 {
-                            floating &= !float[bit];
-                        } else {
-                            floating |= float[bit];
-                        }
-                    }
+                memory.insert(address | ones, *value);
 
-                    memory.insert(floating | ones, *value);
+                for i in 1..1 << float.len() {
+                    // The difference between two adjacent [Gray codes][gc] is a single bit.
+                    //
+                    // `.trailing_zeros()` gives us the index of a bit to flip, which
+                    // we translate to a corresponding bitmask for an 'X' character from
+                    // the `float` array.
+                    //
+                    // This allows us to modify exactly one address bit per loop iteration
+                    // while still covering the entire 2^n set of addresses.
+                    //
+                    // [gc]: https://en.wikipedia.org/wiki/Gray_code
+                    address ^= float[(gray(i - 1) ^ gray(i)).trailing_zeros() as usize];
+                    memory.insert(address | ones, *value);
                 }
             }
             }
@@ -124,4 +131,8 @@ impl Solution for DockingData {
             .sum::<u64>()
             as i64
     }
+}
+
+fn gray(index: usize) -> usize {
+    index ^ (index >> 1)
 }
