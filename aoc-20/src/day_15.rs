@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 use aoc::*;
 
@@ -17,74 +16,44 @@ impl Fro for RambunctiousRecitation {
     }
 }
 
-impl Solution for RambunctiousRecitation {
-    fn one(self) -> i64 {
-        let mut spoken = HashMap::new();
-        let mut last = 0;
+impl RambunctiousRecitation {
+    fn speak(&self, to: usize) -> i64 {
+        let mut spoken = self
+            .0
+            .iter()
+            .enumerate()
+            .map(|(i, n)| (*n, i))
+            .take(self.0.len() - 1)
+            .collect::<HashMap<_, _>>();
 
-        for i in 0..self.0.len() {
-            spoken.insert(self.0[i], (vec![i as i64], 1));
-            last = self.0[i];
-        }
+        let mut last = self
+            .0
+            .last()
+            .copied()
+            .unwrap();
 
-        for i in self.0.len()..2020 {
-            match spoken.get(&last) {
-            | Some((_, 1)) => {
-                last = 0;
-            }
-            | Some((indices, _)) => {
-                last = (i - 1) as i64 - indices[indices.len() - 2];
-            }
-            | None => {
-                unreachable!()
-            }
-            }
+        for i in self.0.len() - 1..to - 1 {
+            let save = last;
 
-            spoken
-                .entry(last)
-                .and_modify(|(index, count)| {
-                    index.push(i as i64);
-                    *count += 1;
-                })
-                .or_insert((vec![i as i64], 1));
+            last = spoken
+                .get(&last)
+                .copied()
+                .map(|j| i as i64 - j as i64)
+                .unwrap_or(0);
 
-            dbg!(last);
+            spoken.insert(save, i);
         }
 
         last
     }
+}
+
+impl Solution for RambunctiousRecitation {
+    fn one(self) -> i64 {
+        self.speak(2020)
+    }
 
     fn two(self) -> i64 {
-        let mut spoken = HashMap::new();
-        let mut last = 0;
-
-        for i in 0..self.0.len() {
-            spoken.insert(self.0[i], (vec![i as i64], 1));
-            last = self.0[i];
-        }
-
-        for i in self.0.len()..30000000 {
-            match spoken.get(&last) {
-            | Some((_, 1)) => {
-                last = 0;
-            }
-            | Some((indices, _)) => {
-                last = (i - 1) as i64 - indices[indices.len() - 2];
-            }
-            | None => {
-                unreachable!()
-            }
-            }
-
-            spoken
-                .entry(last)
-                .and_modify(|(index, count)| {
-                    index.push(i as i64);
-                    *count += 1;
-                })
-                .or_insert((vec![i as i64], 1));
-        }
-
-        last
+        self.speak(30000000)
     }
 }
