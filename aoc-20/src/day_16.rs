@@ -80,21 +80,15 @@ impl Fro for TicketTranslation {
 
 impl Solution for TicketTranslation {
     fn one(self) -> i64 {
-        let mut sum = 0i64;
-        for ticket in &self.nearby {
-            for value in ticket {
-                if self.fields.iter().all(|field| !field.validate(*value)) {
-                    sum += value;
-                    break;
-                }
-            }
-        }
-        sum
+        self.nearby
+            .iter()
+            .flatten()
+            .filter(|value| self.fields.iter().all(|field| !field.validate(**value)))
+            .sum()
     }
 
     fn two(mut self) -> i64 {
         let mut destroy = mem::take(&mut self.nearby);
-
         destroy.retain(|ticket| {
             ticket
                 .iter()
@@ -102,14 +96,12 @@ impl Solution for TicketTranslation {
                     self.fields.iter().any(|field| field.validate(*value))
                 })
         });
-
         self.nearby = destroy;
 
+        let mut solved = HashSet::<Field>::new();
         let mut assign: HashMap<usize, HashSet<Field>> = (0..self.fields.len())
             .map(|i| (i, self.fields.iter().copied().collect()))
             .collect();
-
-        let mut solved = HashSet::<Field>::new();
 
         'outer: loop {
             for ticket in self.nearby.iter().chain(iter::once(&self.yours)) {
