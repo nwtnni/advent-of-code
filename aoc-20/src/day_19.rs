@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 use aoc::*;
 
@@ -60,92 +59,60 @@ impl Fro for MonsterMessages {
 }
 
 impl MonsterMessages {
-    fn matches(&self, message: &str, rule: i64) -> bool {
+    fn matches(&self, message: &str, rule: i64, memo: &mut HashMap<i64, usize>) -> bool {
         match &self.rules[&rule] {
-            Rule::Tree(tree) => {
-                for subtree in tree {
-                    let mut len = 0;
-                    let mut all = true;
+        | Rule::Leaf(leaf) => message.chars().all(|char| char == *leaf),
+        | Rule::Tree(tree) => {
+            for subtree in tree {
+                let mut index = 0;
+                let mut all = true;
 
-                    for rule in subtree {
-                        let len_ = self.len(*rule);
-                        all &= self.matches(&message[len..len + len_], *rule);
-                        len += len_;
-                    }
-
-                    if all && len == message.len() {
-                        return true;
-                    }
+                for rule in subtree {
+                    let len = match memo.get(rule).copied() {
+                    | None => self.len(*rule, memo),
+                    | Some(len) => len,
+                    };
+                    all &= self.matches(&message[index..index + len], *rule, memo);
+                    index += len;
                 }
-                false
+
+                if all && index == message.len() {
+                    return true;
+                }
             }
-            Rule::Leaf(leaf) => {
-                message.chars().all(|char| char == *leaf)
-            }
+            false
+        }
         }
     }
 
-    fn len(&self, rule: i64) -> usize {
-        match &self.rules[&rule] {
-            Rule::Leaf(_) => 1,
-            Rule::Tree(tree) => tree[0].iter().map(|rule| self.len(*rule)).sum(),
-        }
-    }
+    fn len(&self, rule: i64, memo: &mut HashMap<i64, usize>) -> usize {
+        if let Some(len) = memo.get(&rule).copied() {
+            return len;
+        };
 
-    fn generate(&self, rule: i64) -> Vec<String> {
-        match &self.rules[&rule] {
-            Rule::Leaf(leaf) => vec![String::from(*leaf)],
-            Rule::Tree(tree) => {
-                tree.iter()
-                    .flat_map(|subtree| {
-                        let mut buffer = Vec::new();
-                        for rule in subtree {
-                            buffer.push(self.generate(*rule));
-                        }
-                        Self::product(&buffer)
-                    })
-                    .collect()
-            }
-        }
-    }
+        let len = match &self.rules[&rule] {
+        | Rule::Leaf(_) => 1,
+        | Rule::Tree(tree) => tree[0].iter().map(|rule| self.len(*rule, memo)).sum(),
+        };
 
-    fn product(of: &[Vec<String>]) -> Vec<String> {
-        if of.len() == 1 {
-            return of[0].clone();
-        }
-
-        let mut strings = Vec::new();
-        for prefix in &of[0] {
-            for suffix in Self::product(&of[1..]) {
-                strings.push(format!("{}{}", prefix, suffix));
-            }
-        }
-        strings
+        memo.insert(rule, len);
+        len
     }
 }
 
 impl Solution for MonsterMessages {
     fn one(self) -> i64 {
+        let mut memo = HashMap::new();
         self.messages
             .iter()
-            .filter(|message| self.matches(message, 0))
+            .filter(|message| self.matches(message, 0, &mut memo))
             .count() as i64
     }
 
     fn two(self) -> i64 {
-        let _42 = self
-            .generate(42)
-            .into_iter()
-            .collect::<HashSet<_>>();
-
-        let _42_len = _42.iter().give().len();
-
-        let _31 = self
-            .generate(31)
-            .into_iter()
-            .collect::<HashSet<_>>();
-
-        let _31_len = _31.iter().give().len();
+        let mut memo = HashMap::new();
+        let len_31 = self.len(31, &mut memo);
+        let len_42 = self.len(42, &mut memo);
 
         self.messages
             .iter()
@@ -164,27 +131,27 @@ impl Solution for MonsterMessages {
             //
             // Example: 42 42 42/31 would be rejected LR and accepted RL.
             .filter(|message| {
-                let mut start = 0;
+                let mut index = 0;
                 let mut _31s = 0;
                 let mut _42s = 0;
 
-                while _42.contains(&message[start..start + _42_len]) {
+                while self.matches(&message[index..index + len_42], 42, &mut memo) {
                     _42s += 1;
-                    start += _42_len;
-                    if start >= message.len() {
+                    index += len_42;
+                    if index >= message.len() {
                         return false;
                     }
                 }
 
-                while _31.contains(&message[start..start + _31_len]) {
+                while self.matches(&message[index..index + len_31], 31, &mut memo) {
                     _31s += 1;
-                    start += _31_len;
-                    if start >= message.len() {
+                    index += len_31;
+                    if index >= message.len() {
                         break;
                     }
                 }
 
-                start == message.len() && _42s > _31s && _31s > 0
+                index == message.len() && _42s > _31s && _31s > 0
             })
             .count() as i64
     }
