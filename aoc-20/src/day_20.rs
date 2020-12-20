@@ -1,5 +1,4 @@
 use std::fmt;
-use std::mem;
 
 use indexmap::IndexMap;
 use indexmap::IndexSet;
@@ -111,21 +110,29 @@ impl Fro for JurassicJigsaw {
             .split("\n\n")
             .map(|tile| {
                 let mut iter = tile.trim().split('\n');
-                let id = iter.give().trim().split(' ').nth(1).unwrap().trim_end_matches(':').to::<usize>();
+
+                let id = iter
+                    .give()
+                    .trim()
+                    .split(' ')
+                    .nth(1)
+                    .unwrap()
+                    .trim_end_matches(':')
+                    .to::<usize>();
+
                 let mut grid = [0u16; 10];
-                let index = &mut 0;
-                for line in iter {
-                    let mut set = 0b10_0000_0000;
+                for (i, line) in iter.enumerate() {
+                    let mut mask = 0b10_0000_0000;
                     let mut tile = 0;
                     for char in line.chars() {
                         match char {
                             '.' => (),
-                            '#' => tile |= set,
+                            '#' => tile |= mask,
                             _ => unreachable!(),
                         }
-                        set >>= 1;
+                        mask >>= 1;
                     }
-                    grid[mem::replace(index, *index + 1)] = tile;
+                    grid[i] = tile;
                 }
 
                 (id, Tile(grid))
@@ -137,47 +144,61 @@ impl Fro for JurassicJigsaw {
 
 impl Solution for JurassicJigsaw {
     fn one(self) -> i64 {
-        let len = (self.0.len() as f64).sqrt().round() as usize;
-        let mut assignment = Vec::new();
-        let mut tiles = self.0.iter().map(|(id, tile)| (*id, *tile)).collect::<IndexSet<_>>();
+        let dim = (self.0.len() as f64).sqrt().round() as usize;
+        let mut assign = Vec::new();
+        let mut tiles = self
+            .0
+            .iter()
+            .map(|(id, tile)| (*id, *tile))
+            .collect::<IndexSet<_>>();
 
-        if !recurse(&mut assignment, &mut tiles, len) {
+        if !recurse(&mut assign, &mut tiles, dim) {
             panic!()
         }
 
-        (assignment[index(0, 0, len)].0
-        * assignment[index(0, len - 1, len)].0
-        * assignment[index(len - 1, 0, len)].0
-        * assignment[index(len - 1, len - 1, len)].0) as i64
+        (
+            assign[index(0, 0, dim)].0
+            * assign[index(0, dim - 1, dim)].0
+            * assign[index(dim - 1, 0, dim)].0
+            * assign[index(dim - 1, dim - 1, dim)].0
+        ) as i64
     }
 
     fn two(self) -> i64 {
-        let len = (self.0.len() as f64).sqrt().round() as usize;
-        let mut assignment = Vec::new();
-        let mut tiles = self.0.iter().map(|(id, tile)| (*id, *tile)).collect::<IndexSet<_>>();
+        let dim = (self.0.len() as f64).sqrt().round() as usize;
+        let mut assign = Vec::new();
+        let mut tiles = self
+            .0
+            .iter()
+            .map(|(id, tile)| (*id, *tile))
+            .collect::<IndexSet<_>>();
 
-        if !recurse(&mut assignment, &mut tiles, len) {
+        if !recurse(&mut assign, &mut tiles, dim) {
             panic!()
         }
 
         // 12x12 grid with 8 bits per sub-grid = 96x96
         let mut image = Image([0; IMAGE_SIZE]);
 
-        for (index, (_, tile)) in assignment.iter().enumerate() {
-            let (r, c) = invert(index, len);
-            for (dr, row) in tile.0.iter().skip(1).enumerate().take(8) {
-                image.0[r * 8 + dr] |= (((row & 0b01_1111_1110) >> 1) as u128) << ((len - 1 - c) * 8);
+        for (index, (_, tile)) in assign.iter().enumerate() {
+            let (r, c) = invert(index, dim);
+            for (dr, line) in tile.0.iter().skip(1).enumerate().take(8) {
+                image.0[r * 8 + dr] |= (((line & 0b01_1111_1110) >> 1) as u128) << ((dim - 1 - c) * 8);
             }
         }
 
         //                   #
         // #    ##    ##    ###
         //  #  #  #  #  #  #
-        let monster = [
+        static MONSTER: [u128; 3] = [
             0b0000_0000_0000_0000_0010u128,
             0b1000_0110_0001_1000_0111u128,
             0b0100_1001_0010_0100_1000u128,
         ];
+
+        static MONSTER_ROWS: usize = MONSTER.len();
+        static MONSTER_COLS: usize = 20;
+        static MONSTER_BITS: usize = 15;
 
         for transform in 0..8 {
             match transform {
@@ -192,12 +213,12 @@ impl Solution for JurassicJigsaw {
 
             let mut monsters = 0;
 
-            for dy in 0..IMAGE_SIZE - 3 {
-                for dx in 0..IMAGE_SIZE - 20 {
-                    if monster
+            for dr in 0..IMAGE_SIZE - MONSTER_ROWS {
+                for dc in 0..IMAGE_SIZE - MONSTER_COLS {
+                    if MONSTER
                         .iter()
                         .enumerate()
-                        .all(|(y, row)| (image.0[dy + y] & (row << dx)) == (row << dx))
+                        .all(|(r, line)| (image.0[dr + r] & (line << dc)) == (line << dc))
                     {
                         monsters += 1;
                     }
@@ -206,8 +227,8 @@ impl Solution for JurassicJigsaw {
 
             if monsters > 0 {
                 let total = image.0.iter().map(|line| line.count_ones()).sum::<u32>();
-                let monster = monster.iter().map(|line| line.count_ones()).sum::<u32>();
-                return (total - (monsters * monster)) as i64;
+                let monster = monsters * MONSTER_BITS;
+                return total as i64 - monster as i64;
             }
         }
 
@@ -216,36 +237,37 @@ impl Solution for JurassicJigsaw {
 }
 
 fn recurse(
-    assignment: &mut Vec<(usize, Tile)>,
+    assign: &mut Vec<(usize, Tile)>,
     tiles: &mut IndexSet<(usize, Tile)>,
-    len: usize,
+    dim: usize,
 ) -> bool {
-    if assignment.len() == len * len {
+    if assign.len() == dim * dim {
         return true;
     }
 
     for tile in tiles.iter().copied().collect::<Vec<_>>() {
-        let mut modify = tile;
-        for i in 0..8 {
-            match i {
+        let mut transformed = tile;
+
+        for transform in 0..8 {
+            match transform {
                 0 => (),
-                1 | 2 | 3 | 5 | 6 | 7 => modify.1.rotate_mut(),
+                1 | 2 | 3 | 5 | 6 | 7 => transformed.1.rotate_mut(),
                 4 => {
-                    modify.1.rotate_mut();
-                    modify.1.flip_mut();
+                    transformed.1.rotate_mut();
+                    transformed.1.flip_mut();
                 }
                 _ => unreachable!(),
             }
 
-            assignment.push(modify);
-            if satisfied(&*assignment, len) {
+            assign.push(transformed);
+            if satisfied(&*assign, dim) {
                 tiles.remove(&tile);
-                if recurse(assignment, tiles, len) {
+                if recurse(assign, tiles, dim) {
                     return true;
                 }
                 tiles.insert(tile);
             }
-            assignment.pop();
+            assign.pop();
         }
     }
 
@@ -253,14 +275,14 @@ fn recurse(
 }
 
 fn satisfied(
-    assignment: &[(usize, Tile)],
-    len: usize,
+    assign: &[(usize, Tile)],
+    dim: usize,
 ) -> bool {
-    let tile = assignment.last().unwrap();
-    let (row, col) = invert(assignment.len() - 1, len);
+    let tile = assign.last().unwrap();
+    let (row, col) = invert(assign.len() - 1, dim);
 
     if col > 0 {
-        if let Some(left) = assignment.get(index(row, col - 1, len)) {
+        if let Some(left) = assign.get(index(row, col - 1, dim)) {
             if left.1.right() != tile.1.left() {
                 return false;
             }
@@ -268,7 +290,7 @@ fn satisfied(
     }
 
     if row > 0 {
-        if let Some(top) = assignment.get(index(row - 1, col, len)) {
+        if let Some(top) = assign.get(index(row - 1, col, dim)) {
             if top.1.bot() != tile.1.top() {
                 return false;
             }
@@ -278,10 +300,10 @@ fn satisfied(
     true
 }
 
-fn index(row: usize, col: usize, len: usize) -> usize {
-    row * len + col
+fn index(row: usize, col: usize, dim: usize) -> usize {
+    row * dim + col
 }
 
-fn invert(index: usize, len: usize) -> (usize, usize) {
-    (index / len, index % len)
+fn invert(index: usize, dim: usize) -> (usize, usize) {
+    (index / dim, index % dim)
 }
