@@ -20,6 +20,7 @@ mod day_17;
 mod day_18;
 mod day_19;
 mod day_20;
+mod day_21;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -48,6 +49,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     | Day::D18 => run!(day_18::OperationOrder),
     | Day::D19 => run!(day_19::MonsterMessages),
     | Day::D20 => run!(day_20::JurassicJigsaw),
+    | Day::D21 => run!(day_21::AllergenAssessment),
     | _ => unimplemented!(),
     }
 }
