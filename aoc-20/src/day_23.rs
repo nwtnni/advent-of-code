@@ -102,20 +102,14 @@ impl Solution for CrabCups {
 
         for i in 0..self.0.len() {
             let curr = i;
-            let prev = (i + self.0.len() - 1).rem_euclid(self.0.len());
-            let next = (i + self.0.len() + 1).rem_euclid(self.0.len());
-            *nodes[&self.0[curr]].prev.borrow_mut() = Some(rc::Rc::clone(&nodes[&self.0[prev]]));
+            let next = (i + 1) % self.0.len();
             *nodes[&self.0[curr]].next.borrow_mut() = Some(rc::Rc::clone(&nodes[&self.0[next]]));
         }
 
         let mut current_cup = rc::Rc::clone(&nodes[&self.0[0]]);
         let mut current_label = current_cup.label;
 
-        for i in 0..10_000_000 {
-            if i % 1000 == 0 {
-                println!("{}", i);
-            }
-
+        for _ in 0..10_000_000 {
             let first_cup = rc::Rc::clone(current_cup.next.borrow().as_ref().unwrap());
             let first_label = first_cup.label;
 
@@ -143,13 +137,8 @@ impl Solution for CrabCups {
 
             // Splice
             *current_cup.next.borrow_mut() = Some(rc::Rc::clone(&after_third_cup));
-            *after_third_cup.prev.borrow_mut() = Some(rc::Rc::clone(&current_cup));
-
             *target_cup.next.borrow_mut() = Some(rc::Rc::clone(&first_cup));
-            *first_cup.prev.borrow_mut() = Some(rc::Rc::clone(&target_cup));
-
             *third_cup.next.borrow_mut() = Some(rc::Rc::clone(&after_target_cup));
-            *after_target_cup.prev.borrow_mut() = Some(rc::Rc::clone(&third_cup));
 
             let temp_cup = rc::Rc::clone(current_cup.next.borrow().as_ref().unwrap());
             current_cup = temp_cup;
@@ -173,7 +162,6 @@ impl Solution for CrabCups {
 struct Cup {
     label: i64,
     next: cell::RefCell<Option<rc::Rc<Cup>>>,
-    prev: cell::RefCell<Option<rc::Rc<Cup>>>,
 }
 
 impl Cup {
@@ -181,7 +169,6 @@ impl Cup {
         Cup {
             label,
             next: Default::default(),
-            prev: Default::default(),
         }
     }
 }
