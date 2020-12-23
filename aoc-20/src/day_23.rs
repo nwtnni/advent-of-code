@@ -1,7 +1,5 @@
-use std::cell;
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::rc;
 
 use aoc::*;
 
@@ -83,7 +81,6 @@ impl Solution for CrabCups {
     }
 
     fn two(mut self) -> i64 {
-
         let max = self
             .0
             .iter()
@@ -91,84 +88,87 @@ impl Solution for CrabCups {
             .max()
             .unwrap();
 
-        self.0.extend(max + 1..=1_000_000);
+        const MAX: i64 = 1_000_000;
+        const ITERATIONS: usize = 10_000_000;
 
-        let nodes = self
+        self.0.extend(max + 1..=MAX as i64);
+
+        let label_to_index = self
             .0
             .iter()
             .copied()
-            .map(|label| (label, rc::Rc::new(Cup::new(label))))
+            .enumerate()
+            .map(|(index, label)| (label, index))
             .collect::<HashMap<_, _>>();
 
-        for i in 0..self.0.len() {
+        let mut index_to_index = vec![0usize; MAX as usize];
+        let index_to_label = &self.0;
+
+        for i in 0..MAX as usize {
             let curr = i;
-            let next = (i + 1) % self.0.len();
-            *nodes[&self.0[curr]].next.borrow_mut() = Some(rc::Rc::clone(&nodes[&self.0[next]]));
+            let next = (i + 1) % (MAX as usize);
+            index_to_index[curr] = next;
         }
 
-        let mut current_cup = rc::Rc::clone(&nodes[&self.0[0]]);
-        let mut current_label = current_cup.label;
+        let mut current_index = 0;
+        let mut current_label = index_to_label[current_index];
 
-        for _ in 0..10_000_000 {
-            let first_cup = rc::Rc::clone(current_cup.next.borrow().as_ref().unwrap());
-            let first_label = first_cup.label;
+        //          +-----+     +-----+     +-----+     +-----+     +-----+     +-----+
+        //          |     v     |     v     |     v     |     v     |     v     |     v
+        // |           |           |           |           |    ...    |           |           |
+        //       ^           ^            ^          ^                       ^
+        //    current      first       second      third                  target
+        for _ in 0..ITERATIONS {
+            let first_index = index_to_index[current_index];
+            let first_label = index_to_label[first_index];
 
-            let second_cup = rc::Rc::clone(first_cup.next.borrow().as_ref().unwrap());
-            let second_label = second_cup.label;
+            let second_index = index_to_index[first_index];
+            let second_label = index_to_label[second_index];
 
-            let third_cup = rc::Rc::clone(second_cup.next.borrow().as_ref().unwrap());
-            let third_label = third_cup.label;
+            let third_index = index_to_index[second_index];
+            let third_label = index_to_label[third_index];
 
-            let after_third_cup = rc::Rc::clone(third_cup.next.borrow().as_ref().unwrap());
-
-            let mut target_label = match (current_label - 1).rem_euclid(self.0.len() as i64) {
-                0 => self.0.len() as i64,
-                l => l,
+            let mut target_label = match (current_label - 1).rem_euclid(MAX) {
+                0 => MAX,
+                label => label,
             };
+
             while [first_label, second_label, third_label].contains(&target_label) {
-                target_label = match (target_label - 1).rem_euclid(self.0.len() as i64) {
-                    0 => self.0.len() as i64,
-                    l => l,
+                target_label = match (target_label - 1).rem_euclid(MAX) {
+                    0 => MAX,
+                    label => label,
                 };
             }
 
-            let target_cup = rc::Rc::clone(&nodes[&target_label]);
-            let after_target_cup = rc::Rc::clone(target_cup.next.borrow().as_ref().unwrap());
+            let target_index = label_to_index[&target_label];
 
-            // Splice
-            *current_cup.next.borrow_mut() = Some(rc::Rc::clone(&after_third_cup));
-            *target_cup.next.borrow_mut() = Some(rc::Rc::clone(&first_cup));
-            *third_cup.next.borrow_mut() = Some(rc::Rc::clone(&after_target_cup));
+            //                      +-----+     +-----+     +-----------------------------+
+            //                      |     |     |     |     |                             |
+            //          +-----------|-----|-----|-----|-----|-----+                       +
+            //          |           |     v     |     v     |     v                       v
+            // |           |           |           |           |    ...    |           |           |
+            //       ^        ^  ^            ^          ^                       ^   |
+            //    current     | first      second      third                  target |
+            //                |                                                      |
+            //                +------------------------------------------------------+
+            //
+            //
+            index_to_index[current_index] = index_to_index[third_index];
+            index_to_index[third_index] = index_to_index[target_index];
+            index_to_index[target_index] = first_index;
 
-            let temp_cup = rc::Rc::clone(current_cup.next.borrow().as_ref().unwrap());
-            current_cup = temp_cup;
-            current_label = current_cup.label;
+            current_index = index_to_index[current_index];
+            current_label = index_to_label[current_index];
         }
 
         while current_label != 1 {
-            let temp_cup = rc::Rc::clone(current_cup.next.borrow().as_ref().unwrap());
-            current_cup = temp_cup;
-            current_label = current_cup.label;
+            current_index = index_to_index[current_index];
+            current_label = index_to_label[current_index];
         }
 
-        let first_cup = rc::Rc::clone(current_cup.next.borrow().as_ref().unwrap());
-        let second_cup = rc::Rc::clone(first_cup.next.borrow().as_ref().unwrap());
+        let first_index = index_to_index[current_index];
+        let second_index = index_to_index[first_index];
 
-        first_cup.label * second_cup.label
-    }
-}
-
-#[derive(Clone, Debug)]
-struct Cup {
-    label: i64,
-    next: cell::RefCell<Option<rc::Rc<Cup>>>,
-}
-
-impl Cup {
-    pub fn new(label: i64) -> Self {
-        Cup {
-            label,
-            next: Default::default(),
-        }
+        index_to_label[first_index] * index_to_label[second_index]
     }
 }
