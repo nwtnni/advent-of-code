@@ -80,8 +80,9 @@ impl Solution for LobbyLayout {
     fn one(self) -> i64 {
         let mut colors: HashMap<(i64, i64, i64), Color> = HashMap::new();
 
-        for pos in self.0.iter().map(|dirs| net(&dirs)) {
-            colors.entry(pos)
+        for dirs in &self.0 {
+            colors
+                .entry(walk(dirs))
                 .or_default()
                 .flip();
         }
@@ -97,8 +98,9 @@ impl Solution for LobbyLayout {
         let mut colors: HashMap<(i64, i64, i64), Color> = HashMap::new();
         let mut buffer = HashMap::new();
 
-        for pos in self.0.iter().map(|dirs| net(&dirs)) {
-            colors.entry(pos)
+        for dirs in &self.0 {
+            colors
+                .entry(walk(dirs))
                 .or_default()
                 .flip();
         }
@@ -130,28 +132,19 @@ impl Solution for LobbyLayout {
             for x in min_x - 1..=max_x + 1 {
                 for y in min_y - 1..=max_y + 1 {
                     for z in min_z - 1..=max_z + 1 {
-                        let mut around = 0;
+                        let around = [(0, 1, -1), (0, -1, 1), (1, 0, -1), (-1, 0, 1), (1, -1, 0), (-1, 1, 0)]
+                            .iter()
+                            .flat_map(|(dx, dy, dz)| colors.get(&(x + dx, y + dy, z + dz)))
+                            .filter(|color| **color == Color::B)
+                            .count();
 
-                        for dx in -1i64..=1 {
-                            for dy in -1i64..=1 {
-                                for dz in -1i64..=1 {
-                                    if dx.abs() + dy.abs() + dz.abs() != 2 {
-                                        continue;
-                                    }
-                                    if dx.signum() + dy.signum() + dz.signum() != 0 {
-                                        continue;
-                                    }
-                                    if colors.get(&(x + dx, y + dy, z + dz)).copied().unwrap_or_default() == Color::B {
-                                        around += 1;
-                                    }
-                                }
-                            }
-                        }
+                        let color = colors
+                            .get(&(x, y, z))
+                            .copied()
+                            .unwrap_or_default();
 
-                        let pos = (x, y, z);
-                        let color = colors.get(&pos).copied().unwrap_or_default();
                         buffer.insert(
-                            pos,
+                            (x, y, z),
                             match (color, around) {
                                 (Color::B, 0) | (Color::B, 3..=6) => Color::W,
                                 (Color::W, 2) => Color::B,
@@ -174,43 +167,21 @@ impl Solution for LobbyLayout {
     }
 }
 
-fn net(dirs: &Vec<Dir>) -> (i64, i64, i64) {
-    let mut counter = HashMap::new();
-
-    for dir in dirs {
-        counter
-            .entry(dir)
-            .and_modify(|count| *count += 1)
-            .or_insert(1);
-    }
-
+fn walk(dirs: &[Dir]) -> (i64, i64, i64) {
     let mut x = 0;
     let mut y = 0;
     let mut z = 0;
 
-    let ne = counter.get(&Dir::NE).unwrap_or(&0);
-    x += ne;
-    z -= ne;
-
-    let sw = counter.get(&Dir::SW).unwrap_or(&0);
-    x -= sw;
-    z += sw;
-
-    let e = counter.get(&Dir::E).unwrap_or(&0);
-    x += e;
-    y -= e;
-
-    let w = counter.get(&Dir::W).unwrap_or(&0);
-    x -= w;
-    y += w;
-
-    let se = counter.get(&Dir::SE).unwrap_or(&0);
-    z += se;
-    y -= se;
-
-    let nw = counter.get(&Dir::NW).unwrap_or(&0);
-    z -= nw;
-    y += nw;
+    for dir in dirs {
+        match dir {
+            Dir::NE => { x += 1; z -= 1 },
+            Dir::SW => { x -= 1; z += 1 },
+            Dir::E  => { x += 1; y -= 1 },
+            Dir::W  => { x -= 1; y += 1 },
+            Dir::SE => { z += 1; y -= 1 },
+            Dir::NW => { z -= 1; y += 1 },
+        }
+    }
 
     (x, y, z)
 }
