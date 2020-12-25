@@ -54,6 +54,19 @@ impl Solution for ShuttleSearch {
     }
 
     fn two(self) -> i64 {
-        todo!()
+        let (offsets, buses) = self
+            .buses
+            .iter()
+            .enumerate()
+            .filter_map(|(index, bus)| {
+                match bus {
+                    None => None,
+                    Some(bus) => Some((-(index as i64), bus)),
+                }
+            })
+            .unzip::<_, _, Vec<_>, Vec<_>>();
+
+        ring_algorithm::chinese_remainder_theorem::<i64>(&offsets, &buses)
+            .unwrap()
     }
 }
