@@ -7,6 +7,7 @@ mod day_04;
 mod day_05;
 mod day_06;
 mod day_07;
+mod day_08;
 
 pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     macro_rules! run {
@@ -22,6 +23,7 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     | Day::D05 => run!(day_05::DoesntHeHaveInternElvesForThis),
     | Day::D06 => run!(day_06::ProbablyAFireHazard),
     | Day::D07 => run!(day_07::SomeAssemblyRequired),
+    | Day::D08 => run!(day_08::Matchsticks),
     | _ => unimplemented!(),
     }
 }
