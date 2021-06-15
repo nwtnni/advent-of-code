@@ -27,8 +27,16 @@ pub fn mod_inv(a: i64, b: i64) -> i64 {
     let mut r = [a, b];
     let mut s = [1i64, 0i64];
 
-    macro_rules! prev { ($arr:expr) => { $arr[(i ^ true) as usize] } }
-    macro_rules! here { ($arr:expr) => { $arr[i as usize] } }
+    macro_rules! prev {
+        ($arr:expr) => {
+            $arr[(i ^ true) as usize]
+        };
+    }
+    macro_rules! here {
+        ($arr:expr) => {
+            $arr[i as usize]
+        };
+    }
 
     loop {
         let qi = prev!(r).div_euclid(here!(r));
@@ -107,10 +115,10 @@ impl AsciiSet {
 
     fn mask(alpha: char) -> u64 {
         let bit = match alpha {
-        | 'a'..='z' => (alpha as u8 - b'a') + 00,
-        | 'A'..='Z' => (alpha as u8 - b'A') + 26,
-        | '0'..='9' => (alpha as u8 - b'0') + 52,
-        | other => panic!(format!("Invalid value in `AsciiSet`: {:?}", other)),
+            'a'..='z' => (alpha as u8 - b'a') + 00,
+            'A'..='Z' => (alpha as u8 - b'A') + 26,
+            '0'..='9' => (alpha as u8 - b'0') + 52,
+            other => panic!("Invalid value in `AsciiSet`: {:?}", other),
         };
         1 << bit
     }
@@ -141,14 +149,18 @@ impl iter::FromIterator<char> for AsciiSet {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-enum Dir { P, Z, N, }
+enum Dir {
+    P,
+    Z,
+    N,
+}
 
 impl Dir {
     fn step(&self, start: u8) -> u8 {
         match self {
-        | Dir::P => start + 1,
-        | Dir::Z => start,
-        | Dir::N => start - 1,
+            Dir::P => start + 1,
+            Dir::Z => start,
+            Dir::N => start - 1,
         }
     }
 }
@@ -183,7 +195,10 @@ impl Permutations {
         let mut info = (0..len)
             .map(|pos| Info { pos, dir: Dir::N })
             .collect::<Vec<_>>();
-        info[0] = Info { pos: 0, dir: Dir::Z };
+        info[0] = Info {
+            pos: 0,
+            dir: Dir::Z,
+        };
         Permutations {
             bound: len - 1,
             count: 0,
@@ -196,7 +211,9 @@ impl Permutations {
 impl Iterator for Permutations {
     type Item = (usize, usize);
     fn next(&mut self) -> Option<Self::Item> {
-        let (init_idx, init_pos, mut init_dir) = self.info.iter_mut()
+        let (init_idx, init_pos, mut init_dir) = self
+            .info
+            .iter_mut()
             .enumerate()
             .rev()
             .filter(|(_, Info { dir, .. })| *dir != Dir::Z)
@@ -217,12 +234,20 @@ impl Iterator for Permutations {
             }
         };
 
-        self.info[init_idx] = Info { pos: swap_pos, dir: init_dir };
-        self.info[swap_idx] = Info { pos: init_pos, dir: swap_dir };
+        self.info[init_idx] = Info {
+            pos: swap_pos,
+            dir: init_dir,
+        };
+        self.info[swap_idx] = Info {
+            pos: init_pos,
+            dir: swap_dir,
+        };
         self.data.swap(init_pos as usize, swap_pos as usize);
         self.count += 1;
 
-        for (_, Info { pos, dir }) in self.info.iter_mut()
+        for (_, Info { pos, dir }) in self
+            .info
+            .iter_mut()
             .enumerate()
             .rev()
             .take_while(|(idx, _)| *idx > init_idx)

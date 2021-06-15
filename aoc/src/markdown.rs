@@ -6,10 +6,7 @@ use scraper::node::Node as Html;
 use crate::api;
 
 /// Convert an HTML element recursively into Markdown.
-pub fn from_html<'html>(
-    html: scraper::ElementRef<'html>,
-    year: aoc_core::Year,
-) -> String {
+pub fn from_html<'html>(html: scraper::ElementRef<'html>, year: aoc_core::Year) -> String {
     fn recurse<'html>(
         html: ego_tree::NodeRef<'html, Html>,
         year: aoc_core::Year,
@@ -21,108 +18,103 @@ pub fn from_html<'html>(
                 html.children()
                     .map(|child| recurse(child, year, notes, links))
                     .collect::<String>()
-            }
-        };
+            };
+        }
 
         match html.value() {
-        | Html::Comment(_)
-        | Html::Doctype(_)
-        | Html::Document
-        | Html::Fragment
-        | Html::ProcessingInstruction(_) => String::new(),
-        | Html::Element(element) if element.name() == "a" => {
-            let href = match element.attr("href") {
-            | Some(href) => href,
-            | None => return recurse!(),
-            };
+            Html::Comment(_)
+            | Html::Doctype(_)
+            | Html::Document
+            | Html::Fragment
+            | Html::ProcessingInstruction(_) => String::new(),
+            Html::Element(element) if element.name() == "a" => {
+                let href = match element.attr("href") {
+                    Some(href) => href,
+                    None => return recurse!(),
+                };
 
-            let index = links.len();
+                let index = links.len();
 
-            // Handle relative links
-            links.push(if href.starts_with("http") {
-                Cow::Borrowed(href)
-            } else if href.starts_with("/") {
-                Cow::Owned(format!("{}{}", api::ROOT, href))
-            } else {
-                Cow::Owned(format!("{}/{}/day/{}", api::ROOT, year, href))
-            });
+                // Handle relative links
+                links.push(if href.starts_with("http") {
+                    Cow::Borrowed(href)
+                } else if href.starts_with("/") {
+                    Cow::Owned(format!("{}{}", api::ROOT, href))
+                } else {
+                    Cow::Owned(format!("{}/{}/day/{}", api::ROOT, year, href))
+                });
 
-            format!("[{}][{}]", recurse!(), index)
-        },
-        | Html::Element(element) if element.name() == "article" => recurse!(),
-        | Html::Element(element) if element.name() == "br" => String::from("\n"),
-        | Html::Element(element) if element.name() == "code" => format!("`{}`", recurse!()),
-        | Html::Element(element) if element.name() == "em" => format!("**{}**", recurse!()),
-        | Html::Element(element) if element.name() == "h2" => format!("## {}\n\n", recurse!()),
-        | Html::Element(element) if element.name() == "li" => {
-            let item = recurse!();
-
-            if !item.contains('\n') {
-                return format!("- {}\n", item);
+                format!("[{}][{}]", recurse!(), index)
             }
+            Html::Element(element) if element.name() == "article" => recurse!(),
+            Html::Element(element) if element.name() == "br" => String::from("\n"),
+            Html::Element(element) if element.name() == "code" => format!("`{}`", recurse!()),
+            Html::Element(element) if element.name() == "em" => format!("**{}**", recurse!()),
+            Html::Element(element) if element.name() == "h2" => format!("## {}\n\n", recurse!()),
+            Html::Element(element) if element.name() == "li" => {
+                let item = recurse!();
 
-            let mut buffer = String::new();
-            let mut lines = item.split('\n');
-
-            if let Some(line) = lines.next() {
-                buffer.push_str("-");
-                if !line.trim().is_empty() {
-                    buffer.push(' ');
-                    buffer.push_str(line);
+                if !item.contains('\n') {
+                    return format!("- {}\n", item);
                 }
-                buffer.push('\n');
-            }
 
-            for line in lines {
-                if !line.trim().is_empty() {
-                    buffer.push_str("  ");
-                    buffer.push_str(line);
+                let mut buffer = String::new();
+                let mut lines = item.split('\n');
+
+                if let Some(line) = lines.next() {
+                    buffer.push_str("-");
+                    if !line.trim().is_empty() {
+                        buffer.push(' ');
+                        buffer.push_str(line);
+                    }
+                    buffer.push('\n');
                 }
-                buffer.push('\n');
+
+                for line in lines {
+                    if !line.trim().is_empty() {
+                        buffer.push_str("  ");
+                        buffer.push_str(line);
+                    }
+                    buffer.push('\n');
+                }
+
+                // Remove trailing newline
+                if buffer.ends_with("\n\n") {
+                    buffer.truncate(buffer.len() - 1);
+                }
+
+                buffer
             }
+            Html::Element(element) if element.name() == "p" => format!("{}\n\n", recurse!()),
+            Html::Element(element) if element.name() == "pre" => {
+                let block = recurse!();
+                let block = block.trim_start_matches('`').trim_end_matches('`');
 
-            // Remove trailing newline
-            if buffer.ends_with("\n\n") {
-                buffer.truncate(buffer.len() - 1);
+                format!(
+                    "```\n{}{}```\n\n",
+                    &block,
+                    if block.ends_with('\n') { "" } else { "\n" },
+                )
             }
+            Html::Element(element) if element.name() == "span" => {
+                let title = match element.attr("title") {
+                    Some(title) => title,
+                    None => return recurse!(),
+                };
 
-            buffer
-        }
-        | Html::Element(element) if element.name() == "p" => format!("{}\n\n", recurse!()),
-        | Html::Element(element) if element.name() == "pre" => {
-            let block = recurse!();
-            let block = block
-                .trim_start_matches('`')
-                .trim_end_matches('`');
+                let index = notes.len();
 
-            format!(
-                "```\n{}{}```\n\n",
-                &block,
-                if block.ends_with('\n') { "" } else { "\n" },
-            )
-        }
-        | Html::Element(element) if element.name() == "span" => {
-            let title = match element.attr("title") {
-            | Some(title) => title,
-            | None => return recurse!(),
-            };
+                notes.push(title);
 
-            let index = notes.len();
-
-            notes.push(title);
-
-            format!("[{}][^{}]", recurse!(), index)
-        },
-        | Html::Element(element) if element.name() == "ul" => format!("{}\n", recurse!()),
-        | Html::Element(element) => {
-            eprintln!("[WARNING]: Unexpected element: {:#?}", element);
-            recurse!()
-        }
-        | Html::Text(text) if text.text.as_ref()  == "\n" => String::new(),
-        | Html::Text(text) => text
-            .text
-            .replace(".  ", ". ")
-            .replace(":  ", ": "),
+                format!("[{}][^{}]", recurse!(), index)
+            }
+            Html::Element(element) if element.name() == "ul" => format!("{}\n", recurse!()),
+            Html::Element(element) => {
+                eprintln!("[WARNING]: Unexpected element: {:#?}", element);
+                recurse!()
+            }
+            Html::Text(text) if text.text.as_ref() == "\n" => String::new(),
+            Html::Text(text) => text.text.replace(".  ", ". ").replace(":  ", ": "),
         }
     }
 
