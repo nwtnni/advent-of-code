@@ -12,6 +12,7 @@ mod day_09;
 mod day_10;
 mod day_11;
 mod day_12;
+mod day_13;
 
 pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     macro_rules! run {
@@ -32,6 +33,7 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     | Day::D10 => run!(day_10::ElvesLookElvesSay),
     | Day::D11 => run!(day_11::CorporatePolicy),
     | Day::D12 => run!(day_12::JSAbacusFrameworkio),
+    | Day::D13 => run!(day_13::KnightsOfTheDinnerTable),
     | _ => unimplemented!(),
     }
 }
