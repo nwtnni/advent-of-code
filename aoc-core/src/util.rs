@@ -180,7 +180,7 @@ pub struct Permutations {
     bound: u8,
 
     /// Completed permutations
-    count: u8,
+    count: usize,
 
     /// Current permutation as indices
     data: Vec<u8>,
@@ -260,7 +260,7 @@ impl Iterator for Permutations {
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         let p = (1..=self.data.len()).product::<usize>();
-        let n = p - self.count as usize - 1;
+        let n = p - self.count - 1;
         (n, Some(n))
     }
 }
