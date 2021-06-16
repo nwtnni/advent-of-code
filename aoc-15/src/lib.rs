@@ -15,6 +15,7 @@ mod day_12;
 mod day_13;
 mod day_14;
 mod day_15;
+mod day_16;
 
 pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     macro_rules! run {
@@ -38,6 +39,7 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     | Day::D13 => run!(day_13::KnightsOfTheDinnerTable),
     | Day::D14 => run!(day_14::ReindeerOlympics),
     | Day::D15 => run!(day_15::ScienceForHungryPeople),
+    | Day::D16 => run!(day_16::AuntSue),
     | _ => unimplemented!(),
     }
 }
