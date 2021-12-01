@@ -164,6 +164,8 @@ pub enum Year {
     Y19 = 2019,
     #[serde(rename = "2020")]
     Y20 = 2020,
+    #[serde(rename = "2021")]
+    Y21 = 2021,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]

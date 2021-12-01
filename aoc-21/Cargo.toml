@@ -1,0 +1,13 @@
+[package]
+name = "aoc-21"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+aoc = { package = "aoc-core", path = "../aoc-core" }
+indexmap = "1.6"
+priority-queue = "1.0"
+petgraph = "0.5"
+regex = "1.4"

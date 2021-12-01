@@ -117,6 +117,7 @@ impl str::FromStr for Year {
         | 18 | 2018 => Ok(Y18),
         | 19 | 2019 => Ok(Y19),
         | 20 | 2020 => Ok(Y20),
+        | 21 | 2021 => Ok(Y21),
         | _ => Err(Error::InvalidYear(s.to_string())),
         }
     }
@@ -137,6 +138,7 @@ impl Year {
         | Y18 => "2018",
         | Y19 => "2019",
         | Y20 => "2020",
+        | Y21 => "2021",
         }
     }
 }
