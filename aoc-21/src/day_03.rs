@@ -16,65 +16,64 @@ impl Fro for BinaryDiagnostic {
 
 impl Solution for BinaryDiagnostic {
     fn one(self) -> i64 {
-        let mut gamma = 0;
-        let mut epsilon = 0;
         let half = self.0.len() >> 1;
+        let mut gamma = 0;
 
         for bit in 0..12 {
-            let ones = self.0
+            let ones = self
+                .0
                 .iter()
-                .filter(|n| *n & (1 << bit) > 0)
+                .filter(|number| *number & (1 << bit) > 0)
                 .count();
 
-            if ones > half {
-                gamma |= 1 << bit;
-            } else {
-                epsilon |= 1 << bit;
-            }
+            gamma |= ((ones > half) as u16) << bit;
         }
 
-        gamma * epsilon
+        let epsilon = gamma ^ 0b1111_1111_1111;
+        gamma as i64 * epsilon as i64
     }
 
     fn two(self) -> i64 {
         let mut generator = self.0.clone();
-        let mut scrubber = self.0.clone();
 
-        let mut bit = 11;
-        while generator.len() > 1 {
+        for bit in (0..12).rev() {
             let half = generator.len() >> 1;
             let even = generator.len() & 1 == 0;
             let ones = generator
                 .iter()
-                .filter(|n| *n & (1 << bit) > 0)
+                .filter(|number| *number & (1 << bit) > 0)
                 .count();
 
-            if (ones == half && even) || ones > half {
-                generator.retain(|n| *n & (1 << bit) > 0);
-            } else {
-                generator.retain(|n| *n & (1 << bit) == 0);
-            }
+            generator.retain(|number| {
+                let tied = (even && ones == half) as u16;
+                let more = (ones > half) as u16;
+                *number & (1 << bit) == (tied | more) << bit
+            });
 
-            bit -= 1;
+            if generator.len() == 1 {
+                break;
+            }
         }
 
-        let mut bit = 11;
-        while scrubber.len() > 1 {
+        let mut scrubber = self.0.clone();
+
+        for bit in (0..12).rev() {
             let half = scrubber.len() >> 1;
             let even = scrubber.len() & 1 == 0;
-
             let ones = scrubber
                 .iter()
-                .filter(|n| *n & (1 << bit) > 0)
+                .filter(|number| *number & (1 << bit) > 0)
                 .count();
 
-            if (ones == half && even) || ones > half {
-                scrubber.retain(|n| *n & (1 << bit) == 0);
-            } else {
-                scrubber.retain(|n| *n & (1 << bit) > 0);
-            }
+            scrubber.retain(|number| {
+                let tied = (even && ones == half) as u16;
+                let more = (ones > half) as u16;
+                *number & (1 << bit) != (tied | more) << bit
+            });
 
-            bit -= 1;
+            if scrubber.len() == 1 {
+                break;
+            }
         }
 
         generator[0] as i64 * scrubber[0] as i64
