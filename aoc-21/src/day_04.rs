@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use aoc::*;
 
 #[derive(Clone, Debug)]
@@ -9,7 +7,13 @@ pub struct GiantSquid {
 }
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
-struct Board([[(i64, bool); 5]; 5]);
+struct Board([[Tile; 5]; 5]);
+
+#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
+struct Tile {
+    number: i64,
+    marked: bool,
+}
 
 impl Fro for GiantSquid {
     fn fro(input: &str) -> Self {
@@ -25,13 +29,14 @@ impl Fro for GiantSquid {
 
         let mut boards = Vec::new();
         for section in sections {
-            let mut board = [[(0, false); 5]; 5];
+            let mut board = [[Tile { number: 0, marked: false }; 5]; 5];
 
             for (i, row) in section.trim().split('\n').enumerate() {
                 for (j, col) in row.trim().split_whitespace().map(i64::fro).enumerate() {
-                    board[i][j] = (col, false);
+                    board[i][j].number = col;
                 }
             }
+
             boards.push(Board(board));
         }
 
@@ -45,18 +50,15 @@ impl Fro for GiantSquid {
 impl Solution for GiantSquid {
     fn one(mut self) -> i64 {
         for called in &self.order {
-            for board in &mut self.boards {
-                for row in &mut board.0 {
-                    for (number, marked) in row {
-                        if number == called {
-                            *marked = true
-                        }
-                    }
-                }
+            self.boards
+                .iter_mut()
+                .flat_map(|board| board.0.iter_mut())
+                .flat_map(|row| row.iter_mut())
+                .filter(|tile| tile.number == *called)
+                .for_each(|tile| tile.marked = true);
 
-                if let Some(won) = won(&board) {
-                    return won * called;
-                }
+            if let Some(board) = self.boards.iter().find(|board| won(board)) {
+                return called * unmarked(board);
             }
         }
 
@@ -64,52 +66,40 @@ impl Solution for GiantSquid {
     }
 
     fn two(mut self) -> i64 {
-        let mut remove = HashSet::new();
-
         for called in &self.order {
-            let len = self.boards.len();
-            for board in &mut self.boards {
-                for row in &mut board.0 {
-                    for (number, marked) in row {
-                        if number == called {
-                            *marked = true
-                        }
-                    }
-                }
+            self.boards
+                .iter_mut()
+                .flat_map(|board| board.0.iter_mut())
+                .flat_map(|row| row.iter_mut())
+                .filter(|tile| tile.number == *called)
+                .for_each(|tile| tile.marked = true);
 
-                match (won(&board), len == 1) {
-                    (Some(won), true) => return won * called,
-                    (None, _) => continue,
-                    (Some(_), false) => { remove.insert(*board); },
-                }
+            if self.boards.len() > 1 {
+                self.boards.retain(|board| !won(board));
+                continue;
             }
 
-            self.boards.retain(|board| !remove.contains(board));
+            if won(&self.boards[0]) {
+                return called * unmarked(&self.boards[0]);
+            }
         }
 
         unreachable!()
     }
 }
 
-fn won(board: &Board) -> Option<i64> {
-    if board.0.iter().any(|row| row.iter().all(|(_, marked)| *marked)) {
-        return board
-            .0
-            .iter()
-            .map(|row| row.iter().filter_map(|(number, marked)| if *marked { None } else { Some(number) }).sum::<i64>())
-            .sum::<i64>()
-            .tap(Some);
-    }
+fn won(board: &Board) -> bool {
+    let row = board.0.iter().any(|row| row.iter().all(|tile| tile.marked));
+    let col = (0..5).any(|col| board.0.iter().all(|row| row[col].marked));
+    row || col
+}
 
-
-    if (0..5).any(|col| board.0.iter().all(|row| row[col].1)) {
-        return board
-            .0
-            .iter()
-            .map(|row| row.iter().filter_map(|(number, marked)| if *marked { None } else { Some(number) }).sum::<i64>())
-            .sum::<i64>()
-            .tap(Some);
-    }
-
-    None
+fn unmarked(board: &Board) -> i64 {
+    board
+        .0
+        .iter()
+        .flat_map(|row| row.iter())
+        .filter(|tile| !tile.marked)
+        .map(|tile| tile.number)
+        .sum::<i64>()
 }
