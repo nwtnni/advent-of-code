@@ -1,5 +1,6 @@
 use std::cmp;
 use std::collections::HashMap;
+use std::iter;
 
 use aoc::*;
 
@@ -32,20 +33,17 @@ impl Solution for HydrothermalVenture {
         self
             .0
             .iter()
-            .filter(|[a, b]| a.x == b.x || a.y == b.y )
             .flat_map(|[a, b]| {
-                if a.x == b.x {
-                    (cmp::min(a.y, b.y)..=cmp::max(a.y, b.y))
+                match (a.x.cmp(&b.x), a.y.cmp(&b.y)) {
+                    (cmp::Ordering::Equal, _) => (cmp::min(a.y, b.y)..=cmp::max(a.y, b.y))
                         .map(move |y| Pos { x: a.x, y })
                         .tap(Box::new)
-                        as Box<dyn Iterator<Item = _>>
-                } else if a.y == b.y {
-                    (cmp::min(a.x, b.x)..=cmp::max(a.x, b.x))
+                        as Box<dyn Iterator<Item = _>>,
+                    (_, cmp::Ordering::Equal) => (cmp::min(a.x, b.x)..=cmp::max(a.x, b.x))
                         .map(move |x| Pos { x, y: a.y })
-                        .tap(Box::new)
-                        as Box<dyn Iterator<Item = _>>
-                } else {
-                    unreachable!()
+                        .tap(Box::new),
+                    (_, _) => iter::empty()
+                        .tap(Box::new),
                 }
             })
             .for_each(|pos| *grid.entry(pos).or_insert(0) += 1);
@@ -63,43 +61,30 @@ impl Solution for HydrothermalVenture {
             .0
             .iter()
             .flat_map(|[a, b]| {
-                if a.x == b.x {
-                    (cmp::min(a.y, b.y)..=cmp::max(a.y, b.y))
+                match (a.x.cmp(&b.x), a.y.cmp(&b.y)) {
+                    (cmp::Ordering::Equal, _) => (cmp::min(a.y, b.y)..=cmp::max(a.y, b.y))
                         .map(move |y| Pos { x: a.x, y })
                         .tap(Box::new)
-                        as Box<dyn Iterator<Item = _>>
-                } else if a.y == b.y {
-                    (cmp::min(a.x, b.x)..=cmp::max(a.x, b.x))
+                        as Box<dyn Iterator<Item = _>>,
+                    (_, cmp::Ordering::Equal) => (cmp::min(a.x, b.x)..=cmp::max(a.x, b.x))
                         .map(move |x| Pos { x, y: a.y })
-                        .tap(Box::new)
-                        as Box<dyn Iterator<Item = _>>
-                } else {
-                    let xs = if a.x < b.x {
-                        (a.x..=b.x)
-                            .tap(Box::new)
-                            as Box<dyn Iterator<Item = _>>
-                    } else {
-                        (b.x..=a.x)
-                            .rev()
-                            .tap(Box::new)
-                            as Box<dyn Iterator<Item = _>>
-                    };
-
-                    let ys = if a.y < b.y {
-                        (a.y..=b.y)
-                            .tap(Box::new)
-                            as Box<dyn Iterator<Item = _>>
-                    } else {
-                        (b.y..=a.y)
-                            .rev()
-                            .tap(Box::new)
-                            as Box<dyn Iterator<Item = _>>
-                    };
-
-                    xs.zip(ys)
+                        .tap(Box::new),
+                    (cmp::Ordering::Less, cmp::Ordering::Less) => (a.x..=b.x)
+                        .zip(a.y..=b.y)
                         .map(|(x, y)| Pos { x, y })
-                        .tap(Box::new)
-                        as Box<dyn Iterator<Item = _>>
+                        .tap(Box::new),
+                    (cmp::Ordering::Less, cmp::Ordering::Greater) => (a.x..=b.x)
+                        .zip((b.y..=a.y).rev())
+                        .map(|(x, y)| Pos { x, y })
+                        .tap(Box::new),
+                    (cmp::Ordering::Greater, cmp::Ordering::Less) => ((b.x..=a.x).rev())
+                        .zip(a.y..=b.y)
+                        .map(|(x, y)| Pos { x, y })
+                        .tap(Box::new),
+                    (cmp::Ordering::Greater, cmp::Ordering::Greater) => ((b.x..=a.x).rev())
+                        .zip((b.y..=a.y).rev())
+                        .map(|(x, y)| Pos { x, y })
+                        .tap(Box::new),
                 }
             })
             .for_each(|pos| *grid.entry(pos).or_insert(0) += 1);
