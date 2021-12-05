@@ -1,6 +1,5 @@
 use std::cmp;
 use std::collections::HashMap;
-use std::iter;
 
 use aoc::*;
 
@@ -30,23 +29,13 @@ impl Solution for HydrothermalVenture {
     fn one(self) -> i64 {
         let mut grid = HashMap::new();
 
-        self
-            .0
-            .iter()
-            .flat_map(|[a, b]| {
-                match (a.x.cmp(&b.x), a.y.cmp(&b.y)) {
-                    (cmp::Ordering::Equal, _) => (cmp::min(a.y, b.y)..=cmp::max(a.y, b.y))
-                        .map(move |y| Pos { x: a.x, y })
-                        .tap(Box::new)
-                        as Box<dyn Iterator<Item = _>>,
-                    (_, cmp::Ordering::Equal) => (cmp::min(a.x, b.x)..=cmp::max(a.x, b.x))
-                        .map(move |x| Pos { x, y: a.y })
-                        .tap(Box::new),
-                    (_, _) => iter::empty()
-                        .tap(Box::new),
+        for [a, b] in self.0.into_iter().filter(|[a, b]| a.x == b.x || a.y == b.y) {
+            for y in cmp::min(a.y, b.y)..=cmp::max(a.y, b.y) {
+                for x in cmp::min(a.x, b.x)..=cmp::max(a.x, b.x) {
+                    *grid.entry(Pos { x, y }).or_insert(0) += 1;
                 }
-            })
-            .for_each(|pos| *grid.entry(pos).or_insert(0) += 1);
+            }
+        }
 
         grid.values()
             .filter(|count| **count >= 2)
@@ -57,37 +46,30 @@ impl Solution for HydrothermalVenture {
     fn two(self) -> i64 {
         let mut grid = HashMap::new();
 
-        self
-            .0
-            .iter()
-            .flat_map(|[a, b]| {
-                match (a.x.cmp(&b.x), a.y.cmp(&b.y)) {
-                    (cmp::Ordering::Equal, _) => (cmp::min(a.y, b.y)..=cmp::max(a.y, b.y))
-                        .map(move |y| Pos { x: a.x, y })
-                        .tap(Box::new)
-                        as Box<dyn Iterator<Item = _>>,
-                    (_, cmp::Ordering::Equal) => (cmp::min(a.x, b.x)..=cmp::max(a.x, b.x))
-                        .map(move |x| Pos { x, y: a.y })
-                        .tap(Box::new),
-                    (cmp::Ordering::Less, cmp::Ordering::Less) => (a.x..=b.x)
-                        .zip(a.y..=b.y)
-                        .map(|(x, y)| Pos { x, y })
-                        .tap(Box::new),
-                    (cmp::Ordering::Less, cmp::Ordering::Greater) => (a.x..=b.x)
-                        .zip((b.y..=a.y).rev())
-                        .map(|(x, y)| Pos { x, y })
-                        .tap(Box::new),
-                    (cmp::Ordering::Greater, cmp::Ordering::Less) => ((b.x..=a.x).rev())
-                        .zip(a.y..=b.y)
-                        .map(|(x, y)| Pos { x, y })
-                        .tap(Box::new),
-                    (cmp::Ordering::Greater, cmp::Ordering::Greater) => ((b.x..=a.x).rev())
-                        .zip((b.y..=a.y).rev())
-                        .map(|(x, y)| Pos { x, y })
-                        .tap(Box::new),
+        for [mut a, b] in self.0 {
+            let dx = match a.x.cmp(&b.x) {
+                cmp::Ordering::Less => 1,
+                cmp::Ordering::Equal => 0,
+                cmp::Ordering::Greater => -1,
+            };
+
+            let dy = match a.y.cmp(&b.y) {
+                cmp::Ordering::Less => 1,
+                cmp::Ordering::Equal => 0,
+                cmp::Ordering::Greater => -1,
+            };
+
+            loop {
+                *grid.entry(a).or_insert(0) += 1;
+
+                if a == b {
+                    break;
                 }
-            })
-            .for_each(|pos| *grid.entry(pos).or_insert(0) += 1);
+
+                a.x += dx;
+                a.y += dy;
+            }
+        }
 
         grid.values()
             .filter(|count| **count >= 2)
