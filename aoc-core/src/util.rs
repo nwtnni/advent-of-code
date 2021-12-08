@@ -1,4 +1,5 @@
 use std::iter;
+use std::fmt;
 
 pub fn fst<A, B>((a, _): (A, B)) -> A {
     a
@@ -55,8 +56,14 @@ pub fn permute(len: u8) -> impl Iterator<Item = (usize, usize)> {
 }
 
 /// Bitset for alphanumeric ASCII: `[a-zA-Z0-9]`
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AsciiSet(u64);
+
+static ALPHABET: &str = "\
+    abcdefghijklmnopqrstuvwxyz\
+    ABCDEFGHIJKLMNOPQRSTUVWXYZ\
+    0123456789\
+";
 
 impl AsciiSet {
     pub fn none() -> Self {
@@ -145,6 +152,19 @@ impl iter::FromIterator<char> for AsciiSet {
             set.insert(char);
         }
         set
+    }
+}
+
+impl fmt::Debug for AsciiSet {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{{")?;
+        for char in ALPHABET.chars() {
+            if self.contains(char) {
+                write!(fmt, "{}", char)?;
+            }
+        }
+        write!(fmt, "}}")
+
     }
 }
 
