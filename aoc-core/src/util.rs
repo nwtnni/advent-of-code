@@ -1,5 +1,6 @@
 use std::iter;
 use std::fmt;
+use std::str;
 
 pub fn fst<A, B>((a, _): (A, B)) -> A {
     a
@@ -59,19 +60,13 @@ pub fn permute(len: u8) -> impl Iterator<Item = (usize, usize)> {
 #[derive(Copy, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AsciiSet(u64);
 
-static ALPHABET: &str = "\
-    abcdefghijklmnopqrstuvwxyz\
-    ABCDEFGHIJKLMNOPQRSTUVWXYZ\
-    0123456789\
-";
+pub static LOWERS: &str = "abcdefghijklmnopqrstuvwxyz";
+pub static UPPERS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+pub static DIGITS: &str = "0123456789";
 
 impl AsciiSet {
     pub fn none() -> Self {
         Self::default()
-    }
-
-    pub fn all() -> Self {
-        Self(0x3FFF_FFFF_FFFF_FFFF)
     }
 
     pub fn from_case_insensitive(string: &str) -> Self {
@@ -91,6 +86,16 @@ impl AsciiSet {
         }
     }
 
+    pub fn remove(&mut self, alpha: char) -> bool {
+        let mask = Self::mask(alpha);
+        if self.0 & mask > 0 {
+            self.0 &= !mask;
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn contains(&self, alpha: char) -> bool {
         let mask = Self::mask(alpha);
         self.0 & mask > 0
@@ -100,24 +105,36 @@ impl AsciiSet {
         self.0.count_ones() as usize
     }
 
-    pub fn and(self, other: Self) -> Self {
-        Self(self.0 & other.0)
+    pub fn and<T: Into<Self>>(self, other: T) -> Self {
+        Self(self.0 & other.into().0)
     }
 
-    pub fn or(self, other: Self) -> Self {
-        Self(self.0 | other.0)
+    pub fn and_mut<T: Into<Self>>(&mut self, other: T) {
+        *self = self.and(other);
     }
 
-    pub fn xor(self, other: Self) -> Self {
-        Self(self.0 ^ other.0)
+    pub fn or<T: Into<Self>>(self, other: T) -> Self {
+        Self(self.0 | other.into().0)
     }
 
-    pub fn not(self) -> Self {
-        Self(!self.0 & Self::all().0)
+    pub fn or_mut<T: Into<Self>>(&mut self, other: T) {
+        *self = self.or(other);
     }
 
-    pub fn sub(self, other: Self) -> Self {
-        self.and(other.not())
+    pub fn xor<T: Into<Self>>(self, other: T) -> Self {
+        Self(self.0 ^ other.into().0)
+    }
+
+    pub fn xor_mut<T: Into<Self>>(&mut self, other: T) {
+        *self = self.xor(other);
+    }
+
+    pub fn not<T: Into<Self>>(self, universe: T) -> Self {
+        Self(!self.0 & universe.into().0)
+    }
+
+    pub fn not_mut<T: Into<Self>>(&mut self, universe: T) {
+        *self = self.not(universe);
     }
 
     fn mask(alpha: char) -> u64 {
@@ -158,13 +175,44 @@ impl iter::FromIterator<char> for AsciiSet {
 impl fmt::Debug for AsciiSet {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{{")?;
-        for char in ALPHABET.chars() {
+        for char in LOWERS.chars().chain(UPPERS.chars()).chain(DIGITS.chars()) {
             if self.contains(char) {
                 write!(fmt, "{}", char)?;
             }
         }
         write!(fmt, "}}")
 
+    }
+}
+
+impl IntoIterator for AsciiSet {
+    type IntoIter = IntoIter;
+    type Item = char;
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter {
+            all: LOWERS.chars().chain(UPPERS.chars()).chain(DIGITS.chars()),
+            set: self,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct IntoIter {
+    all: iter::Chain<iter::Chain<str::Chars<'static>, str::Chars<'static>>, str::Chars<'static>>,
+    set: AsciiSet,
+}
+
+impl Iterator for IntoIter {
+    type Item = char;
+    fn next(&mut self) -> Option<Self::Item> {
+        while let Some(next) = self.all.next() {
+            // A bit inefficient to use `contains` rather
+            // than the underlying bits directly, but that's okay.
+            if self.set.contains(next) {
+                return Some(next);
+            }
+        }
+        None
     }
 }
 

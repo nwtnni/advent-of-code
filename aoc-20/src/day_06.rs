@@ -39,7 +39,7 @@ impl Solution for CustomCustoms {
             .map(|group| {
                 group
                     .into_iter()
-                    .fold(AsciiSet::all(), AsciiSet::and)
+                    .fold(AsciiSet::from(LOWERS), AsciiSet::and)
                     .len()
             })
             .sum::<usize>()
