@@ -65,100 +65,53 @@ impl Solution for SevenSegmentSearch {
 
     fn two(self) -> i64 {
 
-       static ALPHABET: &str = "abcdefg";
-
-       fn i(set: AsciiSet) -> impl Iterator<Item = char> {
-           ALPHABET.chars().filter(move |c| set.contains(*c))
-       }
+       static SEGMENTS: &str = "abcdefg";
 
        let mut total = 0;
 
        for display in &self.0 {
-            let mut mapping = HashMap::new();
-            for c in ALPHABET.chars() {
-                mapping.insert(c, AsciiSet::from(ALPHABET));
+            let mut mapping = SEGMENTS
+                .chars()
+                .map(|char| (char, AsciiSet::from(SEGMENTS)))
+                .collect::<HashMap<_, _>>();
+
+            let mut narrow = |set: AsciiSet, possible: &str| {
+                for char in set {
+                    mapping
+                        .get_mut(&char)
+                        .unwrap()
+                        .and_mut(possible);
+                }
+            };
+
+            for input in display.inputs {
+                match input.len() {
+                    2 => narrow(input, "cf"), // 1
+                    3 => narrow(input, "acf"), // 7
+                    4 => narrow(input, "bcdf"), // 4
+                    5 => narrow(input.not(SEGMENTS), "bcef"), // 2, 3, 5
+                    6 => narrow(input.not(SEGMENTS), "cde"), // 0, 6, 9
+                    7 => (),
+                    _ => unreachable!(),
+                }
             }
 
-            let mut cf = None;
-
-            while mapping.values().any(|set| set.len() > 1) {
-                for input in display.inputs {
-                    match input.len() {
-                        // 1
-                        2 => {
-                            for c in i(input) {
-                                let new = mapping[&c].and("cf".chars().collect::<AsciiSet>());
-                                mapping.insert(c, new);
-                            }
-                            cf = Some(input);
-                        }
-                        // 7
-                        3 => {
-                            for c in i(input) {
-                                let new = mapping[&c].and("acf".chars().collect::<AsciiSet>());
-                                mapping.insert(c, new);
-                            }
-                        }
-                        // 4
-                        4 => {
-                            for c in i(input) {
-                                let new = mapping[&c].and("bcdf".chars().collect::<AsciiSet>());
-                                mapping.insert(c, new);
-                            }
-                        }
-                        // 8
-                        7 => (),
-                        // 0, 6, 9
-                        6 => {
-                            let missing = "abcdefg".chars().find(|c| !input.contains(*c)).unwrap();
-                            if let Some(cf) = cf {
-                                // must be 6
-                                if cf.contains(missing) {
-                                    mapping.insert(missing, AsciiSet::from('c'));
-                                    for c in i(cf) {
-                                        if c != missing {
-                                            mapping.insert(c, AsciiSet::from('f'));
-                                        }
-                                    }
-                                }
-                            } else {
-                                let new = mapping[&missing].and("cde".chars().collect::<AsciiSet>());
-                                mapping.insert(missing, new);
-                            }
-                        }
-                        // 2, 3, 5
-                        5 => {
-                            let missing = "abcdefg".chars().filter(|c| !input.contains(*c));
-
-                            for c in missing {
-                                let new = mapping[&c].and("bcef".chars().collect::<AsciiSet>());
-                                mapping.insert(c, new);
-                            }
-
-                        }
-                        _ => unreachable!(),
-                    }
-                }
-
-                let known = mapping
+            while mapping.values().any(|possible| possible.len() > 1) {
+                let unknown = mapping
                     .values()
-                    .filter(|set| set.len() == 1)
-                    .map(|set| i(*set).give())
-                    .collect::<AsciiSet>();
+                    .copied()
+                    .filter(|possible| possible.len() == 1)
+                    .flatten()
+                    .collect::<AsciiSet>()
+                    .not(SEGMENTS);
 
-                let unknown = ALPHABET
-                    .chars()
-                    .filter(|c| !known.contains(*c))
-                    .collect::<AsciiSet>();
-
-                for v in mapping.values_mut() {
-                    if v.len() > 1 {
-                        *v = v.and(unknown);
-                    }
-                }
+                mapping
+                    .values_mut()
+                    .filter(|possible| possible.len() > 1)
+                    .for_each(|possible| possible.and_mut(unknown));
             }
 
-            let sets = [
+            let digits = [
                 AsciiSet::from("abcefg"),
                 AsciiSet::from("cf"),
                 AsciiSet::from("acdeg"),
@@ -172,13 +125,16 @@ impl Solution for SevenSegmentSearch {
             ];
 
             for (place, output) in display.outputs.into_iter().rev().enumerate() {
-                let mapped = i(output)
-                    .map(|c| i(mapping[&c]).give())
+                let mapped = output
+                    .into_iter()
+                    .map(|char| mapping[&char])
+                    .flatten()
                     .collect::<AsciiSet>();
 
-                for (i, set) in sets.into_iter().enumerate() {
-                    if mapped == set {
+                for (i, digit) in digits.into_iter().enumerate() {
+                    if mapped == digit {
                         total += 10i64.pow(place as u32) * i as i64;
+                        break;
                     }
                 }
             }
