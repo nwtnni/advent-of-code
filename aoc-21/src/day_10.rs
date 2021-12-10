@@ -1,14 +1,22 @@
+use std::iter;
+use std::vec;
+
 use aoc::*;
 
 #[derive(Clone, Debug)]
-pub struct SyntaxScoring(Vec<Vec<char>>);
+pub struct SyntaxScoring(Vec<String>);
+
+enum Syntax {
+    Corrupt(char),
+    Complete(iter::Rev<vec::IntoIter<char>>),
+}
 
 impl Fro for SyntaxScoring {
     fn fro(input: &str) -> Self {
         input
             .trim()
             .split('\n')
-            .map(|line| line.chars().collect())
+            .map(String::from)
             .collect::<Vec<_>>()
             .tap(Self)
     }
@@ -18,7 +26,10 @@ impl Solution for SyntaxScoring {
     fn one(self) -> i64 {
         self.0
             .iter()
-            .filter_map(|line| corrupted(line))
+            .filter_map(|line| match check(line) {
+                Syntax::Corrupt(char) => Some(char),
+                Syntax::Complete(_) => None,
+            })
             .map(|char| match char {
                 ')' => 3,
                 ']' => 57,
@@ -31,78 +42,57 @@ impl Solution for SyntaxScoring {
     }
 
     fn two(self) -> i64 {
-        let mut scores = self.0
+        let scores = self.0
             .iter()
-            .filter(|line| corrupted(line).is_none())
-            .map(|line| complete(line))
-            .collect::<Vec<_>>();
+            .filter_map(|line| match check(line) {
+                Syntax::Corrupt(_) => None,
+                Syntax::Complete(completion) => Some(completion),
+            })
+            .map(|completion| {
+                completion.fold(0, |score, char| {
+                    score * 5 + match char {
+                        '(' => 1,
+                        '[' => 2,
+                        '{' => 3,
+                        '<' => 4,
+                        _ => unreachable!()
+                    }
+                })
+            })
+            .collect::<Vec<_>>()
+            .tap_mut(|scores| scores.sort());
 
-        scores.sort();
         scores[scores.len() / 2]
     }
 }
 
-fn corrupted(line: &[char]) -> Option<char> {
+fn check(line: &str) -> Syntax {
     let mut stack = Vec::new();
-    for char in line {
+
+    for char in line.chars() {
         match char {
             '[' => stack.push('['),
-            ']' if stack.last().copied() == Some('[') => { stack.pop(); }
-            ']' => { return Some(']') }
+            ']' if stack.last().copied() == Some('[') => drop(stack.pop()),
+            ']' => return Syntax::Corrupt(']'),
 
             '(' => stack.push('('),
-            ')' if stack.last().copied() == Some('(') => { stack.pop(); }
-            ')' => { return Some(')') }
+            ')' if stack.last().copied() == Some('(') => drop(stack.pop()),
+            ')' => return Syntax::Corrupt(')'),
 
             '<' => stack.push('<'),
-            '>' if stack.last().copied() == Some('<') => { stack.pop(); }
-            '>' => { return Some('>') }
+            '>' if stack.last().copied() == Some('<') => drop(stack.pop()),
+            '>' => return Syntax::Corrupt('>'),
 
             '{' => stack.push('{'),
-            '}' if stack.last().copied() == Some('{') => { stack.pop(); }
-            '}' => { return Some('}') }
-
-            _ => unreachable!(),
-        }
-    }
-    None
-}
-
-fn complete(line: &[char]) -> i64 {
-    let mut stack = Vec::new();
-    for char in line {
-        match char {
-            '[' => stack.push('['),
-            ']' => { stack.pop(); }
-
-            '(' => stack.push('('),
-            ')' => { stack.pop(); }
-
-            '<' => stack.push('<'),
-            '>' => { stack.pop(); }
-
-            '{' => stack.push('{'),
-            '}' => { stack.pop(); }
+            '}' if stack.last().copied() == Some('{') => drop(stack.pop()),
+            '}' => return Syntax::Corrupt('}'),
 
             _ => unreachable!(),
         }
     }
 
-    let mut score = 0;
-    for value in stack
+    stack
         .into_iter()
         .rev()
-        .map(|c| match c {
-            '(' => 1,
-            '[' => 2,
-            '{' => 3,
-            '<' => 4,
-            _ => unreachable!(),
-        })
-    {
-        score *= 5;
-        score += value;
-    }
-
-    score
+        .tap(Syntax::Complete)
 }
