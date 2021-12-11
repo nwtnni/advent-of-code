@@ -1,131 +1,61 @@
 use aoc::*;
 
-#[derive(Clone)]
-pub struct DumboOctopus(Vec<Vec<i64>>);
+#[derive(Clone, Debug)]
+pub struct DumboOctopus(Grid<i64>);
 
 impl Fro for DumboOctopus {
     fn fro(input: &str) -> Self {
-        input
-            .trim()
-            .split('\n')
-            .map(|line| line.chars().map(|char| i64::from(char as u8 - b'0')).collect())
-            .collect::<Vec<_>>()
-            .tap(Self)
+        Self(Grid::fro(input))
     }
 }
 
 impl Solution for DumboOctopus {
     fn one(mut self) -> i64 {
-        let h = self.0.len();
-        let w = self.0[0].len();
-
-        let mut flashes = 0;
         let mut flashed = Vec::new();
-
-        for _ in 0..100 {
-            for i in 0..h {
-                for j in 0..w {
-                    self.0[i][j] += 1;
-                    if self.0[i][j] > 9 {
-                        self.0[i][j] = 0;
-                        flashed.push((i, j));
-                        flashes += 1;
-                    }
-                }
-            }
-
-            while let Some((i, j)) = flashed.pop() {
-                for di in -1..=1 {
-                    for dj in -1..=1 {
-                        if di == 0 && dj == 0 {
-                            continue;
-                        }
-
-                        let i = i as i64 + di;
-                        let j = j as i64 + dj;
-
-                        if i < 0 || i as usize > h - 1
-                        || j < 0 || j as usize > w - 1 {
-                            continue;
-                        }
-
-                        let i = i as usize;
-                        let j = j as usize;
-
-                        match self.0[i][j] {
-                            0 => (),
-                            9 => {
-                                self.0[i][j] = 0;
-                                flashes += 1;
-                                flashed.push((i, j));
-                            }
-                            _ => self.0[i][j] += 1,
-                        }
-                    }
-                }
-            }
-        }
-
-        flashes
+        (0..100)
+            .map(|_| step(&mut self.0, &mut flashed))
+            .sum::<usize>()
+            as i64
     }
 
     fn two(mut self) -> i64 {
-        let h = self.0.len();
-        let w = self.0[0].len();
-
         let mut flashed = Vec::new();
+        let total = self.0.height() * self.0.width();
+        (1..)
+            .find(|_| step(&mut self.0, &mut flashed) == total)
+            .unwrap()
+    }
+}
 
-        for step in 1.. {
+fn step(grid: &mut Grid<i64>, flashed: &mut Vec<(usize, usize)>) -> usize {
+    let mut flashes = 0;
 
-            let mut flashes = 0;
-
-            for i in 0..h {
-                for j in 0..w {
-                    self.0[i][j] += 1;
-                    if self.0[i][j] > 9 {
-                        self.0[i][j] = 0;
-                        flashed.push((i, j));
-                        flashes += 1;
-                    }
+    for i in 0..grid.height() {
+        for j in 0..grid.width() {
+            match &mut grid[i][j] {
+                octopus @ 9 => {
+                    *octopus = 0;
+                    flashes += 1;
+                    flashed.push((i, j));
                 }
-            }
-
-            while let Some((i, j)) = flashed.pop() {
-                for di in -1..=1 {
-                    for dj in -1..=1 {
-                        if di == 0 && dj == 0 {
-                            continue;
-                        }
-
-                        let i = i as i64 + di;
-                        let j = j as i64 + dj;
-
-                        if i < 0 || i as usize > h - 1
-                        || j < 0 || j as usize > w - 1 {
-                            continue;
-                        }
-
-                        let i = i as usize;
-                        let j = j as usize;
-
-                        match self.0[i][j] {
-                            0 => (),
-                            9 => {
-                                self.0[i][j] = 0;
-                                flashes += 1;
-                                flashed.push((i, j));
-                            }
-                            _ => self.0[i][j] += 1,
-                        }
-                    }
-                }
-            }
-
-            if flashes == w * h {
-                return step;
+                octopus => *octopus += 1,
             }
         }
-
-        unreachable!()
     }
+
+    while let Some((i, j)) = flashed.pop() {
+        for (i, j) in around(grid.height(), grid.width(), i, j) {
+            match &mut grid[i][j] {
+                0 => (),
+                octopus @ 9 => {
+                    *octopus = 0;
+                    flashes += 1;
+                    flashed.push((i, j));
+                }
+                octopus => *octopus += 1,
+            }
+        }
+    }
+
+    flashes
 }
