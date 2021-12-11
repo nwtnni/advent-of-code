@@ -10,6 +10,7 @@ mod day_07;
 mod day_08;
 mod day_09;
 mod day_10;
+mod day_11;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -28,6 +29,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     | Day::D08 => run!(day_08::SevenSegmentSearch),
     | Day::D09 => run!(day_09::SmokeBasin),
     | Day::D10 => run!(day_10::SyntaxScoring),
+    | Day::D11 => run!(day_11::DumboOctopus),
     | _ => unimplemented!(),
     }
 }
