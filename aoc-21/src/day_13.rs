@@ -1,3 +1,4 @@
+use std::cmp;
 use std::collections::HashSet;
 
 use aoc::*;
@@ -54,54 +55,29 @@ impl Fro for TransparentOrigami {
 
 impl Solution for TransparentOrigami {
     fn one(mut self) -> i64 {
-
-        for fold in self.folds.into_iter().take(1) {
-            for (x, y) in &mut self.dots {
-                match fold {
-                    Fold::X(line) => {
-                        if *x > line {
-                            let delta = *x - line;
-                            *x = line - delta;
-                        }
-                    },
-                    Fold::Y(line) => {
-                        if *y > line {
-                            let delta = *y - line;
-                            *y = line - delta;
-                        }
-                    }
-                }
-            }
-        }
-
+        self.folds.resize(1, Fold::X(0));
+        self.fold();
         self.dots.into_iter().collect::<HashSet<_>>().len() as i64
     }
 
     fn two(mut self) -> i64 {
-        for fold in self.folds {
-            for (x, y) in &mut self.dots {
-                match fold {
-                    Fold::X(line) => {
-                        if *x > line {
-                            let delta = *x - line;
-                            *x = line - delta;
-                        }
-                    },
-                    Fold::Y(line) => {
-                        if *y > line {
-                            let delta = *y - line;
-                            *y = line - delta;
-                        }
-                    }
-                }
-            }
-        }
+        self.fold();
 
-        let min_x = *self.dots.iter().map(|(x, _)| x).min().unwrap();
-        let max_x = *self.dots.iter().map(|(x, _)| x).max().unwrap();
-        let min_y = *self.dots.iter().map(|(_, y)| y).min().unwrap();
-        let max_y = *self.dots.iter().map(|(_, y)| y).max().unwrap();
-        let dots = self.dots.into_iter().collect::<HashSet<_>>();
+        let dots = self
+            .dots
+            .into_iter()
+            .collect::<HashSet<_>>();
+
+        let (min_x, max_x, min_y, max_y) = dots
+            .iter()
+            .fold((i64::MAX, i64::MIN, i64::MAX, i64::MIN), |(min_x, max_x, min_y, max_y), (x, y)| {
+                (
+                    cmp::min(min_x, *x),
+                    cmp::max(max_x, *x),
+                    cmp::min(min_y, *y),
+                    cmp::max(max_y, *y),
+                )
+            });
 
         for y in min_y..=max_y {
             for x in min_x..=max_x {
@@ -115,5 +91,24 @@ impl Solution for TransparentOrigami {
         }
 
         panic!("See `stdout` for solution");
+    }
+}
+
+impl TransparentOrigami {
+    fn fold(&mut self) {
+        for fold in &self.folds {
+            match *fold {
+                Fold::X(line) => self
+                    .dots
+                    .iter_mut()
+                    .filter(|(x, _)| *x > line)
+                    .for_each(|(x, _)| *x = 2 * line - *x),
+                Fold::Y(line) => self
+                    .dots
+                    .iter_mut()
+                    .filter(|(_, y)| *y > line)
+                    .for_each(|(_, y)| *y = 2 * line - *y),
+            }
+        }
     }
 }
