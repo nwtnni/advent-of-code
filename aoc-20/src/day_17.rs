@@ -1,38 +1,25 @@
-use std::collections::HashSet;
 use std::cmp;
+use std::collections::HashSet;
 use std::mem;
 
 use aoc::*;
 
 #[derive(Clone, Debug)]
 pub struct ConwayCubes {
-    cols: usize,
-    rows: usize,
     grid: HashSet<(i64, i64, i64, i64)>,
 }
 
 impl Fro for ConwayCubes {
     fn fro(input: &str) -> Self {
         let mut grid = HashSet::new();
-        let mut rows = 0;
-        let mut cols = 0;
         for (y, row) in input.trim().split('\n').enumerate() {
-            rows += 1;
-            cols = 0;
             for (x, col) in row.trim().chars().enumerate() {
-                cols += 1;
-
                 if col == '#' {
                     grid.insert((x as i64, y as i64, 0, 0));
                 }
-
             }
         }
-        Self {
-            cols,
-            rows,
-            grid,
-        }
+        Self { grid }
     }
 }
 
@@ -65,7 +52,6 @@ impl Solution for ConwayCubes {
             for x in min_x - 1..=max_x + 1 {
                 for y in min_y - 1..=max_y + 1 {
                     for z in min_z - 1..=max_z + 1 {
-
                         let mut around = 0;
 
                         for dx in -1i64..=1 {
@@ -83,10 +69,14 @@ impl Solution for ConwayCubes {
                         }
 
                         match (self.grid.contains(&(x, y, z, 0)), around) {
-                        | (true, 2..=3) => { grid.insert((x, y, z, 0)); },
-                        | (true, _) => (),
-                        | (false, 3) => { grid.insert((x, y, z, 0)); },
-                        | (false, _) => (),
+                            (true, 2..=3) => {
+                                grid.insert((x, y, z, 0));
+                            }
+                            (true, _) => (),
+                            (false, 3) => {
+                                grid.insert((x, y, z, 0));
+                            }
+                            (false, _) => (),
                         }
                     }
                 }
@@ -133,7 +123,6 @@ impl Solution for ConwayCubes {
                 for y in min_y - 1..=max_y + 1 {
                     for z in min_z - 1..=max_z + 1 {
                         for w in min_w - 1..=max_w + 1 {
-
                             let mut around = 0;
 
                             for dx in -1i64..=1 {
@@ -144,7 +133,8 @@ impl Solution for ConwayCubes {
                                                 continue;
                                             }
 
-                                            if self.grid.contains(&(x + dx, y + dy, z + dz, w + dw)) {
+                                            if self.grid.contains(&(x + dx, y + dy, z + dz, w + dw))
+                                            {
                                                 around += 1;
                                             }
                                         }
@@ -153,10 +143,14 @@ impl Solution for ConwayCubes {
                             }
 
                             match (self.grid.contains(&(x, y, z, w)), around) {
-                            | (true, 2..=3) => { grid.insert((x, y, z, w)); },
-                            | (true, _) => (),
-                            | (false, 3) => { grid.insert((x, y, z, w)); },
-                            | (false, _) => (),
+                                (true, 2..=3) => {
+                                    grid.insert((x, y, z, w));
+                                }
+                                (true, _) => (),
+                                (false, 3) => {
+                                    grid.insert((x, y, z, w));
+                                }
+                                (false, _) => (),
                             }
                         }
                     }
