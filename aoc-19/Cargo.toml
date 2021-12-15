@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 aoc = { package = "aoc-core", path = "../aoc-core" }
 petgraph = "0.4.13"
-priority-queue = "0.6.0"
+priority-queue = "1.2"
