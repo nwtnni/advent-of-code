@@ -145,29 +145,23 @@ impl Cube {
         let zb = (intersection.z1, intersection.z2);
         let zc = (intersection.z2 + 1, self.z2);
 
-        let mut cubes = [Cube::default(); 26];
-        let mut i = 0;
-
-        for x in [xa, xb, xc] {
-            for y in [ya, yb, yc] {
-                for z in [za, zb, zc] {
-                    if x == xb && y == yb && z == zb {
-                        continue;
-                    }
-
-                    cubes[i] = Cube {
-                        x1: x.0,
-                        x2: x.1,
-                        y1: y.0,
-                        y2: y.1,
-                        z1: z.0,
-                        z2: z.1,
-                    };
-                    i += 1;
-                }
-            }
-        }
-
-        Or::R(cubes.into_iter().filter(|cube| !cube.is_empty()))
+        [xa, xb, xc]
+            .into_iter()
+            .flat_map(move |x| {
+                [ya, yb, yc]
+                    .into_iter()
+                    .flat_map(move |y| [za, zb, zc].into_iter().map(move |z| (x, y, z)))
+            })
+            .filter(move |&(x, y, z)| !(x == xb && y == yb && z == zb))
+            .map(|(x, y, z)| Cube {
+                x1: x.0,
+                x2: x.1,
+                y1: y.0,
+                y2: y.1,
+                z1: z.0,
+                z2: z.1,
+            })
+            .filter(|cube| !cube.is_empty())
+            .tap(Or::R)
     }
 }
