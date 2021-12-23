@@ -10,7 +10,7 @@ use priority_queue::PriorityQueue;
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Amphipod {
     halls: [Option<Type>; 11],
-    rooms: [[Option<Type>; 2]; 4],
+    rooms: [[Option<Type>; 4]; 4],
     last: Option<Tile>,
 }
 
@@ -19,7 +19,7 @@ impl Fro for Amphipod {
         let mut iter = input.trim().split('\n').skip(2);
 
         let halls = [None; 11];
-        let mut rooms = [[None; 2]; 4];
+        let mut rooms = [[None; 4]; 4];
 
         for (i, above) in iter
             .next()
@@ -31,6 +31,15 @@ impl Fro for Amphipod {
             rooms[i][0] = Some(above);
         }
 
+        rooms[0][1] = Some(Type::D);
+        rooms[0][2] = Some(Type::D);
+        rooms[1][1] = Some(Type::C);
+        rooms[1][2] = Some(Type::B);
+        rooms[2][1] = Some(Type::B);
+        rooms[2][2] = Some(Type::A);
+        rooms[3][1] = Some(Type::A);
+        rooms[3][2] = Some(Type::C);
+
         for (i, below) in iter
             .next()
             .into_iter()
@@ -38,7 +47,7 @@ impl Fro for Amphipod {
             .filter_map(Type::from_char)
             .enumerate()
         {
-            rooms[i][1] = Some(below);
+            rooms[i][3] = Some(below);
         }
 
         Self {
@@ -68,6 +77,15 @@ impl Type {
         }
     }
 
+    fn home(&self) -> usize {
+        match self {
+            Type::A => 0,
+            Type::B => 1,
+            Type::C => 2,
+            Type::D => 3,
+        }
+    }
+
     fn energy(&self) -> i64 {
         match self {
             Type::A => 1,
@@ -83,35 +101,31 @@ impl Amphipod {
         for from in (0..11).map(Tile::Hall).chain([
             Tile::Room(0, 0),
             Tile::Room(0, 1),
+            Tile::Room(0, 2),
+            Tile::Room(0, 3),
             Tile::Room(1, 0),
             Tile::Room(1, 1),
+            Tile::Room(1, 2),
+            Tile::Room(1, 3),
             Tile::Room(2, 0),
             Tile::Room(2, 1),
+            Tile::Room(2, 2),
+            Tile::Room(2, 3),
             Tile::Room(3, 0),
             Tile::Room(3, 1),
+            Tile::Room(3, 2),
+            Tile::Room(3, 3),
         ]) {
             if let Some(r#type) = self.get(from) {
-                match (r#type, from) {
-                    (Type::A, Tile::Room(0, 1)) => continue,
-                    (Type::A, Tile::Room(0, 0)) if self.get(Tile::Room(0, 1)) == Some(Type::A) => {
-                        continue
+                if let Tile::Room(i, j) = from {
+                    let home = r#type.home();
+                    if i == home
+                        && self.rooms[i][j + 1..]
+                            .iter()
+                            .all(|tile| tile.map_or(false, |tile| tile == r#type))
+                    {
+                        continue;
                     }
-
-                    (Type::B, Tile::Room(1, 1)) => continue,
-                    (Type::B, Tile::Room(1, 0)) if self.get(Tile::Room(1, 1)) == Some(Type::B) => {
-                        continue
-                    }
-
-                    (Type::C, Tile::Room(2, 1)) => continue,
-                    (Type::C, Tile::Room(2, 0)) if self.get(Tile::Room(2, 1)) == Some(Type::C) => {
-                        continue
-                    }
-
-                    (Type::D, Tile::Room(3, 1)) => continue,
-                    (Type::D, Tile::Room(3, 0)) if self.get(Tile::Room(3, 1)) == Some(Type::D) => {
-                        continue
-                    }
-                    _ => (),
                 }
 
                 for (to, cost) in self.movable(from, r#type) {
@@ -171,12 +185,41 @@ impl Amphipod {
                 // Constraint: cannot move into room with other type
                 match tile {
                     Tile::Hall(_) => true,
-                    // Optimization: don't move into 0th room if 1st is available
-                    Tile::Room(i, 0) => match self.get(Tile::Room(*i, 1)) {
+
+                    Tile::Room(i, 0) => {
+                        match (self.rooms[*i][1], self.rooms[*i][2], self.rooms[*i][3]) {
+                            (None, None, None) => false,
+
+                            (None, None, Some(_)) => false,
+                            (Some(other), None, None) | (None, Some(other), None) => {
+                                other == r#type
+                            }
+
+                            (None, Some(_), Some(_)) => false,
+                            (Some(other1), None, Some(other2))
+                            | (Some(other1), Some(other2), None) => {
+                                other1 == r#type && other2 == r#type
+                            }
+
+                            (Some(other1), Some(other2), Some(other3)) => {
+                                other1 == r#type && other2 == r#type && other3 == r#type
+                            }
+                        }
+                    }
+
+                    Tile::Room(i, 1) => match (self.rooms[*i][2], self.rooms[*i][3]) {
+                        (None, None) => false,
+                        (None, Some(_)) => false,
+                        (Some(other), None) => other == r#type,
+                        (Some(other2), Some(other3)) => other2 == r#type && other3 == r#type,
+                    },
+
+                    Tile::Room(i, 2) => match self.rooms[*i][3] {
                         None => false,
                         Some(other) => other == r#type,
                     },
-                    Tile::Room(_, 1) => true,
+
+                    Tile::Room(_, 3) => true,
                     _ => unreachable!(),
                 }
             })
@@ -229,7 +272,9 @@ impl Amphipod {
             Tile::Hall(10) => Or::L(iter::once(Tile::Hall(9))),
 
             Tile::Room(i, 0) => Or::R(Or::L([Tile::Hall(2 * i + 2), Tile::Room(i, 1)].into_iter())),
-            Tile::Room(i, 1) => Or::L(iter::once(Tile::Room(i, 0))),
+            Tile::Room(i, 1) => Or::R(Or::L([Tile::Room(i, 0), Tile::Room(i, 2)].into_iter())),
+            Tile::Room(i, 2) => Or::R(Or::L([Tile::Room(i, 1), Tile::Room(i, 3)].into_iter())),
+            Tile::Room(i, 3) => Or::L(iter::once(Tile::Room(i, 2))),
 
             _ => unreachable!(),
         }
@@ -250,14 +295,15 @@ impl Amphipod {
     }
 
     fn is_finished(&self) -> bool {
-        self.rooms[0][0] == Some(Type::A)
-            && self.rooms[0][1] == Some(Type::A)
-            && self.rooms[1][0] == Some(Type::B)
-            && self.rooms[1][1] == Some(Type::B)
-            && self.rooms[2][0] == Some(Type::C)
-            && self.rooms[2][1] == Some(Type::C)
-            && self.rooms[3][0] == Some(Type::D)
-            && self.rooms[3][1] == Some(Type::D)
+        for (i, r#type) in [Type::A, Type::B, Type::C, Type::D].into_iter().enumerate() {
+            if !self.rooms[i]
+                .iter()
+                .all(|tile| tile.map_or(false, |tile| tile == r#type))
+            {
+                return false;
+            }
+        }
+        true
     }
 }
 
@@ -297,7 +343,7 @@ impl Solution for Amphipod {
     }
 
     fn two(self) -> i64 {
-        todo!()
+        self.one()
     }
 }
 
