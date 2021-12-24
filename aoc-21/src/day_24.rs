@@ -1,136 +1,28 @@
 use aoc::*;
 
 #[derive(Clone, Debug)]
-pub struct ArithmeticLogicUnit(Vec<Asm>);
-
-#[derive(Copy, Clone, Debug)]
-enum Asm {
-    Inp(Dst),
-    Bin(Op, Dst, Src),
-}
-
-#[derive(Copy, Clone, Debug)]
-enum Src {
-    Num(i64),
-    Var(usize),
-}
-
-#[derive(Copy, Clone, Debug)]
-struct Dst(usize);
-
-#[derive(Copy, Clone, Debug)]
-enum Op {
-    Add,
-    Mul,
-    Div,
-    Mod,
-    Eql,
-}
+pub struct ArithmeticLogicUnit;
 
 impl Fro for ArithmeticLogicUnit {
-    fn fro(input: &str) -> Self {
-        input
-            .trim()
-            .split('\n')
-            .map(Asm::fro)
-            .collect::<Vec<_>>()
-            .tap(Self)
+    fn fro(_: &str) -> Self {
+        Self
     }
 }
 
-impl Fro for Src {
-    fn fro(input: &str) -> Self {
-        if let Ok(num) = input.parse::<i64>() {
-            Src::Num(num)
-        } else {
-            assert_eq!(input.len(), 1);
-            Src::Var((input.chars().give() as u8 - b'w') as usize)
-        }
-    }
-}
-
-impl Fro for Dst {
-    fn fro(input: &str) -> Self {
-        assert_eq!(input.len(), 1);
-        Dst((input.chars().give() as u8 - b'w') as usize)
-    }
-}
-
-impl Fro for Asm {
-    fn fro(input: &str) -> Self {
-        let (a, b) = input.split_once(' ').unwrap();
-        match a {
-            "inp" => Asm::Inp(Dst::fro(b)),
-            op => {
-                let (l, r) = b.split_once(' ').unwrap();
-                let op = Op::fro(op);
-                Asm::Bin(op, Dst::fro(l), Src::fro(r))
-            }
-        }
-    }
-}
-
-impl Fro for Op {
-    fn fro(input: &str) -> Self {
-        match input {
-            "add" => Op::Add,
-            "mul" => Op::Mul,
-            "div" => Op::Div,
-            "mod" => Op::Mod,
-            "eql" => Op::Eql,
-            _ => unreachable!(),
-        }
-    }
-}
-
-const DIV: [bool; 14] = [
-    false, false, false, true, false, false, true, true, true, false, false, true, true, true,
-];
 const DX: [i64; 14] = [11, 13, 15, -8, 13, 15, -11, -4, -15, 14, 14, -1, -8, -14];
 const DY: [i64; 14] = [6, 14, 14, 10, 9, 12, 8, 13, 12, 6, 9, 15, 4, 10];
 
 impl Solution for ArithmeticLogicUnit {
     fn one(self) -> i64 {
-        self.check3((1..=9).rev())
+        self.check((1..=9).rev())
     }
 
     fn two(self) -> i64 {
-        self.check3(1..=9)
+        self.check(1..=9)
     }
 }
 
 impl ArithmeticLogicUnit {
-    #[allow(dead_code)]
-    fn check(&self, model: [u8; 14]) -> bool {
-        let mut regs = [0i64; 4];
-        let mut input = 0;
-
-        for asm in &self.0 {
-            match *asm {
-                Asm::Inp(Dst(dst)) => {
-                    regs[dst] = model[input] as i64;
-                    input += 1;
-                }
-                Asm::Bin(op, Dst(dst), src) => {
-                    let src = match src {
-                        Src::Num(num) => num,
-                        Src::Var(var) => regs[var],
-                    };
-
-                    regs[dst] = match op {
-                        Op::Add => regs[dst] + src,
-                        Op::Mul => regs[dst] * src,
-                        Op::Div => regs[dst] / src,
-                        Op::Mod => regs[dst] % src,
-                        Op::Eql => (regs[dst] == src) as i64,
-                    }
-                }
-            }
-        }
-
-        regs[3] == 0
-    }
-
     // let mut x = 0;
     // x += z;
     //
@@ -156,24 +48,13 @@ impl ArithmeticLogicUnit {
     // y += dy;
     // y *= x;
     // z += y;
-    #[allow(dead_code)]
-    fn check2(&self, model: [i64; 14]) -> bool {
-        let mut z = 0;
-
-        for (((w, div), dx), dy) in model.into_iter().zip(DIV).zip(DX).zip(DY) {
-            if z < 0 {
-                return false;
-            }
-
-            let x = (w != (z % 26 + dx)) as i64;
-            z = if div { z / 26 } else { z };
-            z = z * (25 * x + 1) + ((w + dy) * x);
-        }
-
-        z == 0
-    }
-
-    fn check3(&self, range: impl Iterator<Item = i64> + Clone) -> i64 {
+    //
+    // ---
+    //
+    // let x = (w != (z % 26 + dx)) as i64;
+    // z = if div { z / 26 } else { z };
+    // z = z * (25 * x + 1) + ((w + dy) * x);
+    fn check(&self, range: impl Iterator<Item = i64> + Clone) -> i64 {
         for d00 in range.clone() {
             let z0 = d00 + DY[0];
 
