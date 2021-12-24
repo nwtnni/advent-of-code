@@ -23,6 +23,7 @@ mod day_20;
 mod day_21;
 mod day_22;
 mod day_23;
+mod day_24;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -54,6 +55,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     | Day::D21 => run!(day_21::DiracDice),
     | Day::D22 => run!(day_22::ReactorReboot),
     | Day::D23 => run!(day_23::Amphipod),
+    | Day::D24 => run!(day_24::ArithmeticLogicUnit),
     | _ => unimplemented!(),
     }
 }
