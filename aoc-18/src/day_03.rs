@@ -90,3 +90,20 @@ impl Solution for NoMatterHowYouSliceIt {
             .unwrap()
     }
 }
+
+#[cfg(test)]
+const EXAMPLE: &str = "\
+    #1 @ 1,3: 4x4\n\
+    #2 @ 3,1: 4x4\n\
+    #3 @ 5,5: 2x2\n\
+";
+
+#[test]
+fn test_1_0() {
+    assert_eq!(NoMatterHowYouSliceIt::fro(EXAMPLE).one(), 4);
+}
+
+#[test]
+fn test_2_0() {
+    assert_eq!(NoMatterHowYouSliceIt::fro(EXAMPLE).two(), 3);
+}
