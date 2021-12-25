@@ -60,3 +60,22 @@ impl Solution for InventoryManagementSystem {
         unreachable!()
     }
 }
+
+#[test]
+fn test_1_0() {
+    assert_eq!(
+        InventoryManagementSystem::fro(
+            "\
+            abcdef\n\
+            bababc\n\
+            abbcde\n\
+            abcccd\n\
+            aabcdd\n\
+            abcdee\n\
+            ababab\
+            "
+        )
+        .one(),
+        12
+    );
+}
