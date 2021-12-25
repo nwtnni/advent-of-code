@@ -318,9 +318,9 @@ fn solve(
     match year {
     | aoc_core::Year::Y15 => aoc_15::solve(day, part, &input),
     | aoc_core::Year::Y17 => aoc_17::solve(day, part, &input),
+    | aoc_core::Year::Y18 => aoc_18::solve(day, part, &input),
     | aoc_core::Year::Y19 => aoc_19::solve(day, part, &input),
     | aoc_core::Year::Y20 => aoc_20::solve(day, part, &input),
     | aoc_core::Year::Y21 => aoc_21::solve(day, part, &input),
-    | _ => unimplemented!(),
     }
 }

@@ -4,6 +4,7 @@ members = [
     "aoc-core",
     "aoc-15",
     "aoc-17",
+    "aoc-18",
     "aoc-19",
     "aoc-20",
     "aoc-21",

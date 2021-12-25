@@ -11,6 +11,7 @@ anyhow = "1.0"
 aoc-core = { path = "../aoc-core" }
 aoc-15 = { path = "../aoc-15" }
 aoc-17 = { path = "../aoc-17" }
+aoc-18 = { path = "../aoc-18" }
 aoc-19 = { path = "../aoc-19" }
 aoc-20 = { path = "../aoc-20" }
 aoc-21 = { path = "../aoc-21" }
