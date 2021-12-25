@@ -50,3 +50,33 @@ impl AlchemicalReduction {
         }
     }
 }
+
+#[test]
+fn test_1_0() {
+    assert_eq!(AlchemicalReduction::fro("aA").one(), 0);
+}
+
+#[test]
+fn test_1_1() {
+    assert_eq!(AlchemicalReduction::fro("abBA").one(), 0);
+}
+
+#[test]
+fn test_1_2() {
+    assert_eq!(AlchemicalReduction::fro("abAB").one(), 4);
+}
+
+#[test]
+fn test_1_3() {
+    assert_eq!(AlchemicalReduction::fro("aabAAB").one(), 6);
+}
+
+#[test]
+fn test_1_4() {
+    assert_eq!(AlchemicalReduction::fro("dabAcCaCBAcCcaDA").one(), 10);
+}
+
+#[test]
+fn test_2_0() {
+    assert_eq!(AlchemicalReduction::fro("dabAcCaCBAcCcaDA").two(), 4);
+}
