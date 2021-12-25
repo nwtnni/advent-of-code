@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::iter;
 
 use aoc::*;
 
@@ -26,7 +27,9 @@ impl Solution for ChronalCalibration {
 
         self.0
             .iter()
+            .copied()
             .cycle()
+            .tap(|cycle| iter::once(0).chain(cycle))
             .scan(0, |frequency, change| {
                 *frequency += change;
                 Some(*frequency)
@@ -37,4 +40,39 @@ impl Solution for ChronalCalibration {
             })
             .unwrap()
     }
+}
+
+#[test]
+fn test_1_0() {
+    assert_eq!(ChronalCalibration::fro("+1\n+1\n+1").one(), 3);
+}
+
+#[test]
+fn test_1_1() {
+    assert_eq!(ChronalCalibration::fro("+1\n+1\n-2").one(), 0);
+}
+
+#[test]
+fn test_1_2() {
+    assert_eq!(ChronalCalibration::fro("-1\n-2\n-3").one(), -6);
+}
+
+#[test]
+fn test_2_0() {
+    assert_eq!(ChronalCalibration::fro("+1\n-1").two(), 0);
+}
+
+#[test]
+fn test_2_1() {
+    assert_eq!(ChronalCalibration::fro("+3\n+3\n+4\n-2\n-4").two(), 10);
+}
+
+#[test]
+fn test_2_2() {
+    assert_eq!(ChronalCalibration::fro("-6\n+3\n+8\n+5\n-6").two(), 5);
+}
+
+#[test]
+fn test_2_3() {
+    assert_eq!(ChronalCalibration::fro("+7\n+7\n-2\n-7\n-4").two(), 14);
 }
