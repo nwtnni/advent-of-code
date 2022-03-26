@@ -14,11 +14,11 @@ impl Fro for SetAndForget {
 
 fn parse_dir(output: i64) -> Dir {
     match output as u8 {
-    | b'^' => Dir::N,
-    | b'v' => Dir::S,
-    | b'>' => Dir::E,
-    | b'<' => Dir::W,
-    | _ => unreachable!(),
+        b'^' => Dir::N,
+        b'v' => Dir::S,
+        b'>' => Dir::E,
+        b'<' => Dir::W,
+        _ => unreachable!(),
     }
 }
 
@@ -31,19 +31,26 @@ impl SetAndForget {
         let mut y = 0;
         while let Some(next) = self.0.output() {
             match next as u8 {
-            | b'#'  => { scaffold.insert(Pos { x, y }); x += 1; }
-            | b'\n' => { y += 1; x = 0; }
-            | b'v' | b'<' | b'>' | b'^' => {
-                dir = parse_dir(next);
-                pos = Pos { x, y };
-                scaffold.insert(pos);
-                x += 1;
-            }
-            | _ => { x += 1; }
+                b'#' => {
+                    scaffold.insert(Pos { x, y });
+                    x += 1;
+                }
+                b'\n' => {
+                    y += 1;
+                    x = 0;
+                }
+                b'v' | b'<' | b'>' | b'^' => {
+                    dir = parse_dir(next);
+                    pos = Pos { x, y };
+                    scaffold.insert(pos);
+                    x += 1;
+                }
+                _ => {
+                    x += 1;
+                }
             }
         }
         (scaffold, pos, dir)
-
     }
 
     #[allow(unused)]
@@ -53,10 +60,10 @@ impl SetAndForget {
             for x in 0..80 {
                 if x == pos.x && y == pos.y {
                     match dir {
-                    | Dir::N => print!("^"),
-                    | Dir::S => print!("v"),
-                    | Dir::E => print!(">"),
-                    | Dir::W => print!("<"),
+                        Dir::N => print!("^"),
+                        Dir::S => print!("v"),
+                        Dir::E => print!(">"),
+                        Dir::W => print!("<"),
                     }
                 } else if scaffold.contains(&Pos { x, y }) {
                     print!("█");
@@ -76,9 +83,7 @@ impl Solution for SetAndForget {
         let get = |x, y| scaffold.contains(&Pos { x, y });
         for y in 0..80i64 {
             for x in 0..80i64 {
-                if get(x, y)
-                && get(x + 1, y) && get(x - 1, y)
-                && get(x, y + 1) && get(x, y - 1) {
+                if get(x, y) && get(x + 1, y) && get(x - 1, y) && get(x, y + 1) && get(x, y - 1) {
                     sum += x * y;
                 }
             }
@@ -165,26 +170,26 @@ impl Solution for SetAndForget {
         loop {
             use intcode::Yield::*;
             match self.0.step() {
-            | Halt => panic!("halt"),
-            | Step => (),
-            | Output(o) if o > 255 => {
-                println!("\x1B[?25h");
-                break o;
-            }
-            | Output(o) if o == 10 && clear => {
-                clear = false;
-                print!("{}", buffer);
-                thread::sleep(time::Duration::from_millis(25));
-                print!("\x1B[2J");
-                buffer.clear();
-            }
-            | Output(o) => {
-                clear = o == 10;
-                buffer.push(o as u8 as char);
-            }
-            | Input(i) => {
-                self.0[i] = input.give();
-            }
+                Halt => panic!("halt"),
+                Step => (),
+                Output(o) if o > 255 => {
+                    println!("\x1B[?25h");
+                    break o;
+                }
+                Output(o) if o == 10 && clear => {
+                    clear = false;
+                    print!("{}", buffer);
+                    thread::sleep(time::Duration::from_millis(25));
+                    print!("\x1B[2J");
+                    buffer.clear();
+                }
+                Output(o) => {
+                    clear = o == 10;
+                    buffer.push(o as u8 as char);
+                }
+                Input(i) => {
+                    self.0[i] = input.give();
+                }
             }
         }
     }

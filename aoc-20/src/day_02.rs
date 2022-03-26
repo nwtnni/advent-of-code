@@ -44,11 +44,14 @@ impl Solution for PasswordPhilosophy {
         self.0
             .into_iter()
             .filter(|policy| {
-                let count = policy.password.chars().filter(|c| *c == policy.letter).count();
+                let count = policy
+                    .password
+                    .chars()
+                    .filter(|c| *c == policy.letter)
+                    .count();
                 count >= policy.lo && count <= policy.hi
             })
-            .count()
-            as i64
+            .count() as i64
     }
 
     fn two(self) -> i64 {
@@ -59,8 +62,7 @@ impl Solution for PasswordPhilosophy {
                 let hi = policy.password.chars().nth(policy.hi - 1).unwrap() == policy.letter;
                 lo ^ hi
             })
-            .count()
-            as i64
+            .count() as i64
     }
 }
 

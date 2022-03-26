@@ -15,7 +15,6 @@ impl TractorBeam {
         self.0.input(x);
         self.0.input(y);
         self.0.output().unwrap() == 1
-
     }
 
     #[allow(unused)]

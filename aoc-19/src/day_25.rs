@@ -1,8 +1,8 @@
 use std::collections::VecDeque;
 use std::iter;
 
-use aoc::*;
 use aoc::intcode;
+use aoc::*;
 
 pub struct Cryostasis(intcode::Program);
 
@@ -13,9 +13,7 @@ impl Fro for Cryostasis {
 }
 
 impl Solution for Cryostasis {
-
     fn one(mut self) -> i64 {
-
         let mut output = String::new();
         let mut input = [
             // Hull Breach
@@ -72,10 +70,11 @@ impl Solution for Cryostasis {
             "west",
             // Security Checkpoint
             "inv",
-        ].iter()
-            .copied()
-            .flat_map(asciiln)
-            .collect::<VecDeque<_>>();
+        ]
+        .iter()
+        .copied()
+        .flat_map(asciiln)
+        .collect::<VecDeque<_>>();
 
         let mut inventory = 0b1111_1111u8;
         let items = [
@@ -95,56 +94,57 @@ impl Solution for Cryostasis {
         loop {
             use intcode::Yield::*;
             match self.0.step() {
-            | Halt => {
-                return output.split_whitespace()
-                    .filter_map(|word| word.parse::<i64>().ok())
-                    .give();
-            }
-            | Step => continue,
-            | Input(i) => {
-                if let Some(next) = input.pop_front() {
-                    self.0[i] = next;
-                    continue;
+                Halt => {
+                    return output
+                        .split_whitespace()
+                        .filter_map(|word| word.parse::<i64>().ok())
+                        .give();
                 }
-
-                if buffer.is_empty() {
-                    count += 1;
-
-                    for i in 0..8 {
-                        let mask = 1 << i;
-                        if count & mask > 0 {
-                            // Not in inventory but needed
-                            if inventory & mask == 0 {
-                                inventory |= mask;
-                                buffer.extend(ascii("take "));
-                                buffer.extend(asciiln(items[i]));
-                            }
-                        } else {
-                            // In inventory but unneeded
-                            if inventory & mask > 0 {
-                                inventory &= !mask;
-                                buffer.extend(ascii("drop "));
-                                buffer.extend(asciiln(items[i]));
-                            }
-                        }
+                Step => continue,
+                Input(i) => {
+                    if let Some(next) = input.pop_front() {
+                        self.0[i] = next;
+                        continue;
                     }
 
-                    buffer.extend(asciiln("north"));
-                }
+                    if buffer.is_empty() {
+                        count += 1;
 
-                if let Some(next) = buffer.pop_front() {
-                    print!("{}", next as u8 as char);
-                    self.0[i] = next;
-                    continue;
+                        for i in 0..8 {
+                            let mask = 1 << i;
+                            if count & mask > 0 {
+                                // Not in inventory but needed
+                                if inventory & mask == 0 {
+                                    inventory |= mask;
+                                    buffer.extend(ascii("take "));
+                                    buffer.extend(asciiln(items[i]));
+                                }
+                            } else {
+                                // In inventory but unneeded
+                                if inventory & mask > 0 {
+                                    inventory &= !mask;
+                                    buffer.extend(ascii("drop "));
+                                    buffer.extend(asciiln(items[i]));
+                                }
+                            }
+                        }
+
+                        buffer.extend(asciiln("north"));
+                    }
+
+                    if let Some(next) = buffer.pop_front() {
+                        print!("{}", next as u8 as char);
+                        self.0[i] = next;
+                        continue;
+                    }
                 }
-            }
-            | Output(o) => {
-                if output.ends_with("Command?\n") {
-                    print!("{}", output);
-                    output.clear();
+                Output(o) => {
+                    if output.ends_with("Command?\n") {
+                        print!("{}", output);
+                        output.clear();
+                    }
+                    output.push(o as u8 as char);
                 }
-                output.push(o as u8 as char);
-            }
             }
         }
     }

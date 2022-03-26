@@ -11,9 +11,7 @@ pub struct CrabCombat {
 
 impl Fro for CrabCombat {
     fn fro(input: &str) -> Self {
-        let mut iter = input
-            .trim()
-            .split("\n\n");
+        let mut iter = input.trim().split("\n\n");
 
         let one = iter
             .give()
@@ -31,10 +29,7 @@ impl Fro for CrabCombat {
             .map(i64::fro)
             .collect::<VecDeque<_>>();
 
-        Self {
-            one,
-            two,
-        }
+        Self { one, two }
     }
 }
 

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::mem;
 use std::iter;
+use std::mem;
 
 use aoc::*;
 
@@ -21,18 +21,16 @@ struct Field {
 
 impl Field {
     fn validate(&self, n: i64) -> bool {
-        (n >= self.lo.0 && n <= self.lo.1) ||
-        (n >= self.hi.0 && n <= self.hi.1)
+        (n >= self.lo.0 && n <= self.lo.1) || (n >= self.hi.0 && n <= self.hi.1)
     }
 }
 
 impl Fro for TicketTranslation {
     fn fro(input: &str) -> Self {
-        let mut iter = input
-            .trim()
-            .split("\n\n");
+        let mut iter = input.trim().split("\n\n");
 
-        let fields = iter.give()
+        let fields = iter
+            .give()
             .trim()
             .split('\n')
             .map(|line| {
@@ -92,9 +90,7 @@ impl Solution for TicketTranslation {
         destroy.retain(|ticket| {
             ticket
                 .iter()
-                .all(|value| {
-                    self.fields.iter().any(|field| field.validate(*value))
-                })
+                .all(|value| self.fields.iter().any(|field| field.validate(*value)))
         });
         self.nearby = destroy;
 

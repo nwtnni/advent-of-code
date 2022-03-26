@@ -40,8 +40,14 @@ impl Fro for ProbablyAFireHazard {
 
                 (
                     op,
-                    Pos { x: lo.give(), y: lo.give() },
-                    Pos { x: hi.give(), y: hi.give() },
+                    Pos {
+                        x: lo.give(),
+                        y: lo.give(),
+                    },
+                    Pos {
+                        x: hi.give(),
+                        y: hi.give(),
+                    },
                 )
             })
             .collect::<Vec<_>>()
@@ -56,18 +62,14 @@ impl Solution for ProbablyAFireHazard {
         for (op, lo, hi) in self.0 {
             for Pos { x, y } in lo.to_inclusive(hi) {
                 grid[y as usize][x as usize] = match op {
-                | Op::On => true,
-                | Op::Off => false,
-                | Op::Toggle => !grid[y as usize][x as usize],
+                    Op::On => true,
+                    Op::Off => false,
+                    Op::Toggle => !grid[y as usize][x as usize],
                 }
             }
         }
 
-        grid.into_iter()
-            .flatten()
-            .filter(|on| *on)
-            .count()
-            as i64
+        grid.into_iter().flatten().filter(|on| *on).count() as i64
     }
 
     fn two(self) -> i64 {
@@ -77,15 +79,13 @@ impl Solution for ProbablyAFireHazard {
             for Pos { x, y } in lo.to_inclusive(hi) {
                 let brightness = &mut grid[y as usize][x as usize];
                 *brightness = match op {
-                | Op::On => *brightness + 1,
-                | Op::Off => cmp::max(0, *brightness - 1),
-                | Op::Toggle => *brightness + 2,
+                    Op::On => *brightness + 1,
+                    Op::Off => cmp::max(0, *brightness - 1),
+                    Op::Toggle => *brightness + 2,
                 };
             }
         }
 
-        grid.into_iter()
-            .flatten()
-            .sum()
+        grid.into_iter().flatten().sum()
     }
 }

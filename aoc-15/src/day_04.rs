@@ -26,14 +26,16 @@ impl TheIdealStockingStuffer {
     }
 
     fn find(&mut self, len: usize) -> i64 {
-        (1i64..).find(|&salt| {
-            let digest = self.hash(salt).0;
-            (0..len).all(|i| {
-                let byte = digest[i >> 1];
-                let mask = 0b1111_0000 >> ((i & 1) << 2);
-                byte & mask == 0
+        (1i64..)
+            .find(|&salt| {
+                let digest = self.hash(salt).0;
+                (0..len).all(|i| {
+                    let byte = digest[i >> 1];
+                    let mask = 0b1111_0000 >> ((i & 1) << 2);
+                    byte & mask == 0
+                })
             })
-        }).unwrap()
+            .unwrap()
     }
 }
 
@@ -60,6 +62,9 @@ mod tests {
 
     #[test]
     fn test_1() {
-        assert_eq!(super::TheIdealStockingStuffer::fro("pqrstuv").one(), 1048970)
+        assert_eq!(
+            super::TheIdealStockingStuffer::fro("pqrstuv").one(),
+            1048970
+        )
     }
 }

@@ -47,11 +47,17 @@ mod tests {
 
     #[test]
     fn part_one() {
-        assert_eq!(super::ReportRepair(vec![1721, 979, 366, 299, 675, 1456]).one(), 514579);
+        assert_eq!(
+            super::ReportRepair(vec![1721, 979, 366, 299, 675, 1456]).one(),
+            514579
+        );
     }
 
     #[test]
     fn part_two() {
-        assert_eq!(super::ReportRepair(vec![1721, 979, 366, 299, 675, 1456]).two(), 241861950);
+        assert_eq!(
+            super::ReportRepair(vec![1721, 979, 366, 299, 675, 1456]).two(),
+            241861950
+        );
     }
 }

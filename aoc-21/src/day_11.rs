@@ -14,8 +14,7 @@ impl Solution for DumboOctopus {
         let mut flashed = Vec::new();
         (0..100)
             .map(|_| step(&mut self.0, &mut flashed))
-            .sum::<usize>()
-            as i64
+            .sum::<usize>() as i64
     }
 
     fn two(mut self) -> i64 {

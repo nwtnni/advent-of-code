@@ -62,7 +62,11 @@ impl Cache {
         self.write(path, "description", Some(description), Mode::Replace)
     }
 
-    pub fn input(&self, year: aoc_core::Year, day: aoc_core::Day) -> anyhow::Result<Option<String>> {
+    pub fn input(
+        &self,
+        year: aoc_core::Year,
+        day: aoc_core::Day,
+    ) -> anyhow::Result<Option<String>> {
         let path = self
             .project
             .cache_dir()
@@ -90,7 +94,10 @@ impl Cache {
         self.write(path, "input", Some(input), Mode::Replace)
     }
 
-    pub fn leaderboard(&self, year: aoc_core::Year) -> anyhow::Result<Option<leaderboard::Leaderboard>> {
+    pub fn leaderboard(
+        &self,
+        year: aoc_core::Year,
+    ) -> anyhow::Result<Option<leaderboard::Leaderboard>> {
         let dir = self
             .project
             .cache_dir()
@@ -114,8 +121,10 @@ impl Cache {
         //
         // From: https://adventofcode.com/$YEAR/leaderboard/private/view/$AOC_ACCOUNT_ID
         match (then, leaderboard) {
-        | (Some(then), Some(leaderboard)) if now < then || now - then < 15 * 60 => Ok(Some(leaderboard)),
-        | (_, _) => Ok(None),
+            (Some(then), Some(leaderboard)) if now < then || now - then < 15 * 60 => {
+                Ok(Some(leaderboard))
+            }
+            (_, _) => Ok(None),
         }
     }
 
@@ -195,13 +204,13 @@ impl Cache {
             .join("submitted");
 
         match self.read(path)? {
-        | None => Ok(Vec::new()),
-        | Some(submitted) => submitted
-            .trim()
-            .split_whitespace()
-            .map(|answer| answer.parse::<i64>())
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(anyhow::Error::from),
+            None => Ok(Vec::new()),
+            Some(submitted) => submitted
+                .trim()
+                .split_whitespace()
+                .map(|answer| answer.parse::<i64>())
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(anyhow::Error::from),
         }
     }
 
@@ -220,21 +229,23 @@ impl Cache {
             .join(day.to_static_str())
             .join(part.to_static_str());
 
-        self.write(path, "submitted", Some(&format!("{}\n", answer)), Mode::Append)
+        self.write(
+            path,
+            "submitted",
+            Some(&format!("{}\n", answer)),
+            Mode::Append,
+        )
     }
 
-    fn read<P: AsRef<path::Path>>(
-        &self,
-        path: P,
-    ) -> anyhow::Result<Option<String>> {
+    fn read<P: AsRef<path::Path>>(&self, path: P) -> anyhow::Result<Option<String>> {
         let path = path.as_ref();
 
         log::info!("Reading from {}", path.display());
 
         match fs::read_to_string(path) {
-        | Ok(description) => Ok(Some(description)),
-        | Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
-        | Err(error) => Err(anyhow::Error::from(error))
+            Ok(description) => Ok(Some(description)),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
+            Err(error) => Err(anyhow::Error::from(error)),
         }
     }
 
@@ -259,8 +270,8 @@ impl Cache {
             .write(true)
             .append({
                 match mode {
-                | Mode::Append => true,
-                | Mode::Replace => false,
+                    Mode::Append => true,
+                    Mode::Replace => false,
                 }
             })
             .open(&path)

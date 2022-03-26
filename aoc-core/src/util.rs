@@ -1,5 +1,5 @@
-use std::iter;
 use std::fmt;
+use std::iter;
 use std::str;
 
 pub fn fst<A, B>((a, _): (A, B)) -> A {
@@ -181,7 +181,6 @@ impl fmt::Debug for AsciiSet {
             }
         }
         write!(fmt, "}}")
-
     }
 }
 

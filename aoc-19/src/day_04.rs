@@ -12,22 +12,14 @@ pub struct SecureContainer {
 impl Fro for SecureContainer {
     fn fro(input: &str) -> Self {
         let mut iter = input.trim().split('-');
-        let lo = iter
-            .give()
-            .to::<i64>();
-        let hi = iter
-            .give()
-            .to::<i64>();
-        SecureContainer {
-            lo,
-            hi,
-        }
+        let lo = iter.give().to::<i64>();
+        let hi = iter.give().to::<i64>();
+        SecureContainer { lo, hi }
     }
 }
 
 impl Solution for SecureContainer {
     fn one(self) -> i64 {
-
         let mut count = 0;
 
         'outer: for i in self.lo..self.hi {
@@ -39,7 +31,9 @@ impl Solution for SecureContainer {
                 let next = number / place;
                 number %= place;
 
-                if next < prev.unwrap_or(-1) { continue 'outer }
+                if next < prev.unwrap_or(-1) {
+                    continue 'outer;
+                }
 
                 double |= prev == Some(next);
                 prev = Some(next);
@@ -54,7 +48,6 @@ impl Solution for SecureContainer {
     }
 
     fn two(self) -> i64 {
-
         let mut count = 0;
         let mut double = HashSet::new();
         let mut triple = HashSet::new();
@@ -70,7 +63,9 @@ impl Solution for SecureContainer {
                 let next = number / place;
                 number %= place;
 
-                if next < prev[0].unwrap_or(-1) { continue 'outer; }
+                if next < prev[0].unwrap_or(-1) {
+                    continue 'outer;
+                }
 
                 if Some(next) == prev[0] {
                     double.insert(next);

@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::str;
 
 use aoc::*;
@@ -17,19 +17,14 @@ impl Fro for Wire {
     fn fro(input: &str) -> Self {
         let mut iter = input.chars();
         let dir = match iter.give() {
-        | 'R' => Dir::E,
-        | 'D' => Dir::S,
-        | 'U' => Dir::N,
-        | 'L' => Dir::W,
-        | _ => unreachable!(),
+            'R' => Dir::E,
+            'D' => Dir::S,
+            'U' => Dir::N,
+            'L' => Dir::W,
+            _ => unreachable!(),
         };
-        let len = iter
-            .as_str()
-            .to::<i64>();
-        Wire {
-            dir,
-            len,
-        }
+        let len = iter.as_str().to::<i64>();
+        Wire { dir, len }
     }
 }
 
@@ -37,14 +32,8 @@ impl str::FromStr for CrossedWires {
     type Err = Error;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut wires = input.split_whitespace();
-        let l = wires.give()
-            .split(',')
-            .map(Wire::fro)
-            .collect();
-        let r = wires.give()
-            .split(',')
-            .map(Wire::fro)
-            .collect();
+        let l = wires.give().split(',').map(Wire::fro).collect();
+        let r = wires.give().split(',').map(Wire::fro).collect();
         Ok(CrossedWires(l, r))
     }
 }
@@ -69,7 +58,8 @@ impl Solution for CrossedWires {
             }
         }
 
-        l_seen.intersection(&r_seen)
+        l_seen
+            .intersection(&r_seen)
             .map(|p| p.x.abs() + p.y.abs())
             .min()
             .unwrap()
@@ -102,7 +92,8 @@ impl Solution for CrossedWires {
             }
         }
 
-        l_seen.intersection(&r_seen)
+        l_seen
+            .intersection(&r_seen)
             .map(|p| l_dist[p] + r_dist[p])
             .min()
             .unwrap()

@@ -11,12 +11,10 @@ impl Fro for NotQuiteLisp {
         input
             .trim()
             .chars()
-            .map(|char| {
-                match char {
-                | '(' => 1,
-                | ')' => -1,
-                | _ => unreachable!(),
-                }
+            .map(|char| match char {
+                '(' => 1,
+                ')' => -1,
+                _ => unreachable!(),
             })
             .collect::<Vec<_>>()
             .tap(Self)
@@ -34,8 +32,7 @@ impl Solution for NotQuiteLisp {
             .chain(iter::once(0))
             .scan(0, |floor, next| Some(mem::replace(floor, *floor + next)))
             .position(|floor| floor == -1)
-            .unwrap()
-            as i64
+            .unwrap() as i64
     }
 }
 
@@ -51,7 +48,7 @@ mod tests {
             fn $name() {
                 assert_eq!(super::NotQuiteLisp::fro($input).$method(), $value)
             }
-        }
+        };
     }
 
     impl_test!(part_one_0, one, "(())", 0);

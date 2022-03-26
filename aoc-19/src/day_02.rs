@@ -1,7 +1,7 @@
 use std::str;
 
-use aoc::*;
 use aoc::intcode;
+use aoc::*;
 
 pub struct ProgramAlarm(intcode::Program);
 

@@ -11,7 +11,10 @@ impl Fro for TheNBodyProblem {
     fn fro(input: &str) -> Self {
         let mut moons = [[0; 3]; MOONS];
         for (m, line) in input.trim().split('\n').enumerate() {
-            let mut iter = line.trim_start_matches('<').trim_end_matches('>').split(',');
+            let mut iter = line
+                .trim_start_matches('<')
+                .trim_end_matches('>')
+                .split(',');
             let x = iter.give().split('=').last().unwrap().to::<i64>();
             let y = iter.give().split('=').last().unwrap().to::<i64>();
             let z = iter.give().split('=').last().unwrap().to::<i64>();
@@ -32,7 +35,13 @@ impl Solution for TheNBodyProblem {
                     for axis in 0..3 {
                         let pa = pos[a][axis];
                         let pb = pos[b][axis];
-                        let delta = if pa < pb { 1 } else if pa == pb { 0 } else { -1 };
+                        let delta = if pa < pb {
+                            1
+                        } else if pa == pb {
+                            0
+                        } else {
+                            -1
+                        };
                         vel[a][axis] += delta;
                         vel[b][axis] -= delta;
                     }
@@ -47,10 +56,9 @@ impl Solution for TheNBodyProblem {
 
         pos.iter()
             .zip(&vel)
-            .map(|(p, v)|
-                p.iter().map(|x| x.abs()).sum::<i64>() *
-                v.iter().map(|x| x.abs()).sum::<i64>()
-            )
+            .map(|(p, v)| {
+                p.iter().map(|x| x.abs()).sum::<i64>() * v.iter().map(|x| x.abs()).sum::<i64>()
+            })
             .sum()
     }
 
@@ -69,7 +77,13 @@ impl Solution for TheNBodyProblem {
                     for b in a + 1..pos.len() {
                         let pa = pos[a][axis];
                         let pb = pos[b][axis];
-                        let delta = if pa < pb { 1 } else if pa == pb { 0 } else { -1 };
+                        let delta = if pa < pb {
+                            1
+                        } else if pa == pb {
+                            0
+                        } else {
+                            -1
+                        };
                         vel[a][axis] += delta;
                         vel[b][axis] -= delta;
                     }
@@ -86,8 +100,6 @@ impl Solution for TheNBodyProblem {
             }
         }
 
-        cycle.iter()
-            .copied()
-            .fold(1, lcm)
+        cycle.iter().copied().fold(1, lcm)
     }
 }

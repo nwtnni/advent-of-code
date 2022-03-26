@@ -156,12 +156,10 @@ impl Solution for JurassicJigsaw {
             panic!()
         }
 
-        (
-            assign[index(0, 0, dim)].0
+        (assign[index(0, 0, dim)].0
             * assign[index(0, dim - 1, dim)].0
             * assign[index(dim - 1, 0, dim)].0
-            * assign[index(dim - 1, dim - 1, dim)].0
-        ) as i64
+            * assign[index(dim - 1, dim - 1, dim)].0) as i64
     }
 
     fn two(self) -> i64 {
@@ -183,7 +181,8 @@ impl Solution for JurassicJigsaw {
         for (index, (_, tile)) in assign.iter().enumerate() {
             let (r, c) = invert(index, dim);
             for (dr, line) in tile.0.iter().skip(1).enumerate().take(8) {
-                image.0[r * 8 + dr] |= (((line & 0b01_1111_1110) >> 1) as u128) << ((dim - 1 - c) * 8);
+                image.0[r * 8 + dr] |=
+                    (((line & 0b01_1111_1110) >> 1) as u128) << ((dim - 1 - c) * 8);
             }
         }
 
@@ -274,10 +273,7 @@ fn recurse(
     false
 }
 
-fn satisfied(
-    assign: &[(usize, Tile)],
-    dim: usize,
-) -> bool {
+fn satisfied(assign: &[(usize, Tile)], dim: usize) -> bool {
     let tile = assign.last().unwrap();
     let (row, col) = invert(assign.len() - 1, dim);
 

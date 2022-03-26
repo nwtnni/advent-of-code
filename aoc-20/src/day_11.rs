@@ -24,13 +24,11 @@ impl Fro for SeatingSystem {
             .map(|line| {
                 line.trim()
                     .chars()
-                    .map(|char| {
-                        match char {
-                        | '#' => Seat::Occupied,
-                        | 'L' => Seat::Empty,
-                        | '.' => Seat::Floor,
-                        | _ => unreachable!(),
-                        }
+                    .map(|char| match char {
+                        '#' => Seat::Occupied,
+                        'L' => Seat::Empty,
+                        '.' => Seat::Floor,
+                        _ => unreachable!(),
                     })
                     .collect::<Vec<_>>()
             })
@@ -38,11 +36,7 @@ impl Fro for SeatingSystem {
 
         let rows = grid.len();
         let cols = grid[0].len();
-        Self {
-            rows,
-            cols,
-            grid,
-        }
+        Self { rows, cols, grid }
     }
 }
 
@@ -61,7 +55,7 @@ impl Solution for SeatingSystem {
 
         loop {
             for r in 0..self.rows as i64 {
-                for c in 0..self.cols as i64{
+                for c in 0..self.cols as i64 {
                     let mut around = 0;
 
                     for dr in &[-1, 0, 1] {
@@ -77,10 +71,10 @@ impl Solution for SeatingSystem {
                     }
 
                     grid[r as usize][c as usize] = match (self.get(r, c), around) {
-                    | (Some(Seat::Empty), 0) => Seat::Occupied,
-                    | (Some(Seat::Occupied), 4..=i64::MAX) => Seat::Empty,
-                    | (Some(seat), _) => seat,
-                    | _ => unreachable!(),
+                        (Some(Seat::Empty), 0) => Seat::Occupied,
+                        (Some(Seat::Occupied), 4..=i64::MAX) => Seat::Empty,
+                        (Some(seat), _) => seat,
+                        _ => unreachable!(),
                     }
                 }
             }
@@ -91,8 +85,7 @@ impl Solution for SeatingSystem {
                     .iter()
                     .flatten()
                     .filter(|seat| **seat == Seat::Occupied)
-                    .count()
-                    as i64;
+                    .count() as i64;
             }
 
             mem::swap(&mut grid, &mut self.grid);
@@ -104,7 +97,7 @@ impl Solution for SeatingSystem {
 
         loop {
             for r in 0..self.rows as i64 {
-                for c in 0..self.cols as i64{
+                for c in 0..self.cols as i64 {
                     let mut around = 0;
 
                     for dr in &[-1, 0, 1] {
@@ -115,25 +108,25 @@ impl Solution for SeatingSystem {
 
                             for s in 1.. {
                                 match self.get(r + s * dr, c + s * dc) {
-                                | None => break,
-                                | Some(Seat::Floor) => continue,
-                                | Some(Seat::Empty) => break,
-                                | Some(Seat::Occupied) => {
-                                    around += 1;
-                                    // Here lies the `break` statement which cost me
-                                    // half an hour and a lot of frustration :(
-                                    break;
-                                },
+                                    None => break,
+                                    Some(Seat::Floor) => continue,
+                                    Some(Seat::Empty) => break,
+                                    Some(Seat::Occupied) => {
+                                        around += 1;
+                                        // Here lies the `break` statement which cost me
+                                        // half an hour and a lot of frustration :(
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
 
                     grid[r as usize][c as usize] = match (self.get(r, c), around) {
-                    | (Some(Seat::Empty), 0) => Seat::Occupied,
-                    | (Some(Seat::Occupied), 5..=i64::MAX) => Seat::Empty,
-                    | (Some(seat), _) => seat,
-                    | _ => unreachable!(),
+                        (Some(Seat::Empty), 0) => Seat::Occupied,
+                        (Some(Seat::Occupied), 5..=i64::MAX) => Seat::Empty,
+                        (Some(seat), _) => seat,
+                        _ => unreachable!(),
                     }
                 }
             }
@@ -144,8 +137,7 @@ impl Solution for SeatingSystem {
                     .iter()
                     .flatten()
                     .filter(|seat| **seat == Seat::Occupied)
-                    .count()
-                    as i64;
+                    .count() as i64;
             }
 
             mem::swap(&mut grid, &mut self.grid);

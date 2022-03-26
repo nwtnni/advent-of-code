@@ -19,8 +19,7 @@ pub struct Client {
     inner: blocking::Client,
 }
 
-#[derive(serde::Serialize)]
-#[derive(Clone, Debug)]
+#[derive(serde::Serialize, Clone, Debug)]
 struct Submission {
     #[serde(rename = "level")]
     part: aoc_core::Part,
@@ -40,7 +39,9 @@ impl Client {
             id,
             cache: cache::Cache::new(id)?,
             inner: blocking::ClientBuilder::new()
-                .user_agent("aoc 0.1.0 (nwtnni@gmail.com) (https://github.com/nwtnni/advent-of-code)")
+                .user_agent(
+                    "aoc 0.1.0 (nwtnni@gmail.com) (https://github.com/nwtnni/advent-of-code)",
+                )
                 .default_headers(headers)
                 .build()?,
         })
@@ -59,7 +60,8 @@ impl Client {
             log::info!("[DESCRIPTION] Cache miss for {}-{}-{}", year, day, part);
         }
 
-        let html = self.inner
+        let html = self
+            .inner
             .get(&format!("{}/{}/day/{}", ROOT, year, day))
             .send()?
             .error_for_status()?
@@ -72,7 +74,14 @@ impl Client {
         let description = html
             .select(&description)
             .nth(part as usize - 1)
-            .ok_or_else(|| anyhow!("Could not retrieve description for {}-{}-{}", year, day, part))?
+            .ok_or_else(|| {
+                anyhow!(
+                    "Could not retrieve description for {}-{}-{}",
+                    year,
+                    day,
+                    part
+                )
+            })?
             .tap(|html| markdown::from_html(html, year))
             .tap_mut(trim_end_mut);
 
@@ -109,7 +118,8 @@ impl Client {
             log::info!("[INPUT] Cache miss for {}-{}", year, day);
         }
 
-        let input = self.inner
+        let input = self
+            .inner
             .get(&format!("{}/{}/day/{}/input", ROOT, year, day))
             .send()?
             .error_for_status()?
@@ -130,7 +140,10 @@ impl Client {
 
         let leaderboard = self
             .inner
-            .get(&format!("{}/{}/leaderboard/private/view/{}.json", ROOT, year, self.id.0))
+            .get(&format!(
+                "{}/{}/leaderboard/private/view/{}.json",
+                ROOT, year, self.id.0
+            ))
             .send()?
             .error_for_status()?
             .json::<leaderboard::Leaderboard>()?;
@@ -150,18 +163,19 @@ impl Client {
         let submitted = self.cache.submitted(year, day, part)?;
 
         match submitted.last() {
-        | Some(last) if completed && answer == *last => {
-            log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
-            return Ok(true);
-        }
-        | _ if completed || submitted.contains(&answer) => {
-            log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
-            return Ok(false);
-        }
-        | _ => log::info!("[SUBMIT] Cache miss for {}-{}-{}", year, day, part),
+            Some(last) if completed && answer == *last => {
+                log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
+                return Ok(true);
+            }
+            _ if completed || submitted.contains(&answer) => {
+                log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
+                return Ok(false);
+            }
+            _ => log::info!("[SUBMIT] Cache miss for {}-{}-{}", year, day, part),
         }
 
-        let correct = self.inner
+        let correct = self
+            .inner
             .post(&format!("{}/{}/day/{}/answer", ROOT, year, day))
             .form(&Submission { part, answer })
             .send()?

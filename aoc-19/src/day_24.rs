@@ -40,10 +40,8 @@ impl PlanetOfDiscord {
             .filter(|pos| self.prev.contains(pos))
             .count();
         match (here, next) {
-        | (true, 1)
-        | (false, 1)
-        | (false, 2) => true,
-        | _ => false,
+            (true, 1) | (false, 1) | (false, 2) => true,
+            _ => false,
         }
     }
 }
@@ -60,13 +58,15 @@ fn shift(pos: Pos, dir: Dir, depth: i64) -> (i64, impl Iterator<Item = Pos>) {
         (depth - 1, Or::L(iter::once(pos!(2, 3))))
     } else if pos.x == 2 && pos.y == 2 {
         macro_rules! iter {
-            ($array:expr) => { (depth + 1, Or::R($array.iter().copied())) }
+            ($array:expr) => {
+                (depth + 1, Or::R($array.iter().copied()))
+            };
         }
         match dir {
-        | Dir::N => iter!([pos!(0, 4), pos!(1, 4), pos!(2, 4), pos!(3, 4), pos!(4, 4)]),
-        | Dir::S => iter!([pos!(0, 0), pos!(1, 0), pos!(2, 0), pos!(3, 0), pos!(4, 0)]),
-        | Dir::E => iter!([pos!(0, 0), pos!(0, 1), pos!(0, 2), pos!(0, 3), pos!(0, 4)]),
-        | Dir::W => iter!([pos!(4, 0), pos!(4, 1), pos!(4, 2), pos!(4, 3), pos!(4, 4)]),
+            Dir::N => iter!([pos!(0, 4), pos!(1, 4), pos!(2, 4), pos!(3, 4), pos!(4, 4)]),
+            Dir::S => iter!([pos!(0, 0), pos!(1, 0), pos!(2, 0), pos!(3, 0), pos!(4, 0)]),
+            Dir::E => iter!([pos!(0, 0), pos!(0, 1), pos!(0, 2), pos!(0, 3), pos!(0, 4)]),
+            Dir::W => iter!([pos!(4, 0), pos!(4, 1), pos!(4, 2), pos!(4, 3), pos!(4, 4)]),
         }
     } else {
         (depth, Or::L(iter::once(pos)))
@@ -107,33 +107,30 @@ impl Solution for PlanetOfDiscord {
     }
 
     fn two(self) -> i64 {
-
         let mut next = HashMap::<i64, BTreeSet<Pos>>::new();
         let mut prev = HashMap::new();
         prev.insert(0, self.prev);
 
         for _ in 0..200 {
-
             next.clear();
 
             let (min_depth, max_depth) = prev
                 .keys()
-                .fold(
-                    (std::i64::MAX, std::i64::MIN),
-                    |(min, max), &depth| (cmp::min(min, depth), cmp::max(max, depth)),
-                );
+                .fold((std::i64::MAX, std::i64::MIN), |(min, max), &depth| {
+                    (cmp::min(min, depth), cmp::max(max, depth))
+                });
 
-            for depth in min_depth - 1 ..= max_depth + 1 {
+            for depth in min_depth - 1..=max_depth + 1 {
                 for y in 0..5 {
                     for x in 0..5 {
-
                         // Skip middle recursive hole
                         if x == 2 && y == 2 {
                             continue;
                         }
 
                         let pos = Pos { x, y };
-                        let here = prev.get(&depth)
+                        let here = prev
+                            .get(&depth)
                             .map(|bugs| bugs.contains(&pos))
                             .unwrap_or(false);
 
@@ -151,14 +148,10 @@ impl Solution for PlanetOfDiscord {
                         }
 
                         if match (here, around) {
-                        | (true, 1)
-                        | (false, 1)
-                        | (false, 2) => true,
-                        | _ => false,
+                            (true, 1) | (false, 1) | (false, 2) => true,
+                            _ => false,
                         } {
-                            next.entry(depth)
-                                .or_default()
-                                .insert(pos);
+                            next.entry(depth).or_default().insert(pos);
                         }
                     }
                 }

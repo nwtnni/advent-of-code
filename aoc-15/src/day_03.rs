@@ -10,14 +10,12 @@ impl Fro for PerfectlySphericalHousesInAVacuum {
     fn fro(input: &str) -> Self {
         input
             .chars()
-            .map(|char| {
-                match char {
-                | '^' => Dir::N,
-                | 'v' => Dir::S,
-                | '>' => Dir::E,
-                | '<' => Dir::W,
-                | _ => unreachable!(),
-                }
+            .map(|char| match char {
+                '^' => Dir::N,
+                'v' => Dir::S,
+                '>' => Dir::E,
+                '<' => Dir::W,
+                _ => unreachable!(),
             })
             .collect::<Vec<_>>()
             .tap(Self)
@@ -29,26 +27,29 @@ impl Solution for PerfectlySphericalHousesInAVacuum {
         self.0
             .iter()
             .chain(&[Dir::N])
-            .scan(Pos::default(), |pos, dir| Some(mem::replace(pos, pos.shift(*dir))))
+            .scan(Pos::default(), |pos, dir| {
+                Some(mem::replace(pos, pos.shift(*dir)))
+            })
             .collect::<HashSet<_>>()
-            .len()
-            as i64
+            .len() as i64
     }
 
     fn two(self) -> i64 {
         self.0
             .iter()
             .chain(&[Dir::N, Dir::N])
-            .scan((Pos::default(), Pos::default(), false), |(human, robot, flip), dir| {
-                if mem::replace(flip, !*flip) {
-                    Some(mem::replace(human, human.shift(*dir)))
-                } else {
-                    Some(mem::replace(robot, robot.shift(*dir)))
-                }
-            })
+            .scan(
+                (Pos::default(), Pos::default(), false),
+                |(human, robot, flip), dir| {
+                    if mem::replace(flip, !*flip) {
+                        Some(mem::replace(human, human.shift(*dir)))
+                    } else {
+                        Some(mem::replace(robot, robot.shift(*dir)))
+                    }
+                },
+            )
             .collect::<HashSet<_>>()
-            .len()
-            as i64
+            .len() as i64
     }
 }
 
@@ -65,12 +66,18 @@ mod tests {
 
     #[test]
     fn test_1_1() {
-        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^>v<").one(), 4)
+        assert_eq!(
+            super::PerfectlySphericalHousesInAVacuum::fro("^>v<").one(),
+            4
+        )
     }
 
     #[test]
     fn test_1_2() {
-        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^v^v^v^v^v").one(), 2)
+        assert_eq!(
+            super::PerfectlySphericalHousesInAVacuum::fro("^v^v^v^v^v").one(),
+            2
+        )
     }
 
     #[test]
@@ -80,11 +87,17 @@ mod tests {
 
     #[test]
     fn test_2_1() {
-        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^>v<").two(), 3)
+        assert_eq!(
+            super::PerfectlySphericalHousesInAVacuum::fro("^>v<").two(),
+            3
+        )
     }
 
     #[test]
     fn test_2_2() {
-        assert_eq!(super::PerfectlySphericalHousesInAVacuum::fro("^v^v^v^v^v").two(), 11)
+        assert_eq!(
+            super::PerfectlySphericalHousesInAVacuum::fro("^v^v^v^v^v").two(),
+            11
+        )
     }
 }

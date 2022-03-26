@@ -21,10 +21,17 @@ impl Solution for TheTreacheryOfWhales {
         let (min, max) = self
             .0
             .iter()
-            .fold((i64::MAX, i64::MIN), |(min, max), crab| (cmp::min(min, *crab), cmp::max(max, *crab)));
+            .fold((i64::MAX, i64::MIN), |(min, max), crab| {
+                (cmp::min(min, *crab), cmp::max(max, *crab))
+            });
 
         (min..max)
-            .map(|pos| self.0.iter().map(move |crab| (pos - crab).abs()).sum::<i64>())
+            .map(|pos| {
+                self.0
+                    .iter()
+                    .map(move |crab| (pos - crab).abs())
+                    .sum::<i64>()
+            })
             .min()
             .unwrap()
     }
@@ -33,12 +40,19 @@ impl Solution for TheTreacheryOfWhales {
         let (min, max) = self
             .0
             .iter()
-            .fold((i64::MAX, i64::MIN), |(min, max), crab| (cmp::min(min, *crab), cmp::max(max, *crab)));
+            .fold((i64::MAX, i64::MIN), |(min, max), crab| {
+                (cmp::min(min, *crab), cmp::max(max, *crab))
+            });
 
         let cost = |distance: i64| (distance * (distance + 1)) / 2;
 
         (min..max)
-            .map(|pos| self.0.iter().map(|crab| cost((pos - crab).abs())).sum::<i64>())
+            .map(|pos| {
+                self.0
+                    .iter()
+                    .map(|crab| cost((pos - crab).abs()))
+                    .sum::<i64>()
+            })
             .min()
             .unwrap()
     }

@@ -1,7 +1,7 @@
+use std::cmp;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
-use std::cmp;
 
 use aoc::*;
 use priority_queue::PriorityQueue;
@@ -22,8 +22,8 @@ pub enum Block {
 impl Block {
     fn is_key(&self) -> bool {
         match self {
-        | Block::Key(_) => true,
-        | _ => false,
+            Block::Key(_) => true,
+            _ => false,
         }
     }
 }
@@ -63,22 +63,21 @@ impl Fro for ManyWorldsInterpretation {
                     y: y as i64,
                 };
                 match char {
-                | '#' => { grid.insert(pos, Block::Wall); },
-                | '@' => entrances.push(pos),
-                | c if c.is_ascii_lowercase() => {
-                    grid.insert(pos, Block::Key(c));
-                },
-                | c if c.is_ascii_uppercase() => {
-                    grid.insert(pos, Block::Door(c.to_ascii_lowercase()));
-                },
-                | _ => (),
+                    '#' => {
+                        grid.insert(pos, Block::Wall);
+                    }
+                    '@' => entrances.push(pos),
+                    c if c.is_ascii_lowercase() => {
+                        grid.insert(pos, Block::Key(c));
+                    }
+                    c if c.is_ascii_uppercase() => {
+                        grid.insert(pos, Block::Door(c.to_ascii_lowercase()));
+                    }
+                    _ => (),
                 }
             }
         }
-        ManyWorldsInterpretation {
-            entrances,
-            grid,
-        }
+        ManyWorldsInterpretation { entrances, grid }
     }
 }
 
@@ -90,7 +89,6 @@ impl ManyWorldsInterpretation {
         queue.push_back((start, 0));
 
         while let Some((node, dis)) = queue.pop_front() {
-
             if node == end {
                 return Some(dis);
             }
@@ -103,10 +101,10 @@ impl ManyWorldsInterpretation {
                     continue;
                 }
                 match self.grid.get(&next) {
-                | Some(Block::Wall) => continue,
-                | Some(Block::Door(_)) if next != end => continue,
-                | Some(Block::Door(_)) => queue.push_back((next, dis + 1)),
-                | _ => queue.push_back((next, dis + 1)),
+                    Some(Block::Wall) => continue,
+                    Some(Block::Door(_)) if next != end => continue,
+                    Some(Block::Door(_)) => queue.push_back((next, dis + 1)),
+                    _ => queue.push_back((next, dis + 1)),
                 }
             }
         }
@@ -115,7 +113,9 @@ impl ManyWorldsInterpretation {
     }
 
     fn collapse(&self) -> HashMap<Collapsed, Vec<(Collapsed, i64)>> {
-        let mut all = self.grid.iter()
+        let mut all = self
+            .grid
+            .iter()
             .filter_map(|(&pos, &block)| match block {
                 Block::Key(k) => Some((pos, Collapsed::Key(k))),
                 Block::Door(d) => Some((pos, Collapsed::Door(d))),
@@ -134,12 +134,8 @@ impl ManyWorldsInterpretation {
                 let (pos_a, a) = all[i];
                 let (pos_b, b) = all[j];
                 if let Some(dis) = self.bfs(pos_a, pos_b) {
-                    collapsed.entry(a)
-                        .or_insert_with(Vec::new)
-                        .push((b, dis));
-                    collapsed.entry(b)
-                        .or_insert_with(Vec::new)
-                        .push((a, dis));
+                    collapsed.entry(a).or_insert_with(Vec::new).push((b, dis));
+                    collapsed.entry(b).or_insert_with(Vec::new).push((a, dis));
                 }
             }
         }
@@ -160,18 +156,28 @@ impl ManyWorldsInterpretation {
         self.grid.insert(Pos { x: p.x, y: p.y + 1 }, Block::Wall);
         self.grid.insert(Pos { x: p.x, y: p.y - 1 }, Block::Wall);
         self.entrances.clear();
-        self.entrances.push(Pos { x: p.x - 1, y: p.y - 1 });
-        self.entrances.push(Pos { x: p.x + 1, y: p.y - 1 });
-        self.entrances.push(Pos { x: p.x - 1, y: p.y + 1 });
-        self.entrances.push(Pos { x: p.x + 1, y: p.y + 1 });
+        self.entrances.push(Pos {
+            x: p.x - 1,
+            y: p.y - 1,
+        });
+        self.entrances.push(Pos {
+            x: p.x + 1,
+            y: p.y - 1,
+        });
+        self.entrances.push(Pos {
+            x: p.x - 1,
+            y: p.y + 1,
+        });
+        self.entrances.push(Pos {
+            x: p.x + 1,
+            y: p.y + 1,
+        });
     }
 }
 
 impl Solution for ManyWorldsInterpretation {
     fn one(self) -> i64 {
-        let count = self.grid.values()
-            .filter(|b| b.is_key())
-            .count();
+        let count = self.grid.values().filter(|b| b.is_key()).count();
 
         let full = (0b1 << count) - 1;
 
@@ -182,7 +188,6 @@ impl Solution for ManyWorldsInterpretation {
         queue.push((Collapsed::Start(0), KeySet::empty()), cmp::Reverse(0));
 
         while let Some(((node, set), cmp::Reverse(dis))) = queue.pop() {
-
             if set.0 == full {
                 return dis;
             }
@@ -191,10 +196,10 @@ impl Solution for ManyWorldsInterpretation {
 
             for &(next, delta) in &collapsed[&node] {
                 let next_set = match next {
-                | Collapsed::Start(_) => continue,
-                | Collapsed::Door(d) if !set.contains(d) => continue,
-                | Collapsed::Door(_) => set,
-                | Collapsed::Key(k) => set.insert(k),
+                    Collapsed::Start(_) => continue,
+                    Collapsed::Door(d) if !set.contains(d) => continue,
+                    Collapsed::Door(_) => set,
+                    Collapsed::Key(k) => set.insert(k),
                 };
 
                 if seen.contains(&(next, next_set)) {
@@ -202,13 +207,13 @@ impl Solution for ManyWorldsInterpretation {
                 }
 
                 match queue.get_priority(&(next, next_set)) {
-                | Some(cmp::Reverse(old)) if dis + delta >= *old => (),
-                | Some(_) => {
-                    queue.change_priority(&(next, next_set), cmp::Reverse(dis + delta));
-                }
-                | None => {
-                    queue.push((next, next_set), cmp::Reverse(dis + delta));
-                }
+                    Some(cmp::Reverse(old)) if dis + delta >= *old => (),
+                    Some(_) => {
+                        queue.change_priority(&(next, next_set), cmp::Reverse(dis + delta));
+                    }
+                    None => {
+                        queue.push((next, next_set), cmp::Reverse(dis + delta));
+                    }
                 }
             }
         }
@@ -219,10 +224,7 @@ impl Solution for ManyWorldsInterpretation {
     // Same as P1 except each node is [Collapsed; 4] instead of Collapsed,
     // so we track the position of four robots at a time.
     fn two(mut self) -> i64 {
-
-        let count = self.grid.values()
-            .filter(|b| b.is_key())
-            .count();
+        let count = self.grid.values().filter(|b| b.is_key()).count();
 
         let full = (0b1 << count) - 1;
 
@@ -238,7 +240,6 @@ impl Solution for ManyWorldsInterpretation {
         queue.push((start, KeySet::empty()), cmp::Reverse(0));
 
         while let Some(((pos, set), cmp::Reverse(dis))) = queue.pop() {
-
             if set.0 == full {
                 return dis;
             }
@@ -250,10 +251,10 @@ impl Solution for ManyWorldsInterpretation {
                 for &(next, delta) in &collapsed[&pos[i]] {
                     next_pos[i] = next;
                     let next_set = match next {
-                    | Collapsed::Start(_) => continue,
-                    | Collapsed::Door(d) if !set.contains(d) => continue,
-                    | Collapsed::Door(_) => set,
-                    | Collapsed::Key(k) => set.insert(k),
+                        Collapsed::Start(_) => continue,
+                        Collapsed::Door(d) if !set.contains(d) => continue,
+                        Collapsed::Door(_) => set,
+                        Collapsed::Key(k) => set.insert(k),
                     };
 
                     if seen.contains(&(next_pos, next_set)) {
@@ -261,13 +262,13 @@ impl Solution for ManyWorldsInterpretation {
                     }
 
                     match queue.get_priority(&(next_pos, next_set)) {
-                    | Some(cmp::Reverse(old)) if dis + delta >= *old => (),
-                    | Some(_) => {
-                        queue.change_priority(&(next_pos, next_set), cmp::Reverse(dis + delta));
-                    }
-                    | None => {
-                        queue.push((next_pos, next_set), cmp::Reverse(dis + delta));
-                    }
+                        Some(cmp::Reverse(old)) if dis + delta >= *old => (),
+                        Some(_) => {
+                            queue.change_priority(&(next_pos, next_set), cmp::Reverse(dis + delta));
+                        }
+                        None => {
+                            queue.push((next_pos, next_set), cmp::Reverse(dis + delta));
+                        }
                     }
                 }
             }
@@ -283,22 +284,25 @@ mod tests {
     use super::*;
     type M = ManyWorldsInterpretation;
 
-     #[test]
-     fn test_1_132() {
-         let grid = M::fro("
+    #[test]
+    fn test_1_132() {
+        let grid = M::fro(
+            "
             ########################
             #...............b.C.D.f#
             #.######################
             #.....@.a.B.c.d.A.e.F.g#
             ########################
-         ");
+         ",
+        );
 
-         assert_eq!(grid.one(), 132);
-     }
+        assert_eq!(grid.one(), 132);
+    }
 
-     #[test]
-     fn test_1_136() {
-         let grid = M::fro("
+    #[test]
+    fn test_1_136() {
+        let grid = M::fro(
+            "
             #################
             #i.G..c...e..H.p#
             ########.########
@@ -308,22 +312,25 @@ mod tests {
             ########.########
             #l.F..d...h..C.m#
             #################
-         ");
+         ",
+        );
 
-         assert_eq!(grid.one(), 136);
-     }
+        assert_eq!(grid.one(), 136);
+    }
 
-     #[test]
-     fn test_1_81() {
-         let grid = M::fro("
+    #[test]
+    fn test_1_81() {
+        let grid = M::fro(
+            "
             ########################
             #@..............ac.GI.b#
             ###d#e#f################
             ###A#B#C################
             ###g#h#i################
             ########################
-         ");
+         ",
+        );
 
-         assert_eq!(grid.one(), 81);
-     }
+        assert_eq!(grid.one(), 81);
+    }
 }

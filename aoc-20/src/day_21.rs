@@ -53,17 +53,12 @@ impl Solution for AllergenAssessment {
         // Map from ingredient to the set of rules it appears in
         let mut ingredients: IndexMap<&'static str, IndexSet<usize>> = IndexMap::default();
 
-        for (ingredient, index) in self
-            .0
-            .iter()
-            .enumerate()
-            .flat_map(|(index, food)| {
-                food.ingredients
-                    .iter()
-                    .copied()
-                    .map(move |ingredient| (ingredient, index))
-            })
-        {
+        for (ingredient, index) in self.0.iter().enumerate().flat_map(|(index, food)| {
+            food.ingredients
+                .iter()
+                .copied()
+                .map(move |ingredient| (ingredient, index))
+        }) {
             ingredients
                 .entry(ingredient)
                 .or_insert_with(IndexSet::default)
@@ -73,17 +68,12 @@ impl Solution for AllergenAssessment {
         // Map from allergen to the set of rules it appears in
         let mut allergens: IndexMap<&'static str, IndexSet<usize>> = IndexMap::default();
 
-        for (allergen, index) in self
-            .0
-            .iter()
-            .enumerate()
-            .flat_map(|(index, food)| {
-                food.allergens
-                    .iter()
-                    .copied()
-                    .map(move |allergen| (allergen, index))
-            })
-        {
+        for (allergen, index) in self.0.iter().enumerate().flat_map(|(index, food)| {
+            food.allergens
+                .iter()
+                .copied()
+                .map(move |allergen| (allergen, index))
+        }) {
             allergens
                 .entry(allergen)
                 .or_insert_with(IndexSet::default)
@@ -93,18 +83,13 @@ impl Solution for AllergenAssessment {
         let impossible = ingredients
             .iter()
             .filter(|(&ingredient, indices)| {
-                indices
-                    .iter()
-                    .all(|index| {
-                        self.0[*index]
-                            .allergens
+                indices.iter().all(|index| {
+                    self.0[*index].allergens.iter().all(|allergen| {
+                        allergens[allergen]
                             .iter()
-                            .all(|allergen| {
-                                allergens[allergen].iter().any(|index| {
-                                    !self.0[*index].ingredients.contains(&ingredient)
-                                })
-                            })
+                            .any(|index| !self.0[*index].ingredients.contains(&ingredient))
                     })
+                })
             })
             .map(|(ingredient, _)| ingredient)
             .copied()
@@ -119,25 +104,19 @@ impl Solution for AllergenAssessment {
                     .filter(|ingredient| impossible.contains(ingredient))
                     .count()
             })
-            .sum::<usize>()
-            as i64
+            .sum::<usize>() as i64
     }
 
     fn two(self) -> i64 {
         // Map from ingredient to the set of rules it appears in
         let mut ingredients: IndexMap<&'static str, IndexSet<usize>> = IndexMap::default();
 
-        for (ingredient, index) in self
-            .0
-            .iter()
-            .enumerate()
-            .flat_map(|(index, food)| {
-                food.ingredients
-                    .iter()
-                    .copied()
-                    .map(move |ingredient| (ingredient, index))
-            })
-        {
+        for (ingredient, index) in self.0.iter().enumerate().flat_map(|(index, food)| {
+            food.ingredients
+                .iter()
+                .copied()
+                .map(move |ingredient| (ingredient, index))
+        }) {
             ingredients
                 .entry(ingredient)
                 .or_insert_with(IndexSet::default)
@@ -147,17 +126,12 @@ impl Solution for AllergenAssessment {
         // Map from allergen to the set of rules it appears in
         let mut allergens: IndexMap<&'static str, IndexSet<usize>> = IndexMap::default();
 
-        for (allergen, index) in self
-            .0
-            .iter()
-            .enumerate()
-            .flat_map(|(index, food)| {
-                food.allergens
-                    .iter()
-                    .copied()
-                    .map(move |allergen| (allergen, index))
-            })
-        {
+        for (allergen, index) in self.0.iter().enumerate().flat_map(|(index, food)| {
+            food.allergens
+                .iter()
+                .copied()
+                .map(move |allergen| (allergen, index))
+        }) {
             allergens
                 .entry(allergen)
                 .or_insert_with(IndexSet::default)
@@ -167,18 +141,13 @@ impl Solution for AllergenAssessment {
         let impossible = ingredients
             .iter()
             .filter(|(&ingredient, indices)| {
-                indices
-                    .iter()
-                    .all(|index| {
-                        self.0[*index]
-                            .allergens
+                indices.iter().all(|index| {
+                    self.0[*index].allergens.iter().all(|allergen| {
+                        allergens[allergen]
                             .iter()
-                            .all(|allergen| {
-                                allergens[allergen].iter().any(|index| {
-                                    !self.0[*index].ingredients.contains(&ingredient)
-                                })
-                            })
+                            .any(|index| !self.0[*index].ingredients.contains(&ingredient))
                     })
+                })
             })
             .map(|(ingredient, _)| ingredient)
             .copied()
@@ -187,7 +156,8 @@ impl Solution for AllergenAssessment {
         ingredients.retain(|ingredient, _| !impossible.contains(ingredient));
 
         let mut solution: IndexMap<&'static str, &'static str> = IndexMap::default();
-        let mut constraints: IndexMap<BTreeSet<&'static str>, IndexSet<&'static str>> = IndexMap::default();
+        let mut constraints: IndexMap<BTreeSet<&'static str>, IndexSet<&'static str>> =
+            IndexMap::default();
 
         for food in &self.0 {
             let ingredients = food
@@ -197,11 +167,7 @@ impl Solution for AllergenAssessment {
                 .filter(|ingredient| !impossible.contains(ingredient))
                 .collect::<BTreeSet<_>>();
 
-            let allergens = food
-                .allergens
-                .iter()
-                .copied()
-                .collect::<IndexSet<_>>();
+            let allergens = food.allergens.iter().copied().collect::<IndexSet<_>>();
 
             constraints
                 .entry(ingredients)

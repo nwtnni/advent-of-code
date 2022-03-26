@@ -3,18 +3,16 @@ use aoc::*;
 #[derive(Clone, Debug)]
 pub struct ShuttleSearch {
     time: i64,
-    buses: Vec<Option<i64>>
+    buses: Vec<Option<i64>>,
 }
 
 impl Fro for ShuttleSearch {
     fn fro(input: &str) -> Self {
-
-        let mut iter = input
-            .trim()
-            .split('\n');
+        let mut iter = input.trim().split('\n');
 
         let time = iter.give().to::<i64>();
-        let buses = iter.give()
+        let buses = iter
+            .give()
             .trim()
             .split(',')
             .map(|bus| {
@@ -26,11 +24,7 @@ impl Fro for ShuttleSearch {
             })
             .collect::<Vec<_>>();
 
-        Self {
-            time,
-            buses,
-        }
-
+        Self { time, buses }
     }
 }
 
@@ -58,15 +52,12 @@ impl Solution for ShuttleSearch {
             .buses
             .iter()
             .enumerate()
-            .filter_map(|(index, bus)| {
-                match bus {
-                    None => None,
-                    Some(bus) => Some((-(index as i64), bus)),
-                }
+            .filter_map(|(index, bus)| match bus {
+                None => None,
+                Some(bus) => Some((-(index as i64), bus)),
             })
             .unzip::<_, _, Vec<_>, Vec<_>>();
 
-        ring_algorithm::chinese_remainder_theorem::<i64>(&offsets, &buses)
-            .unwrap()
+        ring_algorithm::chinese_remainder_theorem::<i64>(&offsets, &buses).unwrap()
     }
 }

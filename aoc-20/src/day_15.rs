@@ -26,11 +26,7 @@ impl RambunctiousRecitation {
             .take(self.0.len() - 1)
             .collect::<HashMap<_, _>>();
 
-        let mut last = self
-            .0
-            .last()
-            .copied()
-            .unwrap();
+        let mut last = self.0.last().copied().unwrap();
 
         for i in self.0.len() - 1..to - 1 {
             let save = last;

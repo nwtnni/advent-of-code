@@ -34,7 +34,6 @@ impl Fro for Command {
     }
 }
 
-
 impl Solution for Dive {
     fn one(self) -> i64 {
         let mut x = 0;
@@ -61,7 +60,7 @@ impl Solution for Dive {
                 Command::Forward(dx) => {
                     x += dx;
                     z += a * dx;
-                },
+                }
                 Command::Down(da) => a += da,
                 Command::Up(da) => a -= da,
             }

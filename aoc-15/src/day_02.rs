@@ -44,9 +44,7 @@ impl Fro for Present {
 
 impl Present {
     pub fn area(self) -> i64 {
-        2 * self.l * self.w +
-        2 * self.w * self.h +
-        2 * self.h * self.l
+        2 * self.l * self.w + 2 * self.w * self.h + 2 * self.h * self.l
     }
 
     pub fn volume(self) -> i64 {

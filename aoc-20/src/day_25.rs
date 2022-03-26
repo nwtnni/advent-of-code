@@ -11,10 +11,7 @@ pub struct ComboBreaker {
 
 impl Fro for ComboBreaker {
     fn fro(input: &str) -> Self {
-        let mut iter = input
-            .trim()
-            .split('\n')
-            .map(i64::fro);
+        let mut iter = input.trim().split('\n').map(i64::fro);
 
         Self {
             card: iter.give(),

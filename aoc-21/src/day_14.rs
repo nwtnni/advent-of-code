@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use aoc::*;
 
 #[derive(Clone, Debug)]
-pub struct ExtendedPolymerization{
+pub struct ExtendedPolymerization {
     start: &'static str,
-    rules: Vec<Rule> }
+    rules: Vec<Rule>,
+}
 
 #[derive(Copy, Clone, Debug)]
 struct Rule {
@@ -18,11 +19,7 @@ impl Fro for ExtendedPolymerization {
         let (a, b) = input.trim().split_once("\n\n").unwrap();
 
         let start = a.leak();
-        let rules = b
-            .trim()
-            .split('\n')
-            .map(Rule::fro)
-            .collect::<Vec<_>>();
+        let rules = b.trim().split('\n').map(Rule::fro).collect::<Vec<_>>();
 
         Self { start, rules }
     }
@@ -74,7 +71,10 @@ impl Solution for ExtendedPolymerization {
         for rule in self.rules {
             let l = [rule.from.as_bytes()[0] - b'A', rule.to as u8 - b'A'];
             let r = [rule.to as u8 - b'A', rule.from.as_bytes()[1] - b'A'];
-            let v = [rule.from.as_bytes()[0] - b'A', rule.from.as_bytes()[1] - b'A'];
+            let v = [
+                rule.from.as_bytes()[0] - b'A',
+                rule.from.as_bytes()[1] - b'A',
+            ];
 
             graph.insert(v, (l, r));
         }

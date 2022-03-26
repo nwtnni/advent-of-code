@@ -72,15 +72,31 @@ pub fn adjacent(w: usize, h: usize, i: usize, j: usize) -> impl Iterator<Item = 
         .chain(if i > 0 { Some((i - 1, j)) } else { None })
         .chain(if i < h - 1 { Some((i + 1, j)) } else { None })
         .chain(if j > 0 { Some((i, j - 1)) } else { None })
-        .chain(if j < w - 1 { Some((i , j + 1)) } else { None })
+        .chain(if j < w - 1 { Some((i, j + 1)) } else { None })
 }
 
 pub fn diagonal(w: usize, h: usize, i: usize, j: usize) -> impl Iterator<Item = (usize, usize)> {
     iter::empty()
-        .chain(if i > 0 && j > 0 { Some((i - 1, j - 1)) } else { None })
-        .chain(if i < h - 1 && j < w - 1 { Some((i + 1, j + 1)) } else { None })
-        .chain(if i < h - 1 && j > 0 { Some((i + 1, j - 1)) } else { None })
-        .chain(if i > 0 && j < w - 1 { Some((i - 1 , j + 1)) } else { None })
+        .chain(if i > 0 && j > 0 {
+            Some((i - 1, j - 1))
+        } else {
+            None
+        })
+        .chain(if i < h - 1 && j < w - 1 {
+            Some((i + 1, j + 1))
+        } else {
+            None
+        })
+        .chain(if i < h - 1 && j > 0 {
+            Some((i + 1, j - 1))
+        } else {
+            None
+        })
+        .chain(if i > 0 && j < w - 1 {
+            Some((i - 1, j + 1))
+        } else {
+            None
+        })
 }
 
 impl str::FromStr for Grid<i64> {
@@ -89,7 +105,11 @@ impl str::FromStr for Grid<i64> {
         string
             .trim()
             .split('\n')
-            .map(|line| line.chars().map(|char| (char as u8 - b'0') as i64).collect())
+            .map(|line| {
+                line.chars()
+                    .map(|char| (char as u8 - b'0') as i64)
+                    .collect()
+            })
             .collect::<Vec<_>>()
             .tap(Self)
             .tap(Ok)

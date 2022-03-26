@@ -11,7 +11,8 @@ pub struct FlawedFrequencyTransmission {
 
 impl Fro for FlawedFrequencyTransmission {
     fn fro(input: &str) -> Self {
-        let prev = input.trim()
+        let prev = input
+            .trim()
             .chars()
             .map(Digit::from_char_unchecked)
             .collect::<Vec<_>>();
@@ -25,7 +26,8 @@ impl Fro for FlawedFrequencyTransmission {
 
 fn pattern(pos: usize) -> impl Iterator<Item = i64> {
     let count = pos + 1;
-    iter::repeat(0).take(count)
+    iter::repeat(0)
+        .take(count)
         .chain(iter::repeat(1).take(count))
         .chain(iter::repeat(0).take(count))
         .chain(iter::repeat(-1).take(count))
@@ -44,7 +46,7 @@ impl Solution for FlawedFrequencyTransmission {
                         .map(|(l, r)| *l as i64 * r)
                         .sum::<i64>()
                         .abs()
-                        % 10
+                        % 10,
                 );
             }
             mem::swap(&mut self.prev, &mut self.next);
@@ -58,7 +60,6 @@ impl Solution for FlawedFrequencyTransmission {
     }
 
     fn two(mut self) -> i64 {
-
         // Upper half of the full array
         let mut half = Vec::with_capacity(self.prev.len() * 5000);
         for _ in 0..5000 {

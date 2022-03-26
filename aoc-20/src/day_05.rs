@@ -12,12 +12,10 @@ impl Fro for BinaryBoarding {
             .split_whitespace()
             .map(|pass| {
                 pass.chars()
-                    .map(|bit| {
-                        match bit {
-                        | 'F' | 'L' => '0',
-                        | 'B' | 'R' => '1',
-                        | _ => unreachable!(),
-                        }
+                    .map(|bit| match bit {
+                        'F' | 'L' => '0',
+                        'B' | 'R' => '1',
+                        _ => unreachable!(),
                     })
                     .collect::<String>()
                     .tap(|pass| usize::from_str_radix(&pass, 2))
@@ -30,10 +28,7 @@ impl Fro for BinaryBoarding {
 
 impl Solution for BinaryBoarding {
     fn one(self) -> i64 {
-        self.0
-            .into_iter()
-            .fold(0, cmp::max)
-            as i64
+        self.0.into_iter().fold(0, cmp::max) as i64
     }
 
     fn two(mut self) -> i64 {

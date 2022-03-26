@@ -1,6 +1,6 @@
 use std::cmp;
-use std::str;
 use std::i64;
+use std::str;
 
 #[derive(Debug)]
 pub struct CorruptionChecksum {
@@ -12,7 +12,8 @@ pub struct CorruptionChecksum {
 impl str::FromStr for CorruptionChecksum {
     type Err = aoc::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let cols = s.lines()
+        let cols = s
+            .lines()
             .next()
             .expect("At least one row in grid")
             .trim()
@@ -31,11 +32,7 @@ impl str::FromStr for CorruptionChecksum {
 
         let rows = grid.len() / cols;
 
-        Ok(CorruptionChecksum {
-            rows,
-            cols,
-            grid,
-        })
+        Ok(CorruptionChecksum { rows, cols, grid })
     }
 }
 

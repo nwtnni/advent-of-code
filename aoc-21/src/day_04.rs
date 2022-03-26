@@ -17,19 +17,17 @@ struct Tile {
 
 impl Fro for GiantSquid {
     fn fro(input: &str) -> Self {
-        let mut sections = input
-            .trim()
-            .split("\n\n");
+        let mut sections = input.trim().split("\n\n");
 
         let numbers = sections.give();
-        let order = numbers
-            .split(',')
-            .map(i64::fro)
-            .collect::<Vec<_>>();
+        let order = numbers.split(',').map(i64::fro).collect::<Vec<_>>();
 
         let mut boards = Vec::new();
         for section in sections {
-            let mut board = [[Tile { number: 0, marked: false }; 5]; 5];
+            let mut board = [[Tile {
+                number: 0,
+                marked: false,
+            }; 5]; 5];
 
             for (i, row) in section.trim().split('\n').enumerate() {
                 for (j, col) in row.trim().split_whitespace().map(i64::fro).enumerate() {
@@ -40,10 +38,7 @@ impl Fro for GiantSquid {
             boards.push(Board(board));
         }
 
-        Self {
-            order,
-            boards,
-        }
+        Self { order, boards }
     }
 }
 

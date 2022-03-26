@@ -37,8 +37,14 @@ impl Portal {
 
     fn set(&mut self, pos: Pos, orient: Orient) {
         match orient {
-        | Orient::Inner => { assert!(self.inner == Pos::default()); self.inner = pos },
-        | Orient::Outer => { assert!(self.outer == Pos::default()); self.outer = pos },
+            Orient::Inner => {
+                assert!(self.inner == Pos::default());
+                self.inner = pos
+            }
+            Orient::Outer => {
+                assert!(self.outer == Pos::default());
+                self.outer = pos
+            }
         }
     }
 
@@ -62,7 +68,8 @@ pub enum Block {
 impl Fro for DonutMaze {
     fn fro(input: &str) -> Self {
         // 2D grid of characters
-        let chars = input.lines()
+        let chars = input
+            .lines()
             .map(|line| line.chars().collect::<Vec<_>>())
             .collect::<Vec<_>>();
 
@@ -89,7 +96,8 @@ impl Fro for DonutMaze {
         // ##############
         //            ---
         //             r
-        let r = chars.iter()
+        let r = chars
+            .iter()
             .skip(2)
             .position(|line| {
                 line[2..line.len() - 2]
@@ -98,7 +106,8 @@ impl Fro for DonutMaze {
             })
             .unwrap();
 
-        let rx = chars.iter()
+        let rx = chars
+            .iter()
             .skip(2 + r)
             .next()
             .map(|line| {
@@ -122,17 +131,23 @@ impl Fro for DonutMaze {
         // 4 _____
         // ```
         let region = |d: usize, rd: usize| -> usize {
-            if d < 2 { 0 } else
-            if d < 2 + r { 1 } else
-            if d < 2 + r + rd { 2 } else
-            if d < 2 + r + rd + r { 3 }
-            else { 4 }
+            if d < 2 {
+                0
+            } else if d < 2 + r {
+                1
+            } else if d < 2 + r + rd {
+                2
+            } else if d < 2 + r + rd + r {
+                3
+            } else {
+                4
+            }
         };
 
         let alpha = |x: usize, y: usize| -> Option<char> {
             match chars[y][x] {
-            | c if c.is_ascii_alphabetic() => Some(c),
-            | _ => None,
+                c if c.is_ascii_alphabetic() => Some(c),
+                _ => None,
             }
         };
         for y in 2..chars.len() - 2 {
@@ -154,25 +169,30 @@ impl Fro for DonutMaze {
                 grid.insert(pos, Block::Tile);
 
                 if let Some((portal, orient)) = match (
-                    region(x, rx), region(y, ry),
-                    alpha(x - 2, y), alpha(x - 1, y),
-                    alpha(x + 1, y), alpha(x + 2, y),
-                    alpha(x, y - 2), alpha(x, y - 1),
-                    alpha(x, y + 1), alpha(x, y + 2),
+                    region(x, rx),
+                    region(y, ry),
+                    alpha(x - 2, y),
+                    alpha(x - 1, y),
+                    alpha(x + 1, y),
+                    alpha(x + 2, y),
+                    alpha(x, y - 2),
+                    alpha(x, y - 1),
+                    alpha(x, y + 1),
+                    alpha(x, y + 2),
                 ) {
-                | (1, _, Some(a), Some(b), None, None, None, None, None, None)
-                | (3, _, None, None, Some(a), Some(b), None, None, None, None)
-                | (_, 1, None, None, None, None, Some(a), Some(b), None, None)
-                | (_, 3, None, None, None, None, None, None, Some(a), Some(b)) => {
-                    Some((format!("{}{}", a, b).leak(), Orient::Outer))
-                }
-                | (3, _, Some(a), Some(b), None, None, None, None, None, None)
-                | (1, _, None, None, Some(a), Some(b), None, None, None, None)
-                | (_, 3, None, None, None, None, Some(a), Some(b), None, None)
-                | (_, 1, None, None, None, None, None, None, Some(a), Some(b)) => {
-                    Some((format!("{}{}", a, b).leak(), Orient::Inner))
-                }
-                | _ => None,
+                    (1, _, Some(a), Some(b), None, None, None, None, None, None)
+                    | (3, _, None, None, Some(a), Some(b), None, None, None, None)
+                    | (_, 1, None, None, None, None, Some(a), Some(b), None, None)
+                    | (_, 3, None, None, None, None, None, None, Some(a), Some(b)) => {
+                        Some((format!("{}{}", a, b).leak(), Orient::Outer))
+                    }
+                    (3, _, Some(a), Some(b), None, None, None, None, None, None)
+                    | (1, _, None, None, Some(a), Some(b), None, None, None, None)
+                    | (_, 3, None, None, None, None, Some(a), Some(b), None, None)
+                    | (_, 1, None, None, None, None, None, None, Some(a), Some(b)) => {
+                        Some((format!("{}{}", a, b).leak(), Orient::Inner))
+                    }
+                    _ => None,
                 } {
                     if portal == "AA" {
                         start = pos;
@@ -180,9 +200,7 @@ impl Fro for DonutMaze {
                         end = pos;
                     } else {
                         labels.insert(pos, portal);
-                        portals.entry(portal)
-                            .or_default()
-                            .set(pos, orient);
+                        portals.entry(portal).or_default().set(pos, orient);
                     }
                 }
             }
@@ -201,17 +219,14 @@ impl Fro for DonutMaze {
 impl DonutMaze {
     #[allow(unused)]
     fn plot(&self) {
-        let max_x = self.grid.keys()
-            .map(|pos| pos.x)
-            .max()
-            .unwrap();
-        let max_y = self.grid.keys()
-            .map(|pos| pos.y)
-            .max()
-            .unwrap();
+        let max_x = self.grid.keys().map(|pos| pos.x).max().unwrap();
+        let max_y = self.grid.keys().map(|pos| pos.y).max().unwrap();
         for y in 0..=max_y {
             for x in 0..=max_x {
-                let pos = Pos { x: x as i64, y: y as i64 };
+                let pos = Pos {
+                    x: x as i64,
+                    y: y as i64,
+                };
                 if self.labels.contains_key(&pos) {
                     print!("*");
                 } else if let Some(Block::Tile) = self.grid.get(&pos) {
@@ -239,14 +254,15 @@ impl Solution for DonutMaze {
         queue.push(self.start, cmp::Reverse(0));
 
         while let Some((node, cmp::Reverse(dis))) = queue.pop() {
-
             if node == self.end {
                 return dis;
             }
 
             seen.insert(node);
 
-            for next in self.labels.get(&node)
+            for next in self
+                .labels
+                .get(&node)
                 .into_iter()
                 .map(|label| self.portals[label].get(&node))
                 .chain(Dir::all().map(|dir| node.shift(dir)))
@@ -256,22 +272,21 @@ impl Solution for DonutMaze {
                 }
 
                 match self.grid.get(&next) {
-                | Some(Block::Tile) => (),
-                | Some(Block::Wall)
-                | None => continue,
+                    Some(Block::Tile) => (),
+                    Some(Block::Wall) | None => continue,
                 }
 
                 match queue.get_priority(&next) {
-                | Some(cmp::Reverse(old)) if *old <= dis + 1 => {
-                    continue;
-                }
-                | Some(_) => {
-                    queue.change_priority(&next, cmp::Reverse(dis + 1));
-                    continue;
-                }
-                | None => {
-                    queue.push(next, cmp::Reverse(dis + 1));
-                }
+                    Some(cmp::Reverse(old)) if *old <= dis + 1 => {
+                        continue;
+                    }
+                    Some(_) => {
+                        queue.change_priority(&next, cmp::Reverse(dis + 1));
+                        continue;
+                    }
+                    None => {
+                        queue.push(next, cmp::Reverse(dis + 1));
+                    }
                 }
             }
         }
@@ -280,14 +295,12 @@ impl Solution for DonutMaze {
     }
 
     fn two(self) -> i64 {
-
         let mut queue = PriorityQueue::new();
         let mut seen = HashSet::new();
 
         queue.push((self.start, 0), cmp::Reverse(0));
 
         while let Some(((node, depth), cmp::Reverse(dis))) = queue.pop() {
-
             if node == self.end && depth == 0 {
                 return dis;
             }
@@ -308,28 +321,26 @@ impl Solution for DonutMaze {
                 }
 
                 match self.grid.get(&next.0) {
-                | Some(Block::Tile) => (),
-                | Some(Block::Wall)
-                | None => continue,
+                    Some(Block::Tile) => (),
+                    Some(Block::Wall) | None => continue,
                 }
 
                 match queue.get_priority(&next) {
-                | Some(cmp::Reverse(old)) if *old <= dis + 1 => {
-                    continue;
-                }
-                | Some(_) => {
-                    queue.change_priority(&next, cmp::Reverse(dis + 1));
-                    continue;
-                }
-                | None => {
-                    queue.push(next, cmp::Reverse(dis + 1));
-                }
+                    Some(cmp::Reverse(old)) if *old <= dis + 1 => {
+                        continue;
+                    }
+                    Some(_) => {
+                        queue.change_priority(&next, cmp::Reverse(dis + 1));
+                        continue;
+                    }
+                    None => {
+                        queue.push(next, cmp::Reverse(dis + 1));
+                    }
                 }
             }
         }
 
         unreachable!()
-
     }
 }
 
@@ -341,7 +352,7 @@ mod tests {
     #[test]
     fn test_1_23() {
         let maze = DonutMaze::fro(
-"         A           
+            "         A           
          A           
   #######.#########  
   #######.........#  
@@ -359,14 +370,15 @@ DE..#######...###.#
 FG..#########.....#  
   ###########.#####  
              Z       
-             Z       ");
+             Z       ",
+        );
         assert_eq!(maze.one(), 23)
     }
 
     #[test]
     fn test_1_58() {
         let maze = DonutMaze::fro(
-"                   A               
+            "                   A               
                    A               
   #################.#############  
   #.#...#...................#.#.#  
@@ -402,14 +414,15 @@ YN......#               VT..#....QG
   #.#.........#...#.............#  
   #########.###.###.#############  
            B   J   C               
-           U   P   P               ");
+           U   P   P               ",
+        );
         assert_eq!(maze.one(), 58)
     }
 
     #[test]
     fn test_2_396() {
         let maze = DonutMaze::fro(
-"             Z L X W       C                 
+            "             Z L X W       C                 
              Z P Q B       K                 
   ###########.#.#.#.#######.###############  
   #...#.......#.#.......#.#.......#.#.#...#  
@@ -445,7 +458,8 @@ RE....#.#                           #......RF
   #.......#.....#.#...#...............#...#  
   #############.#.#.###.###################  
                A O F   N                     
-               A A D   M                     ");
+               A A D   M                     ",
+        );
         assert_eq!(maze.two(), 396);
     }
 }

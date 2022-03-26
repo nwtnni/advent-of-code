@@ -38,11 +38,11 @@ impl Solution for SyntaxScoring {
                 _ => unreachable!(),
             })
             .sum()
-
     }
 
     fn two(self) -> i64 {
-        let scores = self.0
+        let scores = self
+            .0
             .iter()
             .filter_map(|line| match check(line) {
                 Syntax::Corrupt(_) => None,
@@ -50,13 +50,14 @@ impl Solution for SyntaxScoring {
             })
             .map(|completion| {
                 completion.fold(0, |score, char| {
-                    score * 5 + match char {
-                        '(' => 1,
-                        '[' => 2,
-                        '{' => 3,
-                        '<' => 4,
-                        _ => unreachable!()
-                    }
+                    score * 5
+                        + match char {
+                            '(' => 1,
+                            '[' => 2,
+                            '{' => 3,
+                            '<' => 4,
+                            _ => unreachable!(),
+                        }
                 })
             })
             .collect::<Vec<_>>()
@@ -91,8 +92,5 @@ fn check(line: &str) -> Syntax {
         }
     }
 
-    stack
-        .into_iter()
-        .rev()
-        .tap(Syntax::Complete)
+    stack.into_iter().rev().tap(Syntax::Complete)
 }

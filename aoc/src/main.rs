@@ -4,9 +4,9 @@ use std::mem;
 use std::path;
 use std::process;
 
-use aoc_core::Tap as _;
 use anyhow::anyhow;
 use anyhow::Context as _;
+use aoc_core::Tap as _;
 use chrono::TimeZone as _;
 use structopt::StructOpt;
 
@@ -112,162 +112,176 @@ enum Command {
 }
 
 pub fn main() -> anyhow::Result<()> {
-
     env_logger::init();
 
     let Opt { id, token, command } = Opt::from_args();
     let client = aoc::api::Client::new(id, &token)?;
 
     match command {
-    | Command::Description { year, day, part: Some(part) } => {
-        println!("{}", client.description(year, day, part)?);
-    }
-    | Command::Description { year, day, part: None } => {
-        println!(
-            "{}\n\n{}",
-            client.description(year, day, aoc_core::Part::P01)?,
-            client.description(year, day, aoc_core::Part::P02)?,
-        );
-    }
-    | Command::Init { year, day } => {
-        let description = client.description(year, day, aoc_core::Part::P01)?;
-        let input = client.input(year, day)?;
-        let title = title(&description);
-
-        write("description.md", &description)?;
-        write("input.txt", &input)?;
-
-        // Template out Rust code, avoiding clobbering
-        let root = path::PathBuf::from(format!("aoc-{}/src", &year.to_static_str()[2..]));
-
-        let r#mod = root.join(format!("day_{:02}.rs", day as usize));
-        if !r#mod.exists() {
-            write(r#mod, include_str!("template.rs").replace("$TITLE", &title))?;
-        } else {
-            log::info!("Skipping existing module: {}", r#mod.display());
+        Command::Description {
+            year,
+            day,
+            part: Some(part),
+        } => {
+            println!("{}", client.description(year, day, part)?);
         }
-
-        let lib = root.join("lib.rs");
-        let r#in = read(&lib)?;
-
-        if r#in.contains(&title) {
-            log::info!("Skipping updated library: {}", lib.display());
-            return Ok(());
-        }
-
-        let mut out = String::new();
-
-        for (index, line) in r#in.trim().split('\n').enumerate() {
-            if index == ((day as usize - 1) * 1) + 2 {
-                out.push_str(&format!(
-                    "mod day_{:02};\n",
-                    day as usize,
-                ));
-            }
-            if index == ((day as usize - 1) * 2) + 10 {
-                out.push_str(&format!(
-                    "    | Day::D{day:02} => run!(day_{day:02}::{title}),\n",
-                    day = day as usize,
-                    title = title,
-                ));
-            }
-            out.push_str(line);
-            out.push('\n');
-        }
-
-        write(lib, out)?;
-    }
-    | Command::Input { year, day } => {
-        println!("{}", client.input(year, day)?);
-    }
-    | Command::Leaderboard { year, day, part, leaderboard } => {
-        let leaderboard = match leaderboard {
-        | Some(path) => read(path)?
-            .tap(|string| json::from_str(&string))
-            .expect("[USAGE]: invalid leaderboard file"),
-        | None => client.leaderboard(year)?,
-        };
-
-        // 12AM ET in UTC
-        let start = chrono::Utc
-            .ymd(year as i32, 12, day as u32)
-            .and_hms(5, 0, 0);
-
-        let members = leaderboard
-            .members
-            .into_iter()
-            .filter_map(|(_, member)| {
-                let id = member.id.0;
-                let name = member
-                    .name
-                    .unwrap_or_else(|| format!("anonymous user #{}", id));
-                let day = member.completion_day_level.get(&day)?;
-                let ts = match part {
-                | aoc_core::Part::P01 => day.one.get_star_ts,
-                | aoc_core::Part::P02 => day.two?.get_star_ts,
-                };
-                Some((name, ts))
-            })
-            .collect::<Vec<_>>()
-            .tap_mut(|members| members.sort_by_key(|(_, ts)| ts.timestamp()));
-
-        let width = members
-            .iter()
-            .map(|(name, _)| name.len())
-            .fold(8, cmp::max);
-
-        println!("Rank | {:<width$} | Time", "Username", width = width);
-        println!("-----+-{:-<width$}-+---------", "-", width = width);
-
-        for (index, (name, finish)) in members.into_iter().enumerate() {
-            let duration = finish.signed_duration_since(start);
+        Command::Description {
+            year,
+            day,
+            part: None,
+        } => {
             println!(
-                "{:02}   | {:<width$} | {:02}:{:02}:{:02}",
-                index,
-                name,
-                duration.num_hours(),
-                duration.num_minutes() % 60,
-                duration.num_seconds() % 60,
-                width = width,
-            );
-        }
-    }
-    | Command::Solve { year, day, part, input } => {
-        let input = input
-            .map(read)
-            .unwrap_or_else(|| client.input(year, day))?;
-
-        println!("{}", solve(year, day, part, &input));
-    }
-    | Command::Submit { year, day, part, output } => {
-        let output = match output {
-        | Some(output) => output,
-        | None => client
-            .input(year, day)?
-            .tap(|input| solve(year, day, part, &input)),
-        };
-
-        if !client.submit(year, day, part, output)? {
-            log::info!("{} was incorrect!", output);
-            process::exit(1);
-        }
-
-        log::info!("{} was correct!", output);
-
-        if part == aoc_core::Part::P02 {
-            return Ok(());
-        }
-
-        log::info!("Writing complete description to `description.md`...");
-        write(
-            "description.md",
-            format!(
                 "{}\n\n{}",
                 client.description(year, day, aoc_core::Part::P01)?,
                 client.description(year, day, aoc_core::Part::P02)?,
-            ),
-        )?;
-    }
+            );
+        }
+        Command::Init { year, day } => {
+            let description = client.description(year, day, aoc_core::Part::P01)?;
+            let input = client.input(year, day)?;
+            let title = title(&description);
+
+            write("description.md", &description)?;
+            write("input.txt", &input)?;
+
+            // Template out Rust code, avoiding clobbering
+            let root = path::PathBuf::from(format!("aoc-{}/src", &year.to_static_str()[2..]));
+
+            let r#mod = root.join(format!("day_{:02}.rs", day as usize));
+            if !r#mod.exists() {
+                write(r#mod, include_str!("template.rs").replace("$TITLE", &title))?;
+            } else {
+                log::info!("Skipping existing module: {}", r#mod.display());
+            }
+
+            let lib = root.join("lib.rs");
+            let r#in = read(&lib)?;
+
+            if r#in.contains(&title) {
+                log::info!("Skipping updated library: {}", lib.display());
+                return Ok(());
+            }
+
+            let mut out = String::new();
+
+            for (index, line) in r#in.trim().split('\n').enumerate() {
+                if index == ((day as usize - 1) * 1) + 2 {
+                    out.push_str(&format!("mod day_{:02};\n", day as usize,));
+                }
+                if index == ((day as usize - 1) * 2) + 10 {
+                    out.push_str(&format!(
+                        "        Day::D{day:02} => run!(day_{day:02}::{title}),\n",
+                        day = day as usize,
+                        title = title,
+                    ));
+                }
+                out.push_str(line);
+                out.push('\n');
+            }
+
+            write(lib, out)?;
+        }
+        Command::Input { year, day } => {
+            println!("{}", client.input(year, day)?);
+        }
+        Command::Leaderboard {
+            year,
+            day,
+            part,
+            leaderboard,
+        } => {
+            let leaderboard = match leaderboard {
+                Some(path) => read(path)?
+                    .tap(|string| json::from_str(&string))
+                    .expect("[USAGE]: invalid leaderboard file"),
+                None => client.leaderboard(year)?,
+            };
+
+            // 12AM ET in UTC
+            let start = chrono::Utc
+                .ymd(year as i32, 12, day as u32)
+                .and_hms(5, 0, 0);
+
+            let members = leaderboard
+                .members
+                .into_iter()
+                .filter_map(|(_, member)| {
+                    let id = member.id.0;
+                    let name = member
+                        .name
+                        .unwrap_or_else(|| format!("anonymous user #{}", id));
+                    let day = member.completion_day_level.get(&day)?;
+                    let ts = match part {
+                        aoc_core::Part::P01 => day.one.get_star_ts,
+                        aoc_core::Part::P02 => day.two?.get_star_ts,
+                    };
+                    Some((name, ts))
+                })
+                .collect::<Vec<_>>()
+                .tap_mut(|members| members.sort_by_key(|(_, ts)| ts.timestamp()));
+
+            let width = members.iter().map(|(name, _)| name.len()).fold(8, cmp::max);
+
+            println!("Rank | {:<width$} | Time", "Username", width = width);
+            println!("-----+-{:-<width$}-+---------", "-", width = width);
+
+            for (index, (name, finish)) in members.into_iter().enumerate() {
+                let duration = finish.signed_duration_since(start);
+                println!(
+                    "{:02}   | {:<width$} | {:02}:{:02}:{:02}",
+                    index,
+                    name,
+                    duration.num_hours(),
+                    duration.num_minutes() % 60,
+                    duration.num_seconds() % 60,
+                    width = width,
+                );
+            }
+        }
+        Command::Solve {
+            year,
+            day,
+            part,
+            input,
+        } => {
+            let input = input.map(read).unwrap_or_else(|| client.input(year, day))?;
+
+            println!("{}", solve(year, day, part, &input));
+        }
+        Command::Submit {
+            year,
+            day,
+            part,
+            output,
+        } => {
+            let output = match output {
+                Some(output) => output,
+                None => client
+                    .input(year, day)?
+                    .tap(|input| solve(year, day, part, &input)),
+            };
+
+            if !client.submit(year, day, part, output)? {
+                log::info!("{} was incorrect!", output);
+                process::exit(1);
+            }
+
+            log::info!("{} was correct!", output);
+
+            if part == aoc_core::Part::P02 {
+                return Ok(());
+            }
+
+            log::info!("Writing complete description to `description.md`...");
+            write(
+                "description.md",
+                format!(
+                    "{}\n\n{}",
+                    client.description(year, day, aoc_core::Part::P01)?,
+                    client.description(year, day, aoc_core::Part::P02)?,
+                ),
+            )?;
+        }
     }
 
     Ok(())
@@ -275,8 +289,7 @@ pub fn main() -> anyhow::Result<()> {
 
 fn read<P: AsRef<path::Path>>(path: P) -> anyhow::Result<String> {
     let path = path.as_ref();
-    fs::read_to_string(path)
-        .with_context(|| anyhow!("Could not read file: '{}'", path.display()))
+    fs::read_to_string(path).with_context(|| anyhow!("Could not read file: '{}'", path.display()))
 }
 
 fn write<P, D>(path: P, data: D) -> anyhow::Result<()>
@@ -289,8 +302,7 @@ where
 
     log::info!("Writing to {}", path.display());
 
-    fs::write(path, data)
-        .with_context(|| anyhow!("Could not write to file: '{}'", path.display()))
+    fs::write(path, data).with_context(|| anyhow!("Could not write to file: '{}'", path.display()))
 }
 
 fn title(description: &str) -> String {
@@ -309,18 +321,13 @@ fn title(description: &str) -> String {
         .collect()
 }
 
-fn solve(
-    year: aoc_core::Year,
-    day: aoc_core::Day,
-    part: aoc_core::Part,
-    input: &str,
-) -> i64 {
+fn solve(year: aoc_core::Year, day: aoc_core::Day, part: aoc_core::Part, input: &str) -> i64 {
     match year {
-    | aoc_core::Year::Y15 => aoc_15::solve(day, part, &input),
-    | aoc_core::Year::Y17 => aoc_17::solve(day, part, &input),
-    | aoc_core::Year::Y18 => aoc_18::solve(day, part, &input),
-    | aoc_core::Year::Y19 => aoc_19::solve(day, part, &input),
-    | aoc_core::Year::Y20 => aoc_20::solve(day, part, &input),
-    | aoc_core::Year::Y21 => aoc_21::solve(day, part, &input),
+        aoc_core::Year::Y15 => aoc_15::solve(day, part, &input),
+        aoc_core::Year::Y17 => aoc_17::solve(day, part, &input),
+        aoc_core::Year::Y18 => aoc_18::solve(day, part, &input),
+        aoc_core::Year::Y19 => aoc_19::solve(day, part, &input),
+        aoc_core::Year::Y20 => aoc_20::solve(day, part, &input),
+        aoc_core::Year::Y21 => aoc_21::solve(day, part, &input),
     }
 }

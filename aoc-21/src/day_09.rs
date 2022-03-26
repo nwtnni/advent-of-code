@@ -9,7 +9,9 @@ impl Fro for SmokeBasin {
             .trim()
             .split('\n')
             .map(|line| {
-                line.chars().map(|char| (char as u8 - b'0') as i64).collect::<Vec<_>>()
+                line.chars()
+                    .map(|char| (char as u8 - b'0') as i64)
+                    .collect::<Vec<_>>()
             })
             .collect::<Vec<_>>()
             .tap(Self)

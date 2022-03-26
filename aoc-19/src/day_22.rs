@@ -14,10 +14,7 @@ pub struct Shuffle {
 impl Default for Shuffle {
     /// Identity shuffle.
     fn default() -> Self {
-        Shuffle {
-            a: 1,
-            b: 0,
-        }
+        Shuffle { a: 1, b: 0 }
     }
 }
 
@@ -27,7 +24,10 @@ impl Shuffle {
     }
 
     pub fn cut(n: i64) -> Self {
-        Shuffle { a: 1, b: -n as i128 }
+        Shuffle {
+            a: 1,
+            b: -n as i128,
+        }
     }
 
     pub fn deal(n: i64) -> Self {
@@ -41,13 +41,12 @@ impl Shuffle {
     ///         = acx + bc + d
     ///         = (ac)x + (bc + d)
     pub fn compose(self, with: Self, modulo: i128) -> Self {
-        use std::ops::Mul;
         use std::ops::Add;
+        use std::ops::Mul;
         Shuffle {
-            a: self.a
-                .mul(with.a)
-                .rem_euclid(modulo),
-            b: self.b
+            a: self.a.mul(with.a).rem_euclid(modulo),
+            b: self
+                .b
                 .mul(with.a)
                 .rem_euclid(modulo)
                 .add(with.b)
@@ -59,17 +58,13 @@ impl Shuffle {
     pub fn apply(self, p: i128, m: i128) -> i128 {
         use std::ops::Add;
         use std::ops::Mul;
-        self.a
-            .mul(p)
-            .rem_euclid(m)
-            .add(self.b)
-            .rem_euclid(m)
+        self.a.mul(p).rem_euclid(m).add(self.b).rem_euclid(m)
     }
 
     ///  f^-1(x) = (x - b) * a^-1 (mod m)
     pub fn invert(self, pos: i128, modulo: i128) -> i128 {
-        use std::ops::Sub;
         use std::ops::Mul;
+        use std::ops::Sub;
         pos.sub(self.b)
             .rem_euclid(modulo)
             .mul(mod_inv(self.a as i64, modulo as i64) as i128)
@@ -83,15 +78,13 @@ impl Fro for SlamShuffle {
         for line in input.trim().split('\n') {
             let mut iter = line.trim().split_whitespace();
             match iter.give() {
-            | "deal" => {
-                match iter.give() {
-                | "with" => shuffle.push(Shuffle::deal(iter.nth(1).unwrap().to())),
-                | "into" => shuffle.push(Shuffle::flip()),
-                | _ => unreachable!(),
-                }
-            }
-            | "cut" => shuffle.push(Shuffle::cut(iter.give().to())),
-            | _ => unreachable!(),
+                "deal" => match iter.give() {
+                    "with" => shuffle.push(Shuffle::deal(iter.nth(1).unwrap().to())),
+                    "into" => shuffle.push(Shuffle::flip()),
+                    _ => unreachable!(),
+                },
+                "cut" => shuffle.push(Shuffle::cut(iter.give().to())),
+                _ => unreachable!(),
             }
         }
         SlamShuffle(shuffle)
@@ -104,15 +97,15 @@ impl Solution for SlamShuffle {
         self.0
             .into_iter()
             .fold(Shuffle::default(), |acc, shuffle| acc.compose(shuffle, M))
-            .apply(2019, M)
-            as i64
+            .apply(2019, M) as i64
     }
 
     fn two(self) -> i64 {
         const M: i128 = 119315717514047;
         const S: i128 = 101741582076661;
 
-        let mut double = self.0
+        let mut double = self
+            .0
             .into_iter()
             .fold(Shuffle::default(), |acc, shuffle| acc.compose(shuffle, M));
 

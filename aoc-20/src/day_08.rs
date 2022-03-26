@@ -42,9 +42,12 @@ impl Solution for HandheldHalting {
 
         while hit.insert(ip) {
             match self.0[ip as usize] {
-            | (Op::Nop, _) => ip += 1,
-            | (Op::Acc, arg) => { acc += arg; ip += 1 },
-            | (Op::Jmp, arg) => ip += arg,
+                (Op::Nop, _) => ip += 1,
+                (Op::Acc, arg) => {
+                    acc += arg;
+                    ip += 1
+                }
+                (Op::Jmp, arg) => ip += arg,
             }
         }
         acc
@@ -68,9 +71,12 @@ impl Solution for HandheldHalting {
 
             while hit.insert(ip) && ip as usize != program.len() {
                 match program[ip as usize] {
-                | (Op::Nop, _) => ip += 1,
-                | (Op::Acc, arg) => { acc += arg; ip += 1 },
-                | (Op::Jmp, arg) => ip += arg,
+                    (Op::Nop, _) => ip += 1,
+                    (Op::Acc, arg) => {
+                        acc += arg;
+                        ip += 1
+                    }
+                    (Op::Jmp, arg) => ip += arg,
                 }
             }
 

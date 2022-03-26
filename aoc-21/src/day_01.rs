@@ -23,10 +23,7 @@ impl Solution for SonarSweep {
     }
 
     fn two(self) -> i64 {
-        let windows = self
-            .0
-            .windows(3)
-            .map(|window| window.iter().sum::<i64>());
+        let windows = self.0.windows(3).map(|window| window.iter().sum::<i64>());
 
         windows
             .clone()

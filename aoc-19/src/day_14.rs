@@ -18,15 +18,9 @@ impl Fro for SpaceStoichiometry {
         for line in input.trim().split('\n') {
             let mut iter = line.split("=>");
 
-            let inputs = iter
-                .give()
-                .trim()
-                .split(',');
+            let inputs = iter.give().trim().split(',');
 
-            let mut output = iter
-                .give()
-                .trim()
-                .split_whitespace();
+            let mut output = iter.give().trim().split_whitespace();
 
             let oc = output.give().to::<i64>();
             let om = output.give().leak();
@@ -82,7 +76,6 @@ impl SpaceStoichiometry {
             pool.retain(|_, count| *count != 0);
         }
     }
-
 }
 
 impl Solution for SpaceStoichiometry {

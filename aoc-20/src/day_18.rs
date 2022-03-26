@@ -75,20 +75,20 @@ fn recurse_one(equation: &mut iter::Peekable<vec::IntoIter<Exp>>) -> i64 {
 
     loop {
         let apply: fn(i64, i64) -> i64 = match equation.peek().copied() {
-        | Some(Exp::Add) => ops::Add::add,
-        | Some(Exp::Mul) => ops::Mul::mul,
-        | _ => return value,
+            Some(Exp::Add) => ops::Add::add,
+            Some(Exp::Mul) => ops::Mul::mul,
+            _ => return value,
         };
 
         equation.next();
 
         match equation.next() {
-        | Some(Exp::Int(int)) => value = apply(value, int),
-        | Some(Exp::LParen) => {
-            value = apply(value, recurse_one(equation));
-            assert_eq!(equation.next(), Some(Exp::RParen));
-        }
-        | _ => unreachable!(),
+            Some(Exp::Int(int)) => value = apply(value, int),
+            Some(Exp::LParen) => {
+                value = apply(value, recurse_one(equation));
+                assert_eq!(equation.next(), Some(Exp::RParen));
+            }
+            _ => unreachable!(),
         }
     }
 }

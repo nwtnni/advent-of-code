@@ -44,11 +44,7 @@ impl Solution for AdapterArray {
     }
 }
 
-fn recurse<'a>(
-    start: i64,
-    adapters: &'a [i64],
-    memo: &mut HashMap<&'a [i64], i64>,
-) -> i64 {
+fn recurse<'a>(start: i64, adapters: &'a [i64], memo: &mut HashMap<&'a [i64], i64>) -> i64 {
     if adapters.is_empty() {
         return 1;
     }

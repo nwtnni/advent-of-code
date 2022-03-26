@@ -14,15 +14,10 @@ impl str::FromStr for SpiralMemory {
 
 impl aoc::Solution for SpiralMemory {
     fn one(self) -> i64 {
-
         // Bottom-right corner is a square
-        let inner = match (1i64..)
-            .step_by(2)
-            .take_while(|n| n.pow(2) < self.0)
-            .last()
-        {
-        | None => return 0,
-        | Some(inner) => inner,
+        let inner = match (1i64..).step_by(2).take_while(|n| n.pow(2) < self.0).last() {
+            None => return 0,
+            Some(inner) => inner,
         };
 
         let outer = inner + 1;
@@ -30,13 +25,15 @@ impl aoc::Solution for SpiralMemory {
         // Steps from the bottom-right corner
         let steps = self.0 - inner.pow(2);
 
-        if steps == 0 { return inner }
+        if steps == 0 {
+            return inner;
+        }
 
         let (dx, dy) = match steps - 1 {
-        | n if n >= outer * 0 && n < outer * 1 => (1, (n % outer)),
-        | n if n >= outer * 1 && n < outer * 2 => (-(n % outer), inner),
-        | n if n >= outer * 2 && n < outer * 3 => (-inner, inner - (n % outer) - 1),
-        | n                                    => ((n % outer) - inner + 1, -1),
+            n if n >= outer * 0 && n < outer * 1 => (1, (n % outer)),
+            n if n >= outer * 1 && n < outer * 2 => (-(n % outer), inner),
+            n if n >= outer * 2 && n < outer * 3 => (-inner, inner - (n % outer) - 1),
+            n => ((n % outer) - inner + 1, -1),
         };
 
         let x = ((inner / 2) + dx).abs();

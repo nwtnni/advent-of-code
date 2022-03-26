@@ -3,16 +3,14 @@ use std::collections::HashMap;
 use std::num;
 use std::str;
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[derive(Clone, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Clone, Debug)]
 pub struct Leaderboard {
     pub event: aoc_core::Year,
     pub members: HashMap<Id, Member>,
     pub owner_id: Id,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[derive(Clone, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Clone, Debug)]
 pub struct Member {
     pub id: Id,
     pub name: Option<String>,
@@ -24,8 +22,7 @@ pub struct Member {
     pub completion_day_level: BTreeMap<aoc_core::Day, Day>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[derive(Copy, Clone, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Copy, Clone, Debug)]
 pub struct Day {
     #[serde(rename = "1")]
     pub one: Part,
@@ -33,15 +30,17 @@ pub struct Day {
     pub two: Option<Part>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    serde::Deserialize, serde::Serialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 pub struct Part {
     #[serde(with = "ts")]
     pub get_star_ts: chrono::DateTime<chrono::Local>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    serde::Deserialize, serde::Serialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 pub struct Id(#[serde(with = "id")] pub usize);
 
 impl str::FromStr for Id {
@@ -52,23 +51,19 @@ impl str::FromStr for Id {
 }
 
 mod id {
-    use serde::Deserialize as _;
     use serde::de::Error as _;
+    use serde::Deserialize as _;
     use serde::Serialize as _;
 
     pub fn deserialize<'de, D: serde::Deserializer<'de>>(
         deserializer: D,
-    ) -> Result<usize, D::Error>
-    {
+    ) -> Result<usize, D::Error> {
         String::deserialize(deserializer)?
             .parse::<usize>()
             .map_err(D::Error::custom)
     }
 
-    pub fn serialize<S: serde::Serializer>(
-        id: &usize,
-        serializer: S
-    ) -> Result<S::Ok, S::Error> {
+    pub fn serialize<S: serde::Serializer>(id: &usize, serializer: S) -> Result<S::Ok, S::Error> {
         String::serialize(&id.to_string(), serializer)
     }
 }
@@ -82,8 +77,7 @@ mod ts {
 
     pub fn deserialize<'de, D: serde::Deserializer<'de>>(
         deserializer: D,
-    ) -> Result<chrono::DateTime<chrono::Local>, D::Error>
-    {
+    ) -> Result<chrono::DateTime<chrono::Local>, D::Error> {
         struct Visitor;
 
         impl<'de> serde::de::Visitor<'de> for Visitor {
@@ -115,7 +109,7 @@ mod ts {
 
     pub fn serialize<S: serde::Serializer>(
         time: &chrono::DateTime<chrono::Local>,
-        serializer: S
+        serializer: S,
     ) -> Result<S::Ok, S::Error> {
         String::serialize(&time.timestamp().to_string(), serializer)
     }
@@ -130,8 +124,7 @@ mod ts_opt {
 
     pub fn deserialize<'de, D: serde::Deserializer<'de>>(
         deserializer: D,
-    ) -> Result<Option<chrono::DateTime<chrono::Local>>, D::Error>
-    {
+    ) -> Result<Option<chrono::DateTime<chrono::Local>>, D::Error> {
         struct Visitor;
 
         impl<'de> serde::de::Visitor<'de> for Visitor {
@@ -142,12 +135,12 @@ mod ts_opt {
 
             fn visit_i64<E: serde::de::Error>(self, ts: i64) -> Result<Self::Value, E> {
                 match ts {
-                | 0 => Ok(None),
-                | _ => chrono::Utc
-                    .timestamp(ts, 0)
-                    .with_timezone(&chrono::Local)
-                    .tap(Option::Some)
-                    .tap(Result::Ok),
+                    0 => Ok(None),
+                    _ => chrono::Utc
+                        .timestamp(ts, 0)
+                        .with_timezone(&chrono::Local)
+                        .tap(Option::Some)
+                        .tap(Result::Ok),
                 }
             }
 
@@ -167,11 +160,11 @@ mod ts_opt {
 
     pub fn serialize<S: serde::Serializer>(
         time: &Option<chrono::DateTime<chrono::Local>>,
-        serializer: S
+        serializer: S,
     ) -> Result<S::Ok, S::Error> {
         match time {
-        | None => i64::serialize(&0, serializer),
-        | Some(time) => String::serialize(&time.timestamp().to_string(), serializer),
+            None => i64::serialize(&0, serializer),
+            Some(time) => String::serialize(&time.timestamp().to_string(), serializer),
         }
     }
 }

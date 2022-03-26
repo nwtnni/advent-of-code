@@ -28,8 +28,7 @@ impl Fro for Display {
         let mut inputs = [AsciiSet::none(); 10];
         let mut outputs = [AsciiSet::none(); 4];
 
-        left
-            .trim()
+        left.trim()
             .split(' ')
             .map(AsciiSet::from)
             .enumerate()
@@ -57,19 +56,18 @@ impl Solution for SevenSegmentSearch {
                     .filter(|output| match output.len() {
                         2 | 3 | 4 | 7 => true,
                         _ => false,
-                    }).count()
+                    })
+                    .count()
             })
-            .sum::<usize>()
-            as i64
+            .sum::<usize>() as i64
     }
 
     fn two(self) -> i64 {
+        static SEGMENTS: &str = "abcdefg";
 
-       static SEGMENTS: &str = "abcdefg";
+        let mut total = 0;
 
-       let mut total = 0;
-
-       for display in &self.0 {
+        for display in &self.0 {
             let mut mapping = SEGMENTS
                 .chars()
                 .map(|char| (char, AsciiSet::from(SEGMENTS)))
@@ -77,20 +75,17 @@ impl Solution for SevenSegmentSearch {
 
             let mut narrow = |set: AsciiSet, possible: &str| {
                 for char in set {
-                    mapping
-                        .get_mut(&char)
-                        .unwrap()
-                        .and_mut(possible);
+                    mapping.get_mut(&char).unwrap().and_mut(possible);
                 }
             };
 
             for input in display.inputs {
                 match input.len() {
-                    2 => narrow(input, "cf"), // 1
-                    3 => narrow(input, "acf"), // 7
-                    4 => narrow(input, "bcdf"), // 4
+                    2 => narrow(input, "cf"),                 // 1
+                    3 => narrow(input, "acf"),                // 7
+                    4 => narrow(input, "bcdf"),               // 4
                     5 => narrow(input.not(SEGMENTS), "bcef"), // 2, 3, 5
-                    6 => narrow(input.not(SEGMENTS), "cde"), // 0, 6, 9
+                    6 => narrow(input.not(SEGMENTS), "cde"),  // 0, 6, 9
                     7 => (),
                     _ => unreachable!(),
                 }

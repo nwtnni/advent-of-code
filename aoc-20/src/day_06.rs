@@ -8,12 +8,7 @@ impl Fro for CustomCustoms {
         input
             .trim()
             .split("\n\n")
-            .map(|group| {
-                group
-                    .split_whitespace()
-                    .map(AsciiSet::from)
-                    .collect()
-            })
+            .map(|group| group.split_whitespace().map(AsciiSet::from).collect())
             .collect::<Vec<_>>()
             .tap(Self)
     }
@@ -23,14 +18,8 @@ impl Solution for CustomCustoms {
     fn one(self) -> i64 {
         self.0
             .into_iter()
-            .map(|group| {
-                group
-                    .into_iter()
-                    .fold(AsciiSet::none(), AsciiSet::or)
-                    .len()
-            })
-            .sum::<usize>()
-            as i64
+            .map(|group| group.into_iter().fold(AsciiSet::none(), AsciiSet::or).len())
+            .sum::<usize>() as i64
     }
 
     fn two(self) -> i64 {
@@ -42,8 +31,7 @@ impl Solution for CustomCustoms {
                     .fold(AsciiSet::from(LOWERS), AsciiSet::and)
                     .len()
             })
-            .sum::<usize>()
-            as i64
+            .sum::<usize>() as i64
     }
 }
 

@@ -15,11 +15,7 @@ impl Fro for HandyHaversacks {
             .flat_map(|line| {
                 let mut iter = line.trim().split(" contain ");
 
-                let start = iter
-                    .give()
-                    .trim_end_matches(" bags")
-                    .to_string()
-                    .leak();
+                let start = iter.give().trim_end_matches(" bags").to_string().leak();
 
                 let rest = iter.give();
                 if rest == "no other bags." {
@@ -54,10 +50,7 @@ impl Solution for HandyHaversacks {
             .map(|(start, end, count)| (end, start, count))
             .collect::<DiGraphMap<_, i64>>();
 
-        petgraph::algo::dijkstra(&graph, "shiny gold", None, |_| 1usize)
-            .len()
-            as i64
-            - 1
+        petgraph::algo::dijkstra(&graph, "shiny gold", None, |_| 1usize).len() as i64 - 1
     }
 
     fn two(self) -> i64 {

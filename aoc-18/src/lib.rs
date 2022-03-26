@@ -13,11 +13,11 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
         };
     }
     match day {
-    | Day::D01 => run!(day_01::ChronalCalibration),
-    | Day::D02 => run!(day_02::InventoryManagementSystem),
-    | Day::D03 => run!(day_03::NoMatterHowYouSliceIt),
-    | Day::D04 => run!(day_04::ReposeRecord),
-    | Day::D05 => run!(day_05::AlchemicalReduction),
+        Day::D01 => run!(day_01::ChronalCalibration),
+        Day::D02 => run!(day_02::InventoryManagementSystem),
+        Day::D03 => run!(day_03::NoMatterHowYouSliceIt),
+        Day::D04 => run!(day_04::ReposeRecord),
+        Day::D05 => run!(day_05::AlchemicalReduction),
         _ => unimplemented!(),
     }
 }

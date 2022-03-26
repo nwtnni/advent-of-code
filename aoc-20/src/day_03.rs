@@ -7,7 +7,7 @@ use aoc::*;
 pub struct TobogganTrajectory {
     rows: usize,
     cols: usize,
-    grid: HashSet<Pos>
+    grid: HashSet<Pos>,
 }
 
 impl ops::Deref for TobogganTrajectory {
@@ -44,11 +44,7 @@ impl Fro for TobogganTrajectory {
                 }
             }
         }
-        Self {
-            rows,
-            cols,
-            grid,
-        }
+        Self { rows, cols, grid }
     }
 }
 
@@ -63,8 +59,7 @@ impl Solution for TobogganTrajectory {
                     y: row,
                 })
             })
-            .count()
-            as i64
+            .count() as i64
     }
 
     fn two(self) -> i64 {
@@ -83,8 +78,7 @@ impl Solution for TobogganTrajectory {
                     })
                     .count()
             })
-            .product::<usize>()
-            as i64
+            .product::<usize>() as i64
     }
 }
 

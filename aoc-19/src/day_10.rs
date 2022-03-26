@@ -1,7 +1,7 @@
-use std::collections::BTreeMap;
-use std::collections::BinaryHeap;
-use std::collections::BTreeSet;
 use std::cmp;
+use std::collections::BTreeMap;
+use std::collections::BTreeSet;
+use std::collections::BinaryHeap;
 
 use aoc::*;
 
@@ -14,7 +14,10 @@ impl Fro for MonitoringStation {
         for (row, line) in input.split_whitespace().enumerate() {
             for (col, char) in line.chars().enumerate() {
                 if char == '#' {
-                    asteroids.push(Pos { x: col as i64, y: row as i64 });
+                    asteroids.push(Pos {
+                        x: col as i64,
+                        y: row as i64,
+                    });
                 }
             }
         }
@@ -23,7 +26,7 @@ impl Fro for MonitoringStation {
 }
 
 // Vertical vector
-const X_AXIS: Pos = Pos { x: 1, y:  0 };
+const X_AXIS: Pos = Pos { x: 1, y: 0 };
 const Y_AXIS: Pos = Pos { x: 0, y: -1 };
 
 /// Compute the angle between vectors AB and AC,
@@ -37,8 +40,8 @@ fn angle(ab: Pos, ac: Pos) -> f64 {
 
     // Map θ from (-π, π] to [0, 2π)
     match f64::atan2(sin, cos) {
-    | theta if theta.is_sign_negative() => theta + 2.0 * std::f64::consts::PI,
-    | theta => theta,
+        theta if theta.is_sign_negative() => theta + 2.0 * std::f64::consts::PI,
+        theta => theta,
     }
 }
 
@@ -48,7 +51,10 @@ impl MonitoringStation {
             .iter()
             .filter(|p| **p != a)
             .map(|b| {
-                let ab = Pos { x: b.x - a.x, y: b.y - a.y };
+                let ab = Pos {
+                    x: b.x - a.x,
+                    y: b.y - a.y,
+                };
                 angle(X_AXIS, ab)
             })
             .map(Approx)
@@ -86,15 +92,10 @@ impl Ord for Approx {
 
 impl Solution for MonitoringStation {
     fn one(self) -> i64 {
-        self.0
-            .iter()
-            .map(|a| self.visible(*a))
-            .max()
-            .unwrap()
+        self.0.iter().map(|a| self.visible(*a)).max().unwrap()
     }
 
     fn two(self) -> i64 {
-
         /// Asteroid sorted by distance to station
         #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
         struct Asteroid {
@@ -102,7 +103,8 @@ impl Solution for MonitoringStation {
             p: Pos,
         }
 
-        let s = self.0
+        let s = self
+            .0
             .iter()
             .max_by_key(|a| self.visible(**a))
             .copied()
@@ -114,15 +116,18 @@ impl Solution for MonitoringStation {
         let mut laser = BTreeMap::<Approx, BinaryHeap<Asteroid>>::new();
 
         for a in self.0.into_iter().filter(|p| *p != s) {
-
             // Compute relative vector from station S to asteroid A
-            let sa = Pos { x: a.x - s.x, y: a.y - s.y };
+            let sa = Pos {
+                x: a.x - s.x,
+                y: a.y - s.y,
+            };
 
             let theta = angle(Y_AXIS, sa);
 
             // Group A in sorted order by distance to S
             // with other asteroids along angle θ.
-            laser.entry(Approx(theta))
+            laser
+                .entry(Approx(theta))
                 .or_insert_with(BinaryHeap::new)
                 .push(Asteroid {
                     p: a,
@@ -148,24 +153,27 @@ impl Solution for MonitoringStation {
 
 #[cfg(test)]
 mod test {
-    use aoc::*;
     use super::MonitoringStation;
+    use aoc::*;
 
     #[test]
     fn test_1_8() {
-        let map = MonitoringStation::fro(str::trim("
+        let map = MonitoringStation::fro(str::trim(
+            "
             .#..#
             .....
             #####
             ....#
             ...##
-        "));
+        ",
+        ));
         assert_eq!(map.one(), 8);
     }
 
     #[test]
     fn test_1_33() {
-        let map = MonitoringStation::fro(str::trim("
+        let map = MonitoringStation::fro(str::trim(
+            "
             ......#.#.
             #..#.#....
             ..#######.
@@ -176,13 +184,15 @@ mod test {
             .##.#..###
             ##...#..#.
             .#....####
-        "));
+        ",
+        ));
         assert_eq!(map.one(), 33);
     }
 
     #[test]
     fn test_1_210() {
-        let map = MonitoringStation::fro(str::trim("
+        let map = MonitoringStation::fro(str::trim(
+            "
             .#..##.###...#######
             ##.############..##.
             .#.######.########.#
@@ -203,13 +213,15 @@ mod test {
             .#.#.###########.###
             #.#.#.#####.####.###
             ###.##.####.##.#..##
-        "));
+        ",
+        ));
         assert_eq!(map.one(), 210);
     }
 
     #[test]
     fn test_2_210() {
-        let map = MonitoringStation::fro(str::trim("
+        let map = MonitoringStation::fro(str::trim(
+            "
             .#..##.###...#######
             ##.############..##.
             .#.######.########.#
@@ -230,7 +242,8 @@ mod test {
             .#.#.###########.###
             #.#.#.#####.####.###
             ###.##.####.##.#..##
-        "));
+        ",
+        ));
         assert_eq!(map.two(), 802);
     }
 }

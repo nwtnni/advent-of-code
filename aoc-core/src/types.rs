@@ -3,8 +3,7 @@ use std::iter;
 use std::num;
 use std::ops;
 
-#[derive(thiserror::Error)]
-#[derive(Clone, Debug)]
+#[derive(thiserror::Error, Clone, Debug)]
 pub enum Error {
     #[error("invalid integer: {}", _0)]
     InvalidInt(#[from] num::ParseIntError),
@@ -25,15 +24,23 @@ pub enum Error {
 #[macro_export]
 macro_rules! pos {
     ($x:expr, $y:expr) => {
-        Pos {
-            x: $x,
-            y: $y,
-        }
-    }
+        Pos { x: $x, y: $y }
+    };
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+)]
 pub struct Pos {
     pub x: i64,
     pub y: i64,
@@ -41,19 +48,11 @@ pub struct Pos {
 
 impl Pos {
     pub fn to_inclusive(self, other: Self) -> impl Iterator<Item = Self> {
-        (self.y..=other.y).flat_map(move |y| {
-            (self.x..=other.x).map(move |x| {
-                Pos { x, y }
-            })
-        })
+        (self.y..=other.y).flat_map(move |y| (self.x..=other.x).map(move |x| Pos { x, y }))
     }
 
     pub fn to_exclusive(self, other: Self) -> impl Iterator<Item = Self> {
-        (self.y..other.y).flat_map(move |y| {
-            (self.x..other.x).map(move |x| {
-                Pos { x, y }
-            })
-        })
+        (self.y..other.y).flat_map(move |y| (self.x..other.x).map(move |x| Pos { x, y }))
     }
 
     pub fn min(self, other: Pos) -> Self {
@@ -72,10 +71,22 @@ impl Pos {
 
     pub fn shift(self, dir: Dir) -> Self {
         match dir {
-        | Dir::N => Pos { x: self.x, y: self.y - 1 },
-        | Dir::S => Pos { x: self.x, y: self.y + 1 },
-        | Dir::E => Pos { x: self.x + 1, y: self.y },
-        | Dir::W => Pos { x: self.x - 1, y: self.y },
+            Dir::N => Pos {
+                x: self.x,
+                y: self.y - 1,
+            },
+            Dir::S => Pos {
+                x: self.x,
+                y: self.y + 1,
+            },
+            Dir::E => Pos {
+                x: self.x + 1,
+                y: self.y,
+            },
+            Dir::W => Pos {
+                x: self.x - 1,
+                y: self.y,
+            },
         }
     }
 
@@ -85,9 +96,13 @@ impl Pos {
 }
 
 #[repr(u8)]
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-pub enum Dir { N, S, W, E }
+#[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum Dir {
+    N,
+    S,
+    W,
+    E,
+}
 
 impl Dir {
     pub fn all() -> impl Iterator<Item = Self> {
@@ -99,10 +114,10 @@ impl Dir {
 
     pub fn flip(&self) -> Dir {
         match self {
-        | Dir::N => Dir::S,
-        | Dir::S => Dir::N,
-        | Dir::E => Dir::W,
-        | Dir::W => Dir::E,
+            Dir::N => Dir::S,
+            Dir::S => Dir::N,
+            Dir::E => Dir::W,
+            Dir::W => Dir::E,
         }
     }
 
@@ -126,8 +141,9 @@ impl ops::Neg for &Dir {
 }
 
 #[repr(u8)]
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    serde::Serialize, serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 pub enum Digit {
     #[serde(rename = "0")]
     D0 = 0,
@@ -151,8 +167,9 @@ pub enum Digit {
     D9 = 9,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    serde::Serialize, serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 pub enum Year {
     #[serde(rename = "2015")]
     Y15 = 2015,
@@ -168,8 +185,9 @@ pub enum Year {
     Y21 = 2021,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    serde::Serialize, serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 pub enum Day {
     #[serde(rename = "1")]
     D01 = 01,
@@ -224,8 +242,9 @@ pub enum Day {
 }
 
 #[repr(u8)]
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    serde::Serialize, serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 pub enum Part {
     #[serde(rename = "1")]
     P01 = 1,
@@ -233,22 +252,24 @@ pub enum Part {
     P02 = 2,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    serde::Serialize, serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 pub enum Or<L, R> {
     L(L),
     R(R),
 }
 
 impl<L, R, T> Iterator for Or<L, R>
-where L: Iterator<Item = T>,
-      R: Iterator<Item = T>,
+where
+    L: Iterator<Item = T>,
+    R: Iterator<Item = T>,
 {
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-        | Or::L(l) => l.next(),
-        | Or::R(r) => r.next(),
+            Or::L(l) => l.next(),
+            Or::R(r) => r.next(),
         }
     }
 }

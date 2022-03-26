@@ -45,7 +45,8 @@ impl aoc::Solution for HighEntropyPassphrases {
                 for phrase in phrases.split_whitespace() {
                     let mut chars = BTreeMap::new();
                     for char in phrase.chars() {
-                        chars.entry(char)
+                        chars
+                            .entry(char)
                             .and_modify(|count| *count += 1)
                             .or_insert(1);
                     }
@@ -68,41 +69,65 @@ mod tests {
 
     #[test]
     fn test_p1_valid() {
-        assert_eq!(HighEntropyPassphrases(vec![String::from("aa bb cc dd ee")]).one(), 1);
+        assert_eq!(
+            HighEntropyPassphrases(vec![String::from("aa bb cc dd ee")]).one(),
+            1
+        );
     }
 
     #[test]
     fn test_p1_invalid() {
-        assert_eq!(HighEntropyPassphrases(vec![String::from("aa bb cc dd aa")]).one(), 0);
+        assert_eq!(
+            HighEntropyPassphrases(vec![String::from("aa bb cc dd aa")]).one(),
+            0
+        );
     }
 
     #[test]
     fn test_p1_different() {
-        assert_eq!(HighEntropyPassphrases(vec![String::from("aa bb cc dd aaa")]).one(), 1);
+        assert_eq!(
+            HighEntropyPassphrases(vec![String::from("aa bb cc dd aaa")]).one(),
+            1
+        );
     }
 
     #[test]
     fn test_p2_valid() {
-        assert_eq!(HighEntropyPassphrases(vec![String::from("abcde fghij")]).two(), 1);
+        assert_eq!(
+            HighEntropyPassphrases(vec![String::from("abcde fghij")]).two(),
+            1
+        );
     }
 
     #[test]
     fn test_p2_invalid() {
-        assert_eq!(HighEntropyPassphrases(vec![String::from("abcde xyz ecdab")]).two(), 0);
+        assert_eq!(
+            HighEntropyPassphrases(vec![String::from("abcde xyz ecdab")]).two(),
+            0
+        );
     }
 
     #[test]
     fn test_p2_hard_valid() {
-        assert_eq!(HighEntropyPassphrases(vec![String::from("a ab abc abd abf abj")]).two(), 1);
+        assert_eq!(
+            HighEntropyPassphrases(vec![String::from("a ab abc abd abf abj")]).two(),
+            1
+        );
     }
 
     #[test]
     fn test_p2_counter_valid() {
-        assert_eq!(HighEntropyPassphrases(vec![String::from("iiii oiii ooii oooi oooo")]).two(), 1);
+        assert_eq!(
+            HighEntropyPassphrases(vec![String::from("iiii oiii ooii oooi oooo")]).two(),
+            1
+        );
     }
 
     #[test]
     fn test_p2_counter_invalid() {
-        assert_eq!(HighEntropyPassphrases(vec![String::from("oiii ioii iioi iiio")]).two(), 0);
+        assert_eq!(
+            HighEntropyPassphrases(vec![String::from("oiii ioii iioi iiio")]).two(),
+            0
+        );
     }
 }

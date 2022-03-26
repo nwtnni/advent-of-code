@@ -16,9 +16,7 @@ enum Rule {
 
 impl Fro for MonsterMessages {
     fn fro(input: &str) -> Self {
-        let mut iter = input
-            .trim()
-            .split("\n\n");
+        let mut iter = input.trim().split("\n\n");
 
         let rules = iter
             .give()
@@ -35,7 +33,12 @@ impl Fro for MonsterMessages {
                     Rule::Leaf(rule.chars().nth(1).unwrap())
                 } else {
                     rule.split('|')
-                        .map(|leaf| leaf.trim().split_whitespace().map(i64::fro).collect::<Vec<_>>())
+                        .map(|leaf| {
+                            leaf.trim()
+                                .split_whitespace()
+                                .map(i64::fro)
+                                .collect::<Vec<_>>()
+                        })
                         .collect::<Vec<_>>()
                         .tap(Rule::Tree)
                 };
@@ -44,44 +47,36 @@ impl Fro for MonsterMessages {
             })
             .collect::<HashMap<_, _>>();
 
-        let messages = iter
-            .give()
-            .trim()
-            .split('\n')
-            .map(String::from)
-            .collect();
+        let messages = iter.give().trim().split('\n').map(String::from).collect();
 
-        Self {
-            rules,
-            messages,
-        }
+        Self { rules, messages }
     }
 }
 
 impl MonsterMessages {
     fn matches(&self, message: &str, rule: i64, memo: &mut HashMap<i64, usize>) -> bool {
         match &self.rules[&rule] {
-        | Rule::Leaf(leaf) => message.chars().all(|char| char == *leaf),
-        | Rule::Tree(tree) => {
-            for subtree in tree {
-                let mut index = 0;
-                let mut all = true;
+            Rule::Leaf(leaf) => message.chars().all(|char| char == *leaf),
+            Rule::Tree(tree) => {
+                for subtree in tree {
+                    let mut index = 0;
+                    let mut all = true;
 
-                for rule in subtree {
-                    let len = match memo.get(rule).copied() {
-                    | None => self.len(*rule, memo),
-                    | Some(len) => len,
-                    };
-                    all &= self.matches(&message[index..index + len], *rule, memo);
-                    index += len;
-                }
+                    for rule in subtree {
+                        let len = match memo.get(rule).copied() {
+                            None => self.len(*rule, memo),
+                            Some(len) => len,
+                        };
+                        all &= self.matches(&message[index..index + len], *rule, memo);
+                        index += len;
+                    }
 
-                if all && index == message.len() {
-                    return true;
+                    if all && index == message.len() {
+                        return true;
+                    }
                 }
+                false
             }
-            false
-        }
         }
     }
 
@@ -91,8 +86,8 @@ impl MonsterMessages {
         };
 
         let len = match &self.rules[&rule] {
-        | Rule::Leaf(_) => 1,
-        | Rule::Tree(tree) => tree[0].iter().map(|rule| self.len(*rule, memo)).sum(),
+            Rule::Leaf(_) => 1,
+            Rule::Tree(tree) => tree[0].iter().map(|rule| self.len(*rule, memo)).sum(),
         };
 
         memo.insert(rule, len);

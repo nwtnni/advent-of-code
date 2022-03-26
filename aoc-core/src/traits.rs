@@ -9,8 +9,8 @@ pub trait Solution: Fro + Sized {
     fn run(input: &str, part: Part) -> i64 {
         let solution = input.to::<Self>();
         let output = match part {
-        | Part::P01 => solution.one(),
-        | Part::P02 => solution.two(),
+            Part::P01 => solution.one(),
+            Part::P02 => solution.two(),
         };
         output
     }
@@ -20,11 +20,14 @@ pub trait Fro {
     fn fro(string: &str) -> Self;
 }
 
-impl<T> Fro for T where T: str::FromStr {
+impl<T> Fro for T
+where
+    T: str::FromStr,
+{
     fn fro(string: &str) -> Self {
         match string.parse::<T>() {
-        | Ok(value) => value,
-        | Err(_) => panic!("Could not parse {} as {}", string, any::type_name::<T>()),
+            Ok(value) => value,
+            Err(_) => panic!("Could not parse {} as {}", string, any::type_name::<T>()),
         }
     }
 }
@@ -69,16 +72,16 @@ impl<T, I: Iterator<Item = T>> Give for I {
 }
 
 static DIV: [i64; 10] = [
-             1,
-            10,
-           100,
-         1_000,
-        10_000,
-       100_000,
-     1_000_000,
+    1,
+    10,
+    100,
+    1_000,
+    10_000,
+    100_000,
+    1_000_000,
     10_000_000,
-   100_000_000,
- 1_000_000_000,
+    100_000_000,
+    1_000_000_000,
 ];
 
 pub trait Digits {

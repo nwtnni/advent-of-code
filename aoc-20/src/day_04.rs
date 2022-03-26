@@ -28,8 +28,7 @@ impl Solution for PassportProcessing {
         self.0
             .into_iter()
             .filter(|passport| required(&passport))
-            .count()
-            as i64
+            .count() as i64
     }
 
     fn two(self) -> i64 {
@@ -53,15 +52,19 @@ impl Solution for PassportProcessing {
                 let hcl = &passport["hcl"];
                 hcl.len() == 7
                     && hcl.starts_with("#")
-                    && hcl.chars().skip(1).all(|c| c.is_ascii_digit() || (c >= 'a' && c <= 'f'))
+                    && hcl
+                        .chars()
+                        .skip(1)
+                        .all(|c| c.is_ascii_digit() || (c >= 'a' && c <= 'f'))
             })
-            .filter(|passport| ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&&*passport["ecl"]))
+            .filter(|passport| {
+                ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&&*passport["ecl"])
+            })
             .filter(|passport| {
                 let pid = &passport["pid"];
                 pid.len() == 9 && pid.chars().all(|c| c.is_ascii_digit())
             })
-            .count()
-            as i64
+            .count() as i64
     }
 }
 

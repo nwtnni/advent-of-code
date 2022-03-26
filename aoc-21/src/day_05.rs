@@ -16,8 +16,14 @@ impl Fro for HydrothermalVenture {
                 let (x1, y1) = a.split_once(',').unwrap();
                 let (x2, y2) = b.split_once(',').unwrap();
                 [
-                    Pos { x: i64::fro(x1), y: i64::fro(y1) },
-                    Pos { x: i64::fro(x2), y: i64::fro(y2) },
+                    Pos {
+                        x: i64::fro(x1),
+                        y: i64::fro(y1),
+                    },
+                    Pos {
+                        x: i64::fro(x2),
+                        y: i64::fro(y2),
+                    },
                 ]
             })
             .collect::<Vec<_>>()
@@ -37,10 +43,7 @@ impl Solution for HydrothermalVenture {
             }
         }
 
-        grid.values()
-            .filter(|count| **count >= 2)
-            .count()
-            as i64
+        grid.values().filter(|count| **count >= 2).count() as i64
     }
 
     fn two(self) -> i64 {
@@ -71,9 +74,6 @@ impl Solution for HydrothermalVenture {
             }
         }
 
-        grid.values()
-            .filter(|count| **count >= 2)
-            .count()
-            as i64
+        grid.values().filter(|count| **count >= 2).count() as i64
     }
 }

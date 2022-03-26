@@ -13,8 +13,8 @@ impl Fro for DoesntHeHaveInternElvesForThis {
 
 fn is_vowel(c: &&char) -> bool {
     match c {
-    | 'a' | 'e' | 'i' | 'o' | 'u' => true,
-    | _ => false,
+        'a' | 'e' | 'i' | 'o' | 'u' => true,
+        _ => false,
     }
 }
 
@@ -28,8 +28,8 @@ fn is_sandwich(cs: &&[char]) -> bool {
 
 fn is_naughty(cs: &&[char]) -> bool {
     match cs {
-    | ['a', 'b'] | ['c', 'd'] | ['p', 'q'] | ['x', 'y'] => true,
-    | _ => false,
+        ['a', 'b'] | ['c', 'd'] | ['p', 'q'] | ['x', 'y'] => true,
+        _ => false,
     }
 }
 
@@ -44,8 +44,7 @@ impl Solution for DoesntHeHaveInternElvesForThis {
                 let naughty = chars.windows(2).filter(is_naughty).count();
                 vowels >= 3 && twice >= 1 && naughty == 0
             })
-            .count()
-            as i64
+            .count() as i64
     }
 
     fn two(self) -> i64 {
@@ -54,19 +53,18 @@ impl Solution for DoesntHeHaveInternElvesForThis {
             .filter(|string| {
                 let chars = string.chars().collect::<Vec<_>>();
                 let sandwich = chars.windows(3).filter(is_sandwich).count();
-                let (_, repeat) = chars
-                    .windows(2)
-                    .enumerate()
-                    .fold((HashMap::<&[char], usize>::default(), 0), |(mut seen, count), (i, cs)| {
+                let (_, repeat) = chars.windows(2).enumerate().fold(
+                    (HashMap::<&[char], usize>::default(), 0),
+                    |(mut seen, count), (i, cs)| {
                         if i > *seen.entry(cs).or_insert(i) + 1 {
                             (seen, count + 1)
                         } else {
                             (seen, count)
                         }
-                    });
+                    },
+                );
                 sandwich > 0 && repeat > 0
             })
-            .count()
-            as i64
+            .count() as i64
     }
 }

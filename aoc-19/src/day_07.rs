@@ -17,7 +17,6 @@ impl Solution for AmplificationCircuit {
         let mut programs = vec![self.0; 5];
 
         for (l, r) in permute(5) {
-
             settings.swap(l, r);
 
             for (program, setting) in programs.iter_mut().zip(&settings) {
@@ -41,7 +40,6 @@ impl Solution for AmplificationCircuit {
         let mut programs = vec![self.0; 5];
 
         for (l, r) in permute(5) {
-
             settings.swap(l, r);
 
             for (program, setting) in programs.iter_mut().zip(&settings) {
@@ -53,8 +51,8 @@ impl Solution for AmplificationCircuit {
             'outer: loop {
                 for program in &mut programs {
                     match program.pipe(input) {
-                    | Some(output) => input = output,
-                    | None => break 'outer,
+                        Some(output) => input = output,
+                        None => break 'outer,
                     }
                 }
             }

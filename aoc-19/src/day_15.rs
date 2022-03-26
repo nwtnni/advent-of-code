@@ -23,36 +23,30 @@ static DIRS: [Dir; 4] = [Dir::N, Dir::S, Dir::E, Dir::W];
 
 fn input(dir: Dir) -> i64 {
     match dir {
-    | Dir::N => 1,
-    | Dir::S => 2,
-    | Dir::W => 3,
-    | Dir::E => 4,
+        Dir::N => 1,
+        Dir::S => 2,
+        Dir::W => 3,
+        Dir::E => 4,
     }
 }
 
 impl OxygenSystem {
-    fn explore(
-        &mut self,
-        dis: i64,
-        dir: Option<Dir>,
-        max: &mut i64,
-        mode: Mode,
-    ) -> Option<i64> {
+    fn explore(&mut self, dis: i64, dir: Option<Dir>, max: &mut i64, mode: Mode) -> Option<i64> {
         for next in DIRS.iter().filter(|next| Some(**next) != dir) {
             match self.0.pipe(input(*next)) {
-            | Some(0) => continue,
-            | Some(response) => {
-                if response == 2 && mode == Mode::Find {
-                    return Some(dis);
+                Some(0) => continue,
+                Some(response) => {
+                    if response == 2 && mode == Mode::Find {
+                        return Some(dis);
+                    }
+                    *max = cmp::max(dis, *max);
+                    let prev = next.flip();
+                    if let Some(dis) = self.explore(dis + 1, Some(prev), max, Mode::Find) {
+                        return Some(dis);
+                    }
+                    self.0.pipe(input(prev));
                 }
-                *max = cmp::max(dis, *max);
-                let prev = next.flip();
-                if let Some(dis) = self.explore(dis + 1, Some(prev), max, Mode::Find) {
-                    return Some(dis);
-                }
-                self.0.pipe(input(prev));
-            }
-            | _ => unreachable!(),
+                _ => unreachable!(),
             }
         }
         None

@@ -19,23 +19,11 @@ impl Fro for CrabCups {
 
 impl Solution for CrabCups {
     fn one(mut self) -> i64 {
+        let min = self.0.iter().copied().min().unwrap();
 
-        let min = self
-            .0
-            .iter()
-            .copied()
-            .min()
-            .unwrap();
-
-        let max = self
-            .0
-            .iter()
-            .copied()
-            .max()
-            .unwrap();
+        let max = self.0.iter().copied().max().unwrap();
 
         for _ in 0..100 {
-
             let current = self.0.pop_front().unwrap();
             let three = [
                 self.0.pop_front().unwrap(),
@@ -46,12 +34,7 @@ impl Solution for CrabCups {
             let mut target = current - 1;
 
             let index = loop {
-                if let Some(index) = self
-                    .0
-                    .iter()
-                    .copied()
-                    .position(|label| label == target)
-                {
+                if let Some(index) = self.0.iter().copied().position(|label| label == target) {
                     break index;
                 } else {
                     target -= 1;
@@ -81,12 +64,7 @@ impl Solution for CrabCups {
     }
 
     fn two(mut self) -> i64 {
-        let max = self
-            .0
-            .iter()
-            .copied()
-            .max()
-            .unwrap();
+        let max = self.0.iter().copied().max().unwrap();
 
         const MAX: i64 = 1_000_000;
         const ITERATIONS: usize = 10_000_000;

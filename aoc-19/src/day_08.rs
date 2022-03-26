@@ -30,17 +30,17 @@ pub enum Pixel {
 impl Pixel {
     fn from_char(c: char) -> Self {
         match c {
-        | '0' => Pixel::Black,
-        | '1' => Pixel::White,
-        | '2' => Pixel::Transparent,
-        | _ => unreachable!()
+            '0' => Pixel::Black,
+            '1' => Pixel::White,
+            '2' => Pixel::Transparent,
+            _ => unreachable!(),
         }
     }
 
     fn merge(bot: Self, top: Self) -> Self {
         match top {
-        | Pixel::Transparent => bot,
-        | _ => top,
+            Pixel::Transparent => bot,
+            _ => top,
         }
     }
 }
@@ -48,9 +48,9 @@ impl Pixel {
 impl fmt::Display for Pixel {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match self {
-        | Pixel::Black => write!(fmt, "█"),
-        | Pixel::White => write!(fmt, " "),
-        | Pixel::Transparent => Ok(()),
+            Pixel::Black => write!(fmt, "█"),
+            Pixel::White => write!(fmt, " "),
+            Pixel::Transparent => Ok(()),
         }
     }
 }
@@ -67,7 +67,7 @@ impl Fro for SpaceImageFormat {
                     .take(W * H)
                     .map(Pixel::from_char)
                     .collect::<Vec<_>>()
-                    .tap(Layer)
+                    .tap(Layer),
             );
         }
 
@@ -77,17 +77,23 @@ impl Fro for SpaceImageFormat {
 
 impl Solution for SpaceImageFormat {
     fn one(self) -> i64 {
-        let (layer, _) = self.0.iter()
+        let (layer, _) = self
+            .0
+            .iter()
             .enumerate()
             .map(|(i, layer)| (i, layer.0.iter().filter(|d| **d == Pixel::Black).count()))
             .min_by_key(|(_, zeroes)| *zeroes)
             .unwrap();
 
-        let w = self.0[layer].0.iter()
+        let w = self.0[layer]
+            .0
+            .iter()
             .filter(|p| **p == Pixel::White)
             .count() as i64;
 
-        let t = self.0[layer].0.iter()
+        let t = self.0[layer]
+            .0
+            .iter()
             .filter(|p| **p == Pixel::Transparent)
             .count() as i64;
 
@@ -98,7 +104,9 @@ impl Solution for SpaceImageFormat {
         let mut layer = Layer(Vec::new());
         for row in 0..H {
             for col in 0..W {
-                let visible = self.0.iter()
+                let visible = self
+                    .0
+                    .iter()
                     .rev()
                     .map(|layer| layer.0[row * W + col])
                     .fold(Pixel::Transparent, Pixel::merge);

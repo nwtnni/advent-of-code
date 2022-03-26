@@ -17,10 +17,7 @@ enum Fold {
 
 impl Fro for TransparentOrigami {
     fn fro(input: &str) -> Self {
-        let (dots, folds) = input
-            .trim()
-            .split_once("\n\n")
-            .unwrap();
+        let (dots, folds) = input.trim().split_once("\n\n").unwrap();
 
         let dots = dots
             .trim()
@@ -63,21 +60,19 @@ impl Solution for TransparentOrigami {
     fn two(mut self) -> i64 {
         self.fold();
 
-        let dots = self
-            .dots
-            .into_iter()
-            .collect::<HashSet<_>>();
+        let dots = self.dots.into_iter().collect::<HashSet<_>>();
 
-        let (min_x, max_x, min_y, max_y) = dots
-            .iter()
-            .fold((i64::MAX, i64::MIN, i64::MAX, i64::MIN), |(min_x, max_x, min_y, max_y), (x, y)| {
+        let (min_x, max_x, min_y, max_y) = dots.iter().fold(
+            (i64::MAX, i64::MIN, i64::MAX, i64::MIN),
+            |(min_x, max_x, min_y, max_y), (x, y)| {
                 (
                     cmp::min(min_x, *x),
                     cmp::max(max_x, *x),
                     cmp::min(min_y, *y),
                     cmp::max(max_y, *y),
                 )
-            });
+            },
+        );
 
         for y in min_y..=max_y {
             for x in min_x..=max_x {
