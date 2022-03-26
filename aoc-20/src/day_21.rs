@@ -33,7 +33,7 @@ impl Fro for AllergenAssessment {
                     .give()
                     .trim()
                     .trim_start_matches("contains ")
-                    .trim_end_matches(")")
+                    .trim_end_matches(')')
                     .split(", ")
                     .map(Leak::leak)
                     .collect::<Vec<_>>();
@@ -228,7 +228,7 @@ impl Solution for AllergenAssessment {
             .into_iter()
             .map(|(ingredient, allergen)| (allergen, ingredient))
             .collect::<Vec<_>>()
-            .tap_mut(|collected| collected.sort())
+            .tap_mut(|collected| collected.sort_unstable())
             .into_iter()
             .map(|(_, ingredient)| ingredient);
 

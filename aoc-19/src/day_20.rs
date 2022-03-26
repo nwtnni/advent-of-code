@@ -107,9 +107,7 @@ impl Fro for DonutMaze {
             .unwrap();
 
         let rx = chars
-            .iter()
-            .skip(2 + r)
-            .next()
+            .get(2 + r)
             .map(|line| {
                 line[2..line.len() - 2]
                     .iter()
@@ -150,6 +148,8 @@ impl Fro for DonutMaze {
                 _ => None,
             }
         };
+
+        #[allow(clippy::needless_range_loop)]
         for y in 2..chars.len() - 2 {
             for x in 2..chars[y].len() - 2 {
                 let pos = Pos {
@@ -237,7 +237,7 @@ impl DonutMaze {
                     print!(" ");
                 }
             }
-            println!("");
+            println!();
         }
     }
 }

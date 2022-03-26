@@ -77,7 +77,7 @@ impl Solution for SpringdroidAdventure {
     }
 }
 
-fn ascii<'s>(string: &'s str) -> impl Iterator<Item = i64> + 's {
+fn ascii(string: &str) -> impl Iterator<Item = i64> + '_ {
     string
         .bytes()
         .chain(iter::once(b'\n'))

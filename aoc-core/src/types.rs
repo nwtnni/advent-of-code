@@ -190,23 +190,23 @@ pub enum Year {
 )]
 pub enum Day {
     #[serde(rename = "1")]
-    D01 = 01,
+    D01 = 1,
     #[serde(rename = "2")]
-    D02 = 02,
+    D02 = 2,
     #[serde(rename = "3")]
-    D03 = 03,
+    D03 = 3,
     #[serde(rename = "4")]
-    D04 = 04,
+    D04 = 4,
     #[serde(rename = "5")]
-    D05 = 05,
+    D05 = 5,
     #[serde(rename = "6")]
-    D06 = 06,
+    D06 = 6,
     #[serde(rename = "7")]
-    D07 = 07,
+    D07 = 7,
     #[serde(rename = "8")]
-    D08 = 08,
+    D08 = 8,
     #[serde(rename = "9")]
-    D09 = 09,
+    D09 = 9,
     #[serde(rename = "10")]
     D10 = 10,
     #[serde(rename = "11")]

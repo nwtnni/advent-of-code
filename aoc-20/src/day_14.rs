@@ -24,7 +24,7 @@ impl Fro for DockingData {
                 } else {
                     let address = op
                         .trim_start_matches("mem[")
-                        .trim_end_matches("]")
+                        .trim_end_matches(']')
                         .to::<u64>();
                     let value = iter.give().trim().to::<u64>();
                     Op::Write { address, value }

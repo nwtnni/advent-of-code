@@ -155,13 +155,10 @@ impl Amphipod {
             })
             .filter(|(tile, _)| {
                 // Constraint: cannot stop outside room
-                match tile {
-                    Tile::Hall(2) => false,
-                    Tile::Hall(4) => false,
-                    Tile::Hall(6) => false,
-                    Tile::Hall(8) => false,
-                    _ => true,
-                }
+                !matches!(
+                    tile,
+                    Tile::Hall(2) | Tile::Hall(4) | Tile::Hall(6) | Tile::Hall(8)
+                )
             })
             .filter(move |(tile, _)| {
                 // Constraint: cannot move into non-destination

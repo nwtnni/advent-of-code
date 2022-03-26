@@ -106,7 +106,7 @@ impl Solution for BeaconScanner {
                 .windows(2)
             {
                 let (relative_origin, absolute_origin, orientation) =
-                    graph.edge_weight(&window[0], &window[1]).unwrap();
+                    graph.edge_weight(window[0], window[1]).unwrap();
 
                 let orient = orient(**orientation);
                 let (x2, y2, z2) = orient(self.0[*window[0]].0[**relative_origin]);
@@ -126,8 +126,7 @@ impl Solution for BeaconScanner {
 
         consistent
             .iter()
-            .map(|Scanner(scanner)| scanner)
-            .flatten()
+            .flat_map(|Scanner(scanner)| scanner)
             .collect::<HashSet<_>>()
             .len() as i64
     }
@@ -200,7 +199,7 @@ impl Solution for BeaconScanner {
                 .windows(2)
             {
                 let (relative_origin, absolute_origin, orientation) =
-                    graph.edge_weight(&window[0], &window[1]).unwrap();
+                    graph.edge_weight(window[0], window[1]).unwrap();
 
                 let orient = orient(**orientation);
                 let (x2, y2, z2) = orient(self.0[*window[0]].0[**relative_origin]);
@@ -260,7 +259,7 @@ fn overlap(relative: &HashSet<(i64, i64, i64)>, origin: usize, scanner: &Scanner
             .0
             .iter()
             .copied()
-            .map(|point| orient(point))
+            .map(orient)
             .map(|(x, y, z)| (x - ox, y - oy, z - oz))
             .filter(|point| relative.contains(point))
             .count();

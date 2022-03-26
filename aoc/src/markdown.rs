@@ -6,7 +6,7 @@ use scraper::node::Node as Html;
 use crate::api;
 
 /// Convert an HTML element recursively into Markdown.
-pub fn from_html<'html>(html: scraper::ElementRef<'html>, year: aoc_core::Year) -> String {
+pub fn from_html(html: scraper::ElementRef, year: aoc_core::Year) -> String {
     fn recurse<'html>(
         html: ego_tree::NodeRef<'html, Html>,
         year: aoc_core::Year,
@@ -38,7 +38,7 @@ pub fn from_html<'html>(html: scraper::ElementRef<'html>, year: aoc_core::Year) 
                 // Handle relative links
                 links.push(if href.starts_with("http") {
                     Cow::Borrowed(href)
-                } else if href.starts_with("/") {
+                } else if href.starts_with('/') {
                     Cow::Owned(format!("{}{}", api::ROOT, href))
                 } else {
                     Cow::Owned(format!("{}/{}/day/{}", api::ROOT, year, href))
@@ -62,7 +62,7 @@ pub fn from_html<'html>(html: scraper::ElementRef<'html>, year: aoc_core::Year) 
                 let mut lines = item.split('\n');
 
                 if let Some(line) = lines.next() {
-                    buffer.push_str("-");
+                    buffer.push('-');
                     if !line.trim().is_empty() {
                         buffer.push(' ');
                         buffer.push_str(line);

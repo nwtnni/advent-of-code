@@ -39,10 +39,7 @@ impl PlanetOfDiscord {
             .map(|dir| pos.shift(dir))
             .filter(|pos| self.prev.contains(pos))
             .count();
-        match (here, next) {
-            (true, 1) | (false, 1) | (false, 2) => true,
-            _ => false,
-        }
+        matches!((here, next), (true, 1) | (false, 1) | (false, 2))
     }
 }
 
@@ -147,10 +144,7 @@ impl Solution for PlanetOfDiscord {
                             }
                         }
 
-                        if match (here, around) {
-                            (true, 1) | (false, 1) | (false, 2) => true,
-                            _ => false,
-                        } {
+                        if matches!((here, around), (true, 1) | (false, 1) | (false, 2)) {
                             next.entry(depth).or_default().insert(pos);
                         }
                     }

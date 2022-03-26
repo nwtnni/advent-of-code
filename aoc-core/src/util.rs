@@ -105,6 +105,10 @@ impl AsciiSet {
         self.0.count_ones() as usize
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     pub fn and<T: Into<Self>>(self, other: T) -> Self {
         Self(self.0 & other.into().0)
     }
@@ -139,7 +143,7 @@ impl AsciiSet {
 
     fn mask(alpha: char) -> u64 {
         let bit = match alpha {
-            'a'..='z' => (alpha as u8 - b'a') + 00,
+            'a'..='z' => alpha as u8 - b'a',
             'A'..='Z' => (alpha as u8 - b'A') + 26,
             '0'..='9' => (alpha as u8 - b'0') + 52,
             other => panic!("Invalid value in `AsciiSet`: {:?}", other),
@@ -204,7 +208,7 @@ pub struct IntoIter {
 impl Iterator for IntoIter {
     type Item = char;
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(next) = self.all.next() {
+        for next in self.all.by_ref() {
             // A bit inefficient to use `contains` rather
             // than the underlying bits directly, but that's okay.
             if self.set.contains(next) {

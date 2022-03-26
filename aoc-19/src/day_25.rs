@@ -110,6 +110,7 @@ impl Solution for Cryostasis {
                     if buffer.is_empty() {
                         count += 1;
 
+                        #[allow(clippy::needless_range_loop)]
                         for i in 0..8 {
                             let mask = 1 << i;
                             if count & mask > 0 {
@@ -154,10 +155,10 @@ impl Solution for Cryostasis {
     }
 }
 
-fn ascii<'s>(string: &'s str) -> impl Iterator<Item = i64> + 's {
+fn ascii(string: &str) -> impl Iterator<Item = i64> + '_ {
     string.chars().map(|char| char as i64)
 }
 
-fn asciiln<'s>(string: &'s str) -> impl Iterator<Item = i64> + 's {
-    ascii(string).chain(iter::once(10))
+fn asciiln(string: &str) -> impl Iterator<Item = i64> + '_ {
+    ascii(string).chain(iter::once(b'\n' as i64))
 }

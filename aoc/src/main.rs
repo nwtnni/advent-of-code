@@ -165,7 +165,7 @@ pub fn main() -> anyhow::Result<()> {
             let mut out = String::new();
 
             for (index, line) in r#in.trim().split('\n').enumerate() {
-                if index == ((day as usize - 1) * 1) + 2 {
+                if index == (day as usize - 1) + 2 {
                     out.push_str(&format!("mod day_{:02};\n", day as usize,));
                 }
                 if index == ((day as usize - 1) * 2) + 10 {
@@ -323,11 +323,11 @@ fn title(description: &str) -> String {
 
 fn solve(year: aoc_core::Year, day: aoc_core::Day, part: aoc_core::Part, input: &str) -> i64 {
     match year {
-        aoc_core::Year::Y15 => aoc_15::solve(day, part, &input),
-        aoc_core::Year::Y17 => aoc_17::solve(day, part, &input),
-        aoc_core::Year::Y18 => aoc_18::solve(day, part, &input),
-        aoc_core::Year::Y19 => aoc_19::solve(day, part, &input),
-        aoc_core::Year::Y20 => aoc_20::solve(day, part, &input),
-        aoc_core::Year::Y21 => aoc_21::solve(day, part, &input),
+        aoc_core::Year::Y15 => aoc_15::solve(day, part, input),
+        aoc_core::Year::Y17 => aoc_17::solve(day, part, input),
+        aoc_core::Year::Y18 => aoc_18::solve(day, part, input),
+        aoc_core::Year::Y19 => aoc_19::solve(day, part, input),
+        aoc_core::Year::Y20 => aoc_20::solve(day, part, input),
+        aoc_core::Year::Y21 => aoc_21::solve(day, part, input),
     }
 }

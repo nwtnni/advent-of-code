@@ -45,8 +45,7 @@ impl Solution for AuntSue {
         self.0
             .iter()
             .enumerate()
-            .filter(|(_, traits)| traits.iter().all(|(key, value)| needle[key] == *value))
-            .next()
+            .find(|(_, traits)| traits.iter().all(|(key, value)| needle[key] == *value))
             .map(|(index, _)| index as i64 + 1)
             .unwrap()
     }
@@ -56,14 +55,13 @@ impl Solution for AuntSue {
         self.0
             .iter()
             .enumerate()
-            .filter(|(_, traits)| {
+            .find(|(_, traits)| {
                 traits.iter().all(|(key, value)| match key.as_str() {
                     "cats" | "trees" => *value > needle[key],
                     "pomeranians" | "goldfish" => *value < needle[key],
                     _ => *value == needle[key],
                 })
             })
-            .next()
             .map(|(index, _)| index as i64 + 1)
             .unwrap()
     }

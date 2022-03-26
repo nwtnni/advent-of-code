@@ -98,7 +98,7 @@ impl Solution for SpacePolice {
                     _ => print!(" "),
                 }
             }
-            println!("");
+            println!();
         }
         0
     }

@@ -53,10 +53,7 @@ impl Solution for SevenSegmentSearch {
                 display
                     .outputs
                     .iter()
-                    .filter(|output| match output.len() {
-                        2 | 3 | 4 | 7 => true,
-                        _ => false,
-                    })
+                    .filter(|output| matches!(output.len(), 2 | 3 | 4 | 7))
                     .count()
             })
             .sum::<usize>() as i64
@@ -122,8 +119,7 @@ impl Solution for SevenSegmentSearch {
             for (place, output) in display.outputs.into_iter().rev().enumerate() {
                 let mapped = output
                     .into_iter()
-                    .map(|char| mapping[&char])
-                    .flatten()
+                    .flat_map(|char| mapping[&char])
                     .collect::<AsciiSet>();
 
                 for (i, digit) in digits.into_iter().enumerate() {

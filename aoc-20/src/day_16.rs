@@ -109,7 +109,7 @@ impl Solution for TicketTranslation {
                     assign
                         .get_mut(&i)
                         .unwrap()
-                        .retain(|field| !solved.contains(&field) && field.validate(*value));
+                        .retain(|field| !solved.contains(field) && field.validate(*value));
 
                     if assign[&i].len() == 1 {
                         solved.insert(*assign[&i].iter().give());

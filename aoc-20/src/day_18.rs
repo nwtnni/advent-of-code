@@ -34,8 +34,8 @@ impl Fro for OperationOrder {
             .trim()
             .split('\n')
             .map(|line| {
-                line.replace("(", "( ")
-                    .replace(")", " )")
+                line.replace('(', "( ")
+                    .replace(')', " )")
                     .trim()
                     .split_whitespace()
                     .map(Exp::fro)

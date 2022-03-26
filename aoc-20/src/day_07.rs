@@ -23,14 +23,14 @@ impl Fro for HandyHaversacks {
                 }
 
                 rest.trim()
-                    .split(",")
+                    .split(',')
                     .map(move |pair| {
                         let mut iter = pair
                             .trim()
-                            .trim_end_matches(".")
-                            .trim_end_matches("s")
+                            .trim_end_matches('.')
+                            .trim_end_matches('s')
                             .trim_end_matches(" bag")
-                            .splitn(2, " ");
+                            .splitn(2, ' ');
                         let count = iter.give().to::<i64>();
                         let end = iter.give().to_string().leak();
                         (start, end, count)
@@ -57,10 +57,10 @@ impl Solution for HandyHaversacks {
         let mut layer = vec![(1, "shiny gold")];
         let mut sum = 0;
 
-        while layer.len() > 0 {
+        while !layer.is_empty() {
             for (multiplier, start) in mem::take(&mut layer) {
                 sum += multiplier;
-                for (_, end, edge) in self.0.edges(&start) {
+                for (_, end, edge) in self.0.edges(start) {
                     layer.push((edge * multiplier, end));
                 }
             }

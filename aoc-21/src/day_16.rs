@@ -191,10 +191,8 @@ fn parse(bits: &[u8]) -> Option<(Packet, &[u8])> {
 
 fn decode(bits: &[u8]) -> usize {
     let mut value = 0;
-    let mut index = 0;
-    for bit in bits.iter().rev() {
+    for (index, bit) in bits.iter().rev().enumerate() {
         value |= (*bit as usize) << index;
-        index += 1;
     }
     value
 }

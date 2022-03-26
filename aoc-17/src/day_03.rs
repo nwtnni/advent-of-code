@@ -29,6 +29,7 @@ impl aoc::Solution for SpiralMemory {
             return inner;
         }
 
+        #[allow(clippy::erasing_op, clippy::identity_op)]
         let (dx, dy) = match steps - 1 {
             n if n >= outer * 0 && n < outer * 1 => (1, (n % outer)),
             n if n >= outer * 1 && n < outer * 2 => (-(n % outer), inner),

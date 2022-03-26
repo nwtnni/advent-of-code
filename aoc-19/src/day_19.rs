@@ -27,7 +27,7 @@ impl TractorBeam {
                     print!(" ");
                 }
             }
-            println!("");
+            println!();
         }
     }
 }

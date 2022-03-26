@@ -14,7 +14,7 @@ struct Instruction {
 impl Instruction {
     fn evaluate(&self, assignment: &mut HashMap<String, i64>) -> bool {
         match self.src.evaluate(assignment) {
-            None => return false,
+            None => false,
             Some(value) => {
                 assignment.insert(self.dst.clone(), value);
                 true

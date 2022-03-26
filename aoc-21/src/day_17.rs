@@ -110,12 +110,10 @@ impl Probe {
     fn next(&mut self) {
         self.x += self.dx;
         self.y += self.dy;
-        self.dx = if self.dx > 0 {
-            self.dx - 1
-        } else if self.dx == 0 {
-            0
-        } else {
-            self.dx + 1
+        self.dx += match self.dx.cmp(&0) {
+            cmp::Ordering::Less => 1,
+            cmp::Ordering::Equal => 0,
+            cmp::Ordering::Greater => -1,
         };
         self.dy -= 1;
     }

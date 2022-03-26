@@ -70,7 +70,7 @@ impl Solution for Chiton {
                 let score = score
                     + match self.0[(i % h, j % w)] + delta {
                         x @ 1..=9 => x,
-                        x @ _ => x - 9,
+                        x => x - 9,
                     };
 
                 queue.push_increase(((i, j), score), cmp::Reverse(heuristic((i, j), score)));

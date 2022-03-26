@@ -21,10 +21,7 @@ pub enum Block {
 
 impl Block {
     fn is_key(&self) -> bool {
-        match self {
-            Block::Key(_) => true,
-            _ => false,
-        }
+        matches!(self, Block::Key(_))
     }
 }
 
@@ -234,8 +231,8 @@ impl Solution for ManyWorldsInterpretation {
         let mut queue = PriorityQueue::new();
         let mut seen = HashSet::new();
         let mut start = [Collapsed::Start(0); 4];
-        for i in 0..4 {
-            start[i] = Collapsed::Start(i as u8);
+        for (i, block) in start.iter_mut().enumerate() {
+            *block = Collapsed::Start(i as u8);
         }
         queue.push((start, KeySet::empty()), cmp::Reverse(0));
 
@@ -247,7 +244,7 @@ impl Solution for ManyWorldsInterpretation {
             seen.insert((pos, set));
 
             for i in 0..4 {
-                let mut next_pos = pos.clone();
+                let mut next_pos = pos;
                 for &(next, delta) in &collapsed[&pos[i]] {
                     next_pos[i] = next;
                     let next_set = match next {

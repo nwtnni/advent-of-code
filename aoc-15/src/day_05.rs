@@ -12,10 +12,7 @@ impl Fro for DoesntHeHaveInternElvesForThis {
 }
 
 fn is_vowel(c: &&char) -> bool {
-    match c {
-        'a' | 'e' | 'i' | 'o' | 'u' => true,
-        _ => false,
-    }
+    matches!(c, 'a' | 'e' | 'i' | 'o' | 'u')
 }
 
 fn is_repeated(cs: &&[char]) -> bool {
@@ -27,10 +24,7 @@ fn is_sandwich(cs: &&[char]) -> bool {
 }
 
 fn is_naughty(cs: &&[char]) -> bool {
-    match cs {
-        ['a', 'b'] | ['c', 'd'] | ['p', 'q'] | ['x', 'y'] => true,
-        _ => false,
-    }
+    matches!(cs, ['a', 'b'] | ['c', 'd'] | ['p', 'q'] | ['x', 'y'])
 }
 
 impl Solution for DoesntHeHaveInternElvesForThis {

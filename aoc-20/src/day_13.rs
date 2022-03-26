@@ -52,10 +52,7 @@ impl Solution for ShuttleSearch {
             .buses
             .iter()
             .enumerate()
-            .filter_map(|(index, bus)| match bus {
-                None => None,
-                Some(bus) => Some((-(index as i64), bus)),
-            })
+            .filter_map(|(index, bus)| bus.as_ref().map(|bus| (-(index as i64), bus)))
             .unzip::<_, _, Vec<_>, Vec<_>>();
 
         ring_algorithm::chinese_remainder_theorem::<i64>(&offsets, &buses).unwrap()

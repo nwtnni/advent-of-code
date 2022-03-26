@@ -51,8 +51,7 @@ impl SpaceStoichiometry {
             let (here, here_count) = match pool
                 .iter()
                 .filter(|(_, count)| **count > 0)
-                .filter(|(chemical, _)| **chemical != "ORE")
-                .next()
+                .find(|(chemical, _)| **chemical != "ORE")
             {
                 Some((here, here_count)) => (*here, *here_count),
                 None => return pool["ORE"],

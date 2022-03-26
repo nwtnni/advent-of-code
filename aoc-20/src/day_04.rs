@@ -25,16 +25,13 @@ impl Fro for PassportProcessing {
 
 impl Solution for PassportProcessing {
     fn one(self) -> i64 {
-        self.0
-            .into_iter()
-            .filter(|passport| required(&passport))
-            .count() as i64
+        self.0.into_iter().filter(required).count() as i64
     }
 
     fn two(self) -> i64 {
         self.0
             .into_iter()
-            .filter(|passport| required(&passport))
+            .filter(required)
             .filter(|passport| between(&passport["byr"], 1920, 2002))
             .filter(|passport| between(&passport["iyr"], 2010, 2020))
             .filter(|passport| between(&passport["eyr"], 2020, 2030))
@@ -51,11 +48,11 @@ impl Solution for PassportProcessing {
             .filter(|passport| {
                 let hcl = &passport["hcl"];
                 hcl.len() == 7
-                    && hcl.starts_with("#")
+                    && hcl.starts_with('#')
                     && hcl
                         .chars()
                         .skip(1)
-                        .all(|c| c.is_ascii_digit() || (c >= 'a' && c <= 'f'))
+                        .all(|c| c.is_ascii_digit() || ('a'..='f').contains(&c))
             })
             .filter(|passport| {
                 ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&&*passport["ecl"])

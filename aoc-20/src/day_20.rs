@@ -53,6 +53,7 @@ impl Tile {
         let mut grid = [0u16; 10];
         for (i, row) in self.0.iter().enumerate() {
             let mut mask = 0b10_0000_0000;
+            #[allow(clippy::needless_range_loop)]
             for col in 0..10 {
                 grid[col] |= (((row & mask) > 0) as u16) << i;
                 mask >>= 1;
@@ -94,6 +95,7 @@ impl Image {
         let mut grid = [0u128; IMAGE_SIZE];
         for (i, row) in self.0.iter().enumerate() {
             let mut mask = 0b1 << (IMAGE_SIZE - 1);
+            #[allow(clippy::needless_range_loop)]
             for col in 0..IMAGE_SIZE {
                 grid[col] |= (((row & mask) > 0) as u128) << i;
                 mask >>= 1;

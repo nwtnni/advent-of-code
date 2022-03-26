@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{cmp, collections::HashSet};
 
 use aoc::*;
 
@@ -35,12 +35,10 @@ impl Solution for TheNBodyProblem {
                     for axis in 0..3 {
                         let pa = pos[a][axis];
                         let pb = pos[b][axis];
-                        let delta = if pa < pb {
-                            1
-                        } else if pa == pb {
-                            0
-                        } else {
-                            -1
+                        let delta = match pa.cmp(&pb) {
+                            cmp::Ordering::Less => 1,
+                            cmp::Ordering::Equal => 0,
+                            cmp::Ordering::Greater => -1,
                         };
                         vel[a][axis] += delta;
                         vel[b][axis] -= delta;
@@ -68,7 +66,7 @@ impl Solution for TheNBodyProblem {
         let mut vel = [[0; 3]; MOONS];
         let mut cycle = [0; 3];
 
-        for axis in 0..3 {
+        for (axis, moon) in cycle.iter_mut().enumerate() {
             seen.clear();
             seen.insert((pos, vel));
 
@@ -77,12 +75,10 @@ impl Solution for TheNBodyProblem {
                     for b in a + 1..pos.len() {
                         let pa = pos[a][axis];
                         let pb = pos[b][axis];
-                        let delta = if pa < pb {
-                            1
-                        } else if pa == pb {
-                            0
-                        } else {
-                            -1
+                        let delta = match pa.cmp(&pb) {
+                            cmp::Ordering::Less => 1,
+                            cmp::Ordering::Equal => 0,
+                            cmp::Ordering::Greater => -1,
                         };
                         vel[a][axis] += delta;
                         vel[b][axis] -= delta;
@@ -94,7 +90,7 @@ impl Solution for TheNBodyProblem {
                 }
 
                 if !seen.insert((pos, vel)) {
-                    cycle[axis] = step;
+                    *moon = step;
                     break;
                 }
             }

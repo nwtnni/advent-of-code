@@ -20,7 +20,7 @@ impl Solution for AdapterArray {
     fn one(mut self) -> i64 {
         self.0.push(0);
         self.0.push(self.0.iter().max().unwrap() + 3);
-        self.0.sort();
+        self.0.sort_unstable();
 
         let mut one = 0;
         let mut three = 0;
@@ -38,7 +38,7 @@ impl Solution for AdapterArray {
     }
 
     fn two(mut self) -> i64 {
-        self.0.sort();
+        self.0.sort_unstable();
         let mut memo = HashMap::new();
         recurse(0, &self.0, &mut memo)
     }

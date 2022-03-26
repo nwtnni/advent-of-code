@@ -8,11 +8,10 @@ pub trait Solution: Fro + Sized {
     fn two(self) -> i64;
     fn run(input: &str, part: Part) -> i64 {
         let solution = input.to::<Self>();
-        let output = match part {
+        match part {
             Part::P01 => solution.one(),
             Part::P02 => solution.two(),
-        };
-        output
+        }
     }
 }
 
@@ -90,7 +89,7 @@ pub trait Digits {
 
 impl Digits for i64 {
     fn digit(&self, i: i64) -> Self {
-        assert!(i >= 0 && i < 10);
+        assert!((0..10).contains(&i));
         (self / DIV[i as usize]) % 10
     }
 }

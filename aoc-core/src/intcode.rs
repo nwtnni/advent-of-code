@@ -1,3 +1,4 @@
+use std::iter;
 use std::ops;
 use std::str;
 
@@ -62,7 +63,10 @@ impl Program {
             match self.step() {
                 Yield::Halt => return None,
                 Yield::Step => continue,
-                Yield::Input(i) => return Some(self[i] = input),
+                Yield::Input(i) => {
+                    self[i] = input;
+                    return Some(());
+                }
                 Yield::Output(_) => panic!("Output step while running input"),
             }
         }
@@ -193,9 +197,9 @@ impl Fro for Program {
             .split(',')
             .map(|line| line.to::<i64>())
             .collect::<Vec<_>>();
-        for _ in 0..10000 {
-            data.push(0);
-        }
+
+        data.extend(iter::once(0).cycle().take(10000));
+
         Program {
             base: 0,
             here: 0,

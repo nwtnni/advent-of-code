@@ -37,7 +37,7 @@ impl Solution for SmokeBasin {
         }
 
         basins
-            .tap_mut(|basins| basins.sort())
+            .tap_mut(|basins| basins.sort_unstable())
             .into_iter()
             .rev()
             .take(3)

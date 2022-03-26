@@ -32,7 +32,7 @@ impl Solution for BinaryBoarding {
     }
 
     fn two(mut self) -> i64 {
-        self.0.sort();
+        self.0.sort_unstable();
 
         for passes in self.0.windows(2) {
             if passes[0] + 2 == passes[1] {

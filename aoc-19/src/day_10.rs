@@ -86,7 +86,7 @@ impl PartialOrd for Approx {
 
 impl Ord for Approx {
     fn cmp(&self, other: &Approx) -> cmp::Ordering {
-        self.partial_cmp(&other).unwrap()
+        self.partial_cmp(other).unwrap()
     }
 }
 

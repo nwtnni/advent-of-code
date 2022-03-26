@@ -49,6 +49,7 @@ impl Solution for DiracDice {
     }
 
     fn two(self) -> i64 {
+        #[allow(clippy::type_complexity)]
         fn recurse(
             points: [u8; 2],
             places: [u8; 2],
@@ -80,8 +81,8 @@ impl Solution for DiracDice {
                             n => n,
                         };
 
-                        let mut points_ = points.clone();
-                        let mut places_ = places.clone();
+                        let mut points_ = points;
+                        let mut places_ = places;
 
                         points_[turn as usize] += place;
                         places_[turn as usize] = place;

@@ -1,3 +1,4 @@
+use std::cmp;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
@@ -12,6 +13,7 @@ enum Mode {
     ID(i64, i64),
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum Block {
     Empty = 0,
@@ -88,12 +90,10 @@ impl Solution for CarePackage {
                 (Input(d), _) => {
                     let mid = paddle.iter().map(|p| p.x).sum::<i64>() / paddle.len() as i64;
 
-                    self.0[d] = if mid < ball.x {
-                        1
-                    } else if mid > ball.x {
-                        -1
-                    } else {
-                        0
+                    self.0[d] = match mid.cmp(&ball.x) {
+                        cmp::Ordering::Less => 1,
+                        cmp::Ordering::Equal => 0,
+                        cmp::Ordering::Greater => -1,
                     };
                 }
                 (Output(x), Mode::X) => {

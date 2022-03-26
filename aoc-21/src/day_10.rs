@@ -61,7 +61,7 @@ impl Solution for SyntaxScoring {
                 })
             })
             .collect::<Vec<_>>()
-            .tap_mut(|scores| scores.sort());
+            .tap_mut(|scores| scores.sort_unstable());
 
         scores[scores.len() / 2]
     }
@@ -71,6 +71,7 @@ fn check(line: &str) -> Syntax {
     let mut stack = Vec::new();
 
     for char in line.chars() {
+        #[allow(clippy::drop_copy)]
         match char {
             '[' => stack.push('['),
             ']' if stack.last().copied() == Some('[') => drop(stack.pop()),

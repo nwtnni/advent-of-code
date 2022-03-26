@@ -71,7 +71,7 @@ impl SetAndForget {
                     print!(" ");
                 }
             }
-            println!("");
+            println!();
         }
     }
 }
@@ -195,6 +195,6 @@ impl Solution for SetAndForget {
     }
 }
 
-fn ascii<'s>(string: &'s str) -> impl Iterator<Item = i64> + 's {
+fn ascii(string: &str) -> impl Iterator<Item = i64> + '_ {
     string.chars().map(|c| c as u8).map(|c| c as i64)
 }

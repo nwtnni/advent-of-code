@@ -55,7 +55,7 @@ impl Solution for BinaryDiagnostic {
             }
         }
 
-        let mut scrubber = self.0.clone();
+        let mut scrubber = self.0;
 
         for bit in (0..12).rev() {
             let half = scrubber.len() >> 1;
