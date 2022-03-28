@@ -22,6 +22,7 @@ mod day_19;
 mod day_20;
 mod day_21;
 mod day_22;
+mod day_23;
 
 pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
     macro_rules! run {
@@ -52,6 +53,7 @@ pub fn solve(day: aoc::Day, part: aoc::Part, input: &str) -> i64 {
         Day::D20 => run!(day_20::InfiniteElvesAndInfiniteHouses),
         Day::D21 => run!(day_21::RPGSimulator20XX),
         Day::D22 => run!(day_22::WizardSimulator20XX),
+        Day::D23 => run!(day_23::OpeningTheTuringLock),
         _ => unimplemented!(),
     }
 }
