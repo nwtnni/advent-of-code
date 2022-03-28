@@ -11,3 +11,4 @@ aoc = { package = "aoc-core", path = "../aoc-core" }
 md5 = "0.6.1"
 petgraph = "0.5"
 serde_json = "1.0"
+priority-queue = "1.2"
