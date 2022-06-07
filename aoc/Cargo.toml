@@ -10,6 +10,7 @@ edition = "2018"
 anyhow = "1.0"
 aoc-core = { path = "../aoc-core" }
 aoc-15 = { path = "../aoc-15" }
+aoc-16 = { path = "../aoc-16" }
 aoc-17 = { path = "../aoc-17" }
 aoc-18 = { path = "../aoc-18" }
 aoc-19 = { path = "../aoc-19" }

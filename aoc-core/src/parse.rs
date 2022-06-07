@@ -113,6 +113,7 @@ impl str::FromStr for Year {
         use Year::*;
         match s.trim().parse::<usize>().map_err(Error::InvalidInt)? {
             15 | 2015 => Ok(Y15),
+            16 | 2016 => Ok(Y16),
             17 | 2017 => Ok(Y17),
             18 | 2018 => Ok(Y18),
             19 | 2019 => Ok(Y19),
@@ -134,6 +135,7 @@ impl Year {
         use Year::*;
         match self {
             Y15 => "2015",
+            Y16 => "2016",
             Y17 => "2017",
             Y18 => "2018",
             Y19 => "2019",

@@ -324,6 +324,7 @@ fn title(description: &str) -> String {
 fn solve(year: aoc_core::Year, day: aoc_core::Day, part: aoc_core::Part, input: &str) -> i64 {
     match year {
         aoc_core::Year::Y15 => aoc_15::solve(day, part, input),
+        aoc_core::Year::Y16 => aoc_16::solve(day, part, input),
         aoc_core::Year::Y17 => aoc_17::solve(day, part, input),
         aoc_core::Year::Y18 => aoc_18::solve(day, part, input),
         aoc_core::Year::Y19 => aoc_19::solve(day, part, input),

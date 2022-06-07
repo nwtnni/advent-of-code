@@ -173,6 +173,8 @@ pub enum Digit {
 pub enum Year {
     #[serde(rename = "2015")]
     Y15 = 2015,
+    #[serde(rename = "2016")]
+    Y16 = 2016,
     #[serde(rename = "2017")]
     Y17 = 2017,
     #[serde(rename = "2018")]
