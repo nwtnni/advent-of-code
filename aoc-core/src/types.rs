@@ -112,7 +112,7 @@ impl Dir {
             .chain(iter::once(Dir::W))
     }
 
-    pub fn flip(&self) -> Dir {
+    pub fn flip(&self) -> Self {
         match self {
             Dir::N => Dir::S,
             Dir::S => Dir::N,
@@ -123,6 +123,32 @@ impl Dir {
 
     pub fn flip_mut(&mut self) {
         *self = self.flip();
+    }
+
+    pub fn rotate_clockwise(&self) -> Self {
+        match self {
+            Dir::N => Dir::E,
+            Dir::S => Dir::W,
+            Dir::W => Dir::N,
+            Dir::E => Dir::S,
+        }
+    }
+
+    pub fn rotate_clockwise_mut(&mut self) {
+        *self = self.rotate_clockwise();
+    }
+
+    pub fn rotate_counterclockwise(&self) -> Self {
+        match self {
+            Dir::N => Dir::W,
+            Dir::S => Dir::E,
+            Dir::W => Dir::S,
+            Dir::E => Dir::N,
+        }
+    }
+
+    pub fn rotate_counterclockwise_mut(&mut self) {
+        *self = self.rotate_counterclockwise();
     }
 }
 

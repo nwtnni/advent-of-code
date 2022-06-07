@@ -1,5 +1,7 @@
 use aoc::*;
 
+mod day_01;
+
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
         ($solution:ty) => {
@@ -7,6 +9,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
         };
     }
     match day {
+        Day::D01 => run!(day_01::NoTimeForATaxicab),
         _ => unimplemented!(),
     }
 }
