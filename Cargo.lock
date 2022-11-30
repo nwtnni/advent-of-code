@@ -38,6 +38,7 @@ dependencies = [
  "aoc-19",
  "aoc-20",
  "aoc-21",
+ "aoc-22",
  "aoc-core",
  "chrono",
  "directories-next",
@@ -109,6 +110,17 @@ dependencies = [
 
 [[package]]
 name = "aoc-21"
+version = "0.1.0"
+dependencies = [
+ "aoc-core",
+ "indexmap",
+ "petgraph 0.5.1",
+ "priority-queue",
+ "regex",
+]
+
+[[package]]
+name = "aoc-22"
 version = "0.1.0"
 dependencies = [
  "aoc-core",

@@ -330,5 +330,6 @@ fn solve(year: aoc_core::Year, day: aoc_core::Day, part: aoc_core::Part, input: 
         aoc_core::Year::Y19 => aoc_19::solve(day, part, input),
         aoc_core::Year::Y20 => aoc_20::solve(day, part, input),
         aoc_core::Year::Y21 => aoc_21::solve(day, part, input),
+        aoc_core::Year::Y22 => aoc_22::solve(day, part, input),
     }
 }

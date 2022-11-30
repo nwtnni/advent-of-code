@@ -16,6 +16,7 @@ aoc-18 = { path = "../aoc-18" }
 aoc-19 = { path = "../aoc-19" }
 aoc-20 = { path = "../aoc-20" }
 aoc-21 = { path = "../aoc-21" }
+aoc-22 = { path = "../aoc-22" }
 chrono = "0.4"
 dirs = { version = "2.0", package = "directories-next" }
 ego-tree = "0.6"
