@@ -1,0 +1,14 @@
+[[package]]
+name = "day-13"
+version = "0.1.0"
+dependencies = [
+ "tap 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "tap"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum tap 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "44c71e3b6aeb186d57ab3084ab0a7854b2d53f515eb3f3f804862edea9b8fa6a"
