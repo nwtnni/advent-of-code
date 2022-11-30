@@ -23,7 +23,7 @@ env_logger = "0.8"
 html = { version = "0.25", package = "html5ever" }
 json = { version = "1.0", package = "serde_json" }
 log = "0.4"
-reqwest = { version = "0.10", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+reqwest = { version = "0.11", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 scraper = "0.12"
 serde = { version = "1.0", features = ["derive"] }
 structopt = "0.3"
