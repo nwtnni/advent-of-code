@@ -93,6 +93,31 @@ impl Pos {
     pub fn shift_mut(&mut self, dir: Dir) {
         *self = self.shift(dir);
     }
+
+    pub fn shiftn(self, dir: Dir, n: i64) -> Self {
+        match dir {
+            Dir::N => Pos {
+                x: self.x,
+                y: self.y - n,
+            },
+            Dir::S => Pos {
+                x: self.x,
+                y: self.y + n,
+            },
+            Dir::E => Pos {
+                x: self.x + n,
+                y: self.y,
+            },
+            Dir::W => Pos {
+                x: self.x - n,
+                y: self.y,
+            },
+        }
+    }
+
+    pub fn shiftn_mut(&mut self, dir: Dir, n: i64) {
+        *self = self.shiftn(dir, n);
+    }
 }
 
 #[repr(u8)]
