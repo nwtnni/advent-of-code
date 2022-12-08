@@ -1,4 +1,5 @@
-use std::{cmp, collections::HashMap};
+use std::cmp;
+use std::collections::HashMap;
 
 use aoc::*;
 
@@ -72,10 +73,8 @@ impl Solution for TreetopTreeHouse {
                     x: j as i64,
                 };
 
-                let visible = self.grid[&pos] > max_row;
+                visiblity.entry(pos).or_default().left &= self.grid[&pos] > max_row;
                 max_row = cmp::max(max_row, self.grid[&pos]);
-
-                visiblity.entry(pos).or_default().left &= visible;
             }
 
             max_row = self.grid[&Pos {
@@ -89,10 +88,8 @@ impl Solution for TreetopTreeHouse {
                     x: j as i64,
                 };
 
-                let visible = self.grid[&pos] > max_row;
+                visiblity.entry(pos).or_default().right &= self.grid[&pos] > max_row;
                 max_row = cmp::max(max_row, self.grid[&pos]);
-
-                visiblity.entry(pos).or_default().right &= visible;
             }
         }
 
@@ -105,10 +102,8 @@ impl Solution for TreetopTreeHouse {
                     x: j as i64,
                 };
 
-                let visible = self.grid[&pos] > max_col;
+                visiblity.entry(pos).or_default().top &= self.grid[&pos] > max_col;
                 max_col = cmp::max(max_col, self.grid[&pos]);
-
-                visiblity.entry(pos).or_default().top &= visible;
             }
 
             max_col = self.grid[&Pos {
@@ -122,10 +117,8 @@ impl Solution for TreetopTreeHouse {
                     x: j as i64,
                 };
 
-                let visible = self.grid[&pos] > max_col;
+                visiblity.entry(pos).or_default().bottom &= self.grid[&pos] > max_col;
                 max_col = cmp::max(max_col, self.grid[&pos]);
-
-                visiblity.entry(pos).or_default().bottom &= visible;
             }
         }
 
