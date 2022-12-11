@@ -1,3 +1,5 @@
+use std::mem;
+
 use aoc::*;
 
 #[derive(Clone, Debug)]
@@ -118,46 +120,34 @@ impl Fro for MonkeyInTheMiddle {
 }
 
 impl Solution for MonkeyInTheMiddle {
-    fn one(mut self) -> i64 {
-        let mut inspects = vec![0; self.0.len()];
-        let mut buffer = Vec::new();
-
-        for _ in 0..20 {
-            #[allow(clippy::needless_range_loop)]
-            for monkey in 0..self.0.len() {
-                buffer.append(&mut self.0[monkey].items);
-
-                for item in buffer.drain(..) {
-                    inspects[monkey] += 1;
-                    let worry = self.0[monkey].operation.apply(item, i64::MAX) / 3;
-                    let next = self.0[monkey].test.apply(worry);
-                    self.0[next].items.push(worry);
-                }
-            }
-        }
-
-        inspects.sort();
-        inspects.reverse();
-        inspects[0] * inspects[1]
+    fn one(self) -> i64 {
+        self.run(20, i64::MAX, 3)
     }
 
-    fn two(mut self) -> i64 {
-        let mut inspects = vec![0; self.0.len()];
-        let mut buffer = Vec::new();
+    fn two(self) -> i64 {
         let lcm = self
             .0
             .iter()
             .map(|monkey| monkey.test.divisible)
             .product::<i64>();
 
-        for _ in 0..10000 {
+        self.run(10000, lcm, 1)
+    }
+}
+
+impl MonkeyInTheMiddle {
+    fn run(mut self, rounds: usize, lcm: i64, divide: i64) -> i64 {
+        let mut inspects = vec![0; self.0.len()];
+        let mut buffer = Vec::new();
+
+        for _ in 0..rounds {
             #[allow(clippy::needless_range_loop)]
             for monkey in 0..self.0.len() {
-                buffer.append(&mut self.0[monkey].items);
+                mem::swap(&mut self.0[monkey].items, &mut buffer);
 
                 for item in buffer.drain(..) {
                     inspects[monkey] += 1;
-                    let worry = self.0[monkey].operation.apply(item, lcm);
+                    let worry = self.0[monkey].operation.apply(item, lcm) / divide;
                     let next = self.0[monkey].test.apply(worry);
                     self.0[next].items.push(worry);
                 }
