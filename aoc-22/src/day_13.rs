@@ -3,7 +3,7 @@ use std::iter;
 use aoc::*;
 
 #[derive(Clone, Debug)]
-pub struct DistressSignal(Vec<(Tree, Tree)>);
+pub struct DistressSignal(Vec<[Tree; 2]>);
 
 impl Fro for DistressSignal {
     fn fro(input: &str) -> Self {
@@ -11,58 +11,61 @@ impl Fro for DistressSignal {
             .trim()
             .split("\n\n")
             .map(|line| {
+                let mut buffer = String::new();
                 let (a, b) = line.split_once('\n').unwrap();
-                let a = parse(&mut a.chars().peekable(), &mut String::new()).unwrap();
-                let b = parse(&mut b.chars().peekable(), &mut String::new()).unwrap();
-                (a, b)
+                let a = parse(&mut a.chars().peekable(), &mut buffer).unwrap();
+                let b = parse(&mut b.chars().peekable(), &mut buffer).unwrap();
+                [a, b]
             })
             .collect::<Vec<_>>()
             .tap(Self)
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 enum Tree {
     Leaf(i64),
     Node(Vec<Tree>),
 }
 
-fn parse(a: &mut iter::Peekable<impl Iterator<Item = char>>, buffer: &mut String) -> Option<Tree> {
-    while let Some(c) = a.peek() {
-        if *c == '[' {
-            a.next();
+fn parse(
+    iter: &mut iter::Peekable<impl Iterator<Item = char>>,
+    buffer: &mut String,
+) -> Option<Tree> {
+    match iter.peek()? {
+        '[' => {
+            iter.next();
 
             let mut node = Vec::new();
-            while let Some(next) = parse(a, buffer) {
+            while let Some(next) = parse(iter, buffer) {
                 node.push(next);
-                if let Some(',') = a.peek() {
-                    a.next();
-                } else if let Some(']') = a.peek() {
+                if let Some(',') = iter.peek() {
+                    iter.next();
+                } else if let Some(']') = iter.peek() {
                     break;
                 }
             }
 
-            a.next();
-            return Some(Tree::Node(node));
-        } else if *c == ']' {
-            return None;
-        } else if c.is_numeric() {
-            while let Some(c) = a.peek() {
-                if c.is_numeric() {
-                    buffer.push(*c);
-                    a.next();
+            iter.next();
+            Some(Tree::Node(node))
+        }
+        ']' => None,
+        char if char.is_numeric() => {
+            while let Some(char) = iter.peek() {
+                if char.is_numeric() {
+                    buffer.push(*char);
+                    iter.next();
                 } else {
                     break;
                 }
             }
-            let b = Tree::Leaf(i64::fro(buffer));
+
+            let leaf = Tree::Leaf(i64::fro(buffer));
             buffer.clear();
-            return Some(b);
-        } else {
-            unreachable!()
+            Some(leaf)
         }
+        _ => unreachable!(),
     }
-    None
 }
 
 impl Ord for Tree {
@@ -76,7 +79,6 @@ impl Ord for Tree {
     }
 }
 
-impl Eq for Tree {}
 impl PartialOrd for Tree {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
@@ -88,25 +90,27 @@ impl Solution for DistressSignal {
         self.0
             .iter()
             .enumerate()
-            .filter_map(|(i, (a, b))| if a < b { Some(i as i64 + 1) } else { None })
+            .filter_map(|(i, [a, b])| if a < b { Some(i as i64 + 1) } else { None })
             .sum::<i64>()
     }
 
     fn two(self) -> i64 {
-        let a = Tree::Node(vec![Tree::Node(vec![Tree::Leaf(2)])]);
-        let b = Tree::Node(vec![Tree::Node(vec![Tree::Leaf(6)])]);
+        let keys = [
+            Tree::Node(vec![Tree::Node(vec![Tree::Leaf(2)])]),
+            Tree::Node(vec![Tree::Node(vec![Tree::Leaf(6)])]),
+        ];
 
-        let mut bs = self
+        let mut sorted = self
             .0
             .into_iter()
-            .flat_map(|(a, b)| [a, b])
-            .chain(iter::once(a.clone()))
-            .chain(iter::once(b.clone()))
+            .flatten()
+            .chain(keys.clone())
             .collect::<Vec<_>>();
-        bs.sort();
 
-        let a = bs.iter().position(|x| *x == a).unwrap() as i64 + 1;
-        let b = bs.iter().position(|x| *x == b).unwrap() as i64 + 1;
-        a * b
+        sorted.sort();
+
+        keys.iter()
+            .map(|key| sorted.iter().position(|packet| packet == key).unwrap() as i64 + 1)
+            .product()
     }
 }
