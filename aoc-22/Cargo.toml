@@ -10,4 +10,5 @@ aoc = { package = "aoc-core", path = "../aoc-core" }
 indexmap = "1.6"
 priority-queue = "1.2"
 petgraph = "0.5"
+range-collections = "0.2"
 regex = "1.4"
