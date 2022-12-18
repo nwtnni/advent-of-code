@@ -15,6 +15,7 @@ mod day_12;
 mod day_13;
 mod day_14;
 mod day_15;
+mod day_16;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -38,6 +39,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
         Day::D13 => run!(day_13::DistressSignal),
         Day::D14 => run!(day_14::RegolithReservoir),
         Day::D15 => run!(day_15::BeaconExclusionZone),
+        Day::D16 => run!(day_16::ProboscideaVolcanium),
         _ => unimplemented!(),
     }
 }
