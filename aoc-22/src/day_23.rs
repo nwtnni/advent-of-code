@@ -1,7 +1,7 @@
-use core::fmt;
 use std::cmp;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt;
 
 use aoc::*;
 
@@ -69,27 +69,27 @@ impl Proposal {
     }
 }
 
+const DELTAS: [(i64, i64); 8] = [
+    // NW
+    (-1, -1),
+    // N
+    (0, -1),
+    // NE
+    (1, -1),
+    // E
+    (1, 0),
+    // SE
+    (1, 1),
+    // S
+    (0, 1),
+    // SW
+    (-1, 1),
+    // W
+    (-1, 0),
+];
+
 impl Solution for UnstableDiffusion {
     fn one(mut self) -> i64 {
-        const DELTAS: [(i64, i64); 8] = [
-            // NW
-            (-1, -1),
-            // N
-            (0, -1),
-            // NE
-            (1, -1),
-            // E
-            (1, 0),
-            // SE
-            (1, 1),
-            // S
-            (0, 1),
-            // SW
-            (-1, 1),
-            // W
-            (-1, 0),
-        ];
-
         let mut directions = [[1, 2, 0], [5, 4, 6], [7, 0, 6], [3, 2, 4]];
         let mut proposals = HashMap::<Pos, Proposal>::new();
         let mut neighbors = [false; 8];
@@ -142,8 +142,63 @@ impl Solution for UnstableDiffusion {
         (max_y + 1 - min_y) * (max_x + 1 - min_x) - (self.0.len() as i64)
     }
 
-    fn two(self) -> i64 {
-        todo!()
+    fn two(mut self) -> i64 {
+        let mut directions = [[1, 2, 0], [5, 4, 6], [7, 0, 6], [3, 2, 4]];
+        let mut proposals = HashMap::<Pos, Proposal>::new();
+        let mut neighbors = [false; 8];
+
+        for round in 1.. {
+            for &Pos { x, y } in &self.0 {
+                neighbors
+                    .iter_mut()
+                    .zip(DELTAS)
+                    .for_each(|(neighbor, (dx, dy))| {
+                        *neighbor = self.0.contains(&Pos {
+                            x: x + dx,
+                            y: y + dy,
+                        });
+                    });
+
+                if neighbors.iter().all(|neighbor| !neighbor) {
+                    continue;
+                }
+
+                for (index, deltas) in directions.into_iter().enumerate() {
+                    if deltas.into_iter().all(|index| !neighbors[index]) {
+                        let (dx, dy) = DELTAS[directions[index][0]];
+                        proposals
+                            .entry(Pos {
+                                x: x + dx,
+                                y: y + dy,
+                            })
+                            .or_default()
+                            .propose(Pos { x, y });
+                        break;
+                    }
+                }
+            }
+
+            let mut changed = false;
+
+            for (new, proposal) in proposals.drain() {
+                match proposal {
+                    Proposal::Zero | Proposal::Many => (),
+                    Proposal::One(old) => {
+                        changed = true;
+                        self.0.remove(&old);
+                        self.0.insert(new);
+                    }
+                }
+            }
+
+            if !changed {
+                return round as i64;
+            }
+
+            directions.rotate_left(1);
+        }
+
+        unreachable!()
     }
 }
 
