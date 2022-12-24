@@ -1,4 +1,5 @@
-use std::{cmp, collections::VecDeque, fmt};
+use std::cmp;
+use std::fmt;
 
 use aoc::*;
 use priority_queue::PriorityQueue;
@@ -131,7 +132,7 @@ impl BlizzardBasin {
     }
 
     fn occupied(&self, pos: Pos) -> bool {
-        if pos.y == -1 || pos.y == self.north.len() as i64 {
+        if pos == self.start() || pos == self.finish() {
             return false;
         }
 
@@ -141,34 +142,31 @@ impl BlizzardBasin {
     }
 
     fn bounded(&self, pos: Pos) -> bool {
-        if pos.y == -1 && pos.x == 0
-            || pos.y == self.north.len() as i64 && pos.x == self.width as i64 - 1
-        {
+        if pos == self.start() || pos == self.finish() {
             return true;
         }
 
         pos.x >= 0 && pos.x < self.width as i64 && pos.y >= 0 && pos.y < self.north.len() as i64
     }
-}
 
-impl Solution for BlizzardBasin {
-    fn one(mut self) -> i64 {
-        let mut queue = PriorityQueue::new();
+    fn start(&self) -> Pos {
+        Pos { x: 0, y: -1 }
+    }
 
-        let start = Pos { x: 0, y: 0 };
-        let finish = Pos {
+    fn finish(&self) -> Pos {
+        Pos {
             x: self.width as i64 - 1,
-            y: self.north.len() as i64 - 1,
-        };
+            y: self.north.len() as i64,
+        }
+    }
 
-        self.step();
-        println!("{}", self);
-
-        queue.push((start, self), cmp::Reverse(2));
+    fn dijkstra(self, start: Pos, finish: Pos) -> (Self, i64) {
+        let mut queue = PriorityQueue::new();
+        queue.push((start, self), cmp::Reverse(0));
 
         while let Some(((pos, mut state), cmp::Reverse(distance))) = queue.pop() {
             if pos == finish {
-                return distance;
+                return (state, distance);
             }
 
             state.step();
@@ -180,70 +178,24 @@ impl Solution for BlizzardBasin {
 
         unreachable!()
     }
+}
+
+impl Solution for BlizzardBasin {
+    fn one(self) -> i64 {
+        let start = self.start();
+        let finish = self.finish();
+        let (_, distance) = self.dijkstra(start, finish);
+        distance
+    }
 
     fn two(self) -> i64 {
-        let mut queue = PriorityQueue::new();
+        let start = self.start();
+        let finish = self.finish();
 
-        let start = Pos { x: 0, y: -1 };
-        let finish = Pos {
-            x: self.width as i64 - 1,
-            y: self.north.len() as i64,
-        };
+        let (state, a) = self.dijkstra(start, finish);
+        let (state, b) = state.dijkstra(finish, start);
+        let (_, c) = state.dijkstra(start, finish);
 
-        queue.push((start, self), cmp::Reverse(0));
-
-        let mut leg_one = None;
-
-        while let Some(((pos, mut state), cmp::Reverse(distance))) = queue.pop() {
-            if pos == finish {
-                leg_one = Some((distance, state));
-                break;
-            }
-
-            state.step();
-
-            for next in state.reachable(pos) {
-                queue.push_increase((next, state.clone()), cmp::Reverse(distance + 1));
-            }
-        }
-
-        let (distance, state) = leg_one.unwrap();
-
-        queue.clear();
-        queue.push((finish, state), cmp::Reverse(distance));
-
-        let mut leg_two = None;
-
-        while let Some(((pos, mut state), cmp::Reverse(distance))) = queue.pop() {
-            if pos == start {
-                leg_two = Some((distance, state));
-                break;
-            }
-
-            state.step();
-
-            for next in state.reachable(pos) {
-                queue.push_increase((next, state.clone()), cmp::Reverse(distance + 1));
-            }
-        }
-
-        let (distance, state) = leg_two.unwrap();
-
-        queue.clear();
-        queue.push((start, state), cmp::Reverse(distance));
-
-        while let Some(((pos, mut state), cmp::Reverse(distance))) = queue.pop() {
-            if pos == finish {
-                return distance;
-            }
-
-            state.step();
-
-            for next in state.reachable(pos) {
-                queue.push_increase((next, state.clone()), cmp::Reverse(distance + 1));
-            }
-        }
-
-        todo!()
+        a + b + c
     }
 }
