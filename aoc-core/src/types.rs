@@ -150,6 +150,20 @@ impl Dir {
         *self = self.flip();
     }
 
+    pub fn rotate(&self, clockwise: bool) -> Self {
+        match clockwise {
+            true => self.rotate_clockwise(),
+            false => self.rotate_counterclockwise(),
+        }
+    }
+
+    pub fn rotate_mut(&mut self, clockwise: bool) {
+        match clockwise {
+            true => self.rotate_clockwise_mut(),
+            false => self.rotate_counterclockwise_mut(),
+        }
+    }
+
     pub fn rotate_clockwise(&self) -> Self {
         match self {
             Dir::N => Dir::E,

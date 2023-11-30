@@ -199,7 +199,7 @@ impl Fro for DonutMaze {
                     } else if portal == "ZZ" {
                         end = pos;
                     } else {
-                        labels.insert(pos, portal);
+                        labels.insert(pos, &*portal);
                         portals.entry(portal).or_default().set(pos, orient);
                     }
                 }

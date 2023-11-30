@@ -40,10 +40,10 @@ impl Solution for GrovePositioningSystem {
                 value if value < 0 => (value - 1).rem_euclid(values.len() as i64),
                 value => value % values.len() as i64,
             } {
-                dbg!((next, values[next]));
+                // dbg!((next, values[next]));
                 next = forward[next];
             }
-            dbg!((next, values[next]));
+            // dbg!((next, values[next]));
 
             // Remove
             forward[backward[i]] = forward[i];
@@ -56,12 +56,26 @@ impl Solution for GrovePositioningSystem {
             forward[backward[i]] = i;
             backward[forward[i]] = i;
 
-            let mut debug = 0;
-            for _ in 0..values.len() {
-                print!("{},", values[debug]);
-                debug = forward[debug];
+            for i in 0..values.len() {
+                assert_eq!(forward[backward[i]], i);
+                assert_eq!(backward[forward[i]], i);
+
+                assert_eq!(backward[forward[forward[i]]], forward[i]);
+                assert_eq!(forward[forward[backward[i]]], forward[i]);
+
+                assert_eq!(forward[backward[backward[i]]], backward[i]);
+                assert_eq!(backward[backward[forward[i]]], backward[i]);
+
+                assert_eq!(forward[backward[forward[i]]], forward[i]);
+                assert_eq!(forward[backward[forward[i]]], forward[i]);
             }
-            println!();
+
+            // let mut debug = 0;
+            // for _ in 0..values.len() {
+            //     print!("{},", values[debug]);
+            //     debug = forward[debug];
+            // }
+            // println!();
         }
 
         let mut next = values.iter().position(|value| *value == 0).unwrap();

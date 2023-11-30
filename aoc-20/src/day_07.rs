@@ -15,7 +15,7 @@ impl Fro for HandyHaversacks {
             .flat_map(|line| {
                 let mut iter = line.trim().split(" contain ");
 
-                let start = iter.give().trim_end_matches(" bags").to_string().leak();
+                let start: &'static str = iter.give().trim_end_matches(" bags").to_string().leak();
 
                 let rest = iter.give();
                 if rest == "no other bags." {
@@ -32,7 +32,7 @@ impl Fro for HandyHaversacks {
                             .trim_end_matches(" bag")
                             .splitn(2, ' ');
                         let count = iter.give().to::<i64>();
-                        let end = iter.give().to_string().leak();
+                        let end: &'static str = iter.give().to_string().leak();
                         (start, end, count)
                     })
                     .tap(Or::R)

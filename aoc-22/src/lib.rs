@@ -58,6 +58,5 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
         Day::D23 => run!(day_23::UnstableDiffusion),
         Day::D24 => run!(day_24::BlizzardBasin),
         Day::D25 => run!(day_25::FullOfHotAir),
-        _ => unimplemented!(),
     }
 }

@@ -88,7 +88,8 @@ mod ts {
 
             fn visit_i64<E: serde::de::Error>(self, ts: i64) -> Result<Self::Value, E> {
                 chrono::Utc
-                    .timestamp(ts, 0)
+                    .timestamp_opt(ts, 0)
+                    .unwrap()
                     .with_timezone(&chrono::Local)
                     .tap(Result::Ok)
             }
@@ -137,7 +138,8 @@ mod ts_opt {
                 match ts {
                     0 => Ok(None),
                     _ => chrono::Utc
-                        .timestamp(ts, 0)
+                        .timestamp_opt(ts, 0)
+                        .unwrap()
                         .with_timezone(&chrono::Local)
                         .tap(Option::Some)
                         .tap(Result::Ok),

@@ -199,8 +199,8 @@ pub fn main() -> anyhow::Result<()> {
 
             // 12AM ET in UTC
             let start = chrono::Utc
-                .ymd(year as i32, 12, day as u32)
-                .and_hms(5, 0, 0);
+                .with_ymd_and_hms(year as i32, 12, day as u32, 5, 0, 0)
+                .unwrap();
 
             let members = leaderboard
                 .members

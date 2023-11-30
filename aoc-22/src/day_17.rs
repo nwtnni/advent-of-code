@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use aoc::*;
 
 #[derive(Clone, Debug)]
@@ -102,7 +104,76 @@ impl Solution for PyroclasticFlow {
     }
 
     fn two(self) -> i64 {
-        todo!()
+        let mut jets = self.0.into_iter().enumerate().cycle();
+        let mut well = Well::new();
+        let mut unique = HashMap::new();
+        let mut heights = HashMap::new();
+
+        for (index, (shape_index, mut shape)) in
+            shape::SHAPES.into_iter().enumerate().cycle().enumerate()
+        {
+            let mut i = well.highest() + 4;
+
+            while well.0.len() < i + 4 {
+                well.0.push(0);
+            }
+
+            loop {
+                let (jet_index, right) = jets.next().unwrap();
+
+                let stuck_wall = shape.iter().any(|line| {
+                    if right {
+                        line & 0b0100_0000 > 0
+                    } else {
+                        line & 0b0000_0001 > 0
+                    }
+                });
+
+                let stuck_well = shape.iter().enumerate().any(|(di, line)| {
+                    well.0[i + di] & if right { line << 1 } else { line >> 1 } > 0
+                });
+
+                if !stuck_wall && !stuck_well {
+                    shape
+                        .iter_mut()
+                        .for_each(|line| if right { *line <<= 1 } else { *line >>= 1 });
+                }
+
+                if well.0[i - 1..]
+                    .iter()
+                    .zip(shape)
+                    .any(|(well, shape)| well & shape > 0)
+                {
+                    well.0[i..]
+                        .iter_mut()
+                        .zip(shape)
+                        .for_each(|(well, shape)| *well |= shape);
+
+                    heights.insert(index, well.highest());
+
+                    if let Some(before) =
+                        unique.insert((well.0[i - 1], jet_index, shape_index), index)
+                    {
+                        let period = index - before;
+                        let amplitude = heights[&index] - heights[&before];
+
+                        const GOAL: usize = 1_000_000_000_000 - 1;
+
+                        let a = heights[&before];
+                        let b = ((GOAL - before) / period) * amplitude;
+                        let c = heights[&(before + ((GOAL - before) % period))] - heights[&before];
+
+                        return (a + b + c) as i64;
+                    }
+
+                    break;
+                } else {
+                    i -= 1;
+                }
+            }
+        }
+
+        todo!();
     }
 }
 
