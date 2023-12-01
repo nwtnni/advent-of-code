@@ -6,5 +6,10 @@
 **/*.rs.bk
 
 *.tags
+
 description.md
 input.txt
+
+.aoc-account-id
+.aoc-session-token
+.direnv
