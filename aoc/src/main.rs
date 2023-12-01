@@ -20,13 +20,18 @@ struct Opt {
     /// the private leaderboard API.
     ///
     /// [pl]: https://adventofcode.com/2020/leaderboard/private
-    #[structopt(short, long, env = "AOC_ACCOUNT_ID")]
+    #[structopt(short, long, env = "AOC_ACCOUNT_ID", hide_env_values = true)]
     id: aoc::leaderboard::Id,
 
     /// Advent of Code session token
     ///
     /// https://github.com/wimglenn/advent-of-code-wim/issues/1
-    #[structopt(short, long = "session-token", env = "AOC_SESSION_TOKEN")]
+    #[structopt(
+        short,
+        long = "session-token",
+        env = "AOC_SESSION_TOKEN",
+        hide_env_values = true
+    )]
     token: String,
 
     #[structopt(subcommand)]
