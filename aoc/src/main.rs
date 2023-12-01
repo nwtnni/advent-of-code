@@ -1,5 +1,6 @@
 use std::cmp;
 use std::cmp::Reverse;
+use std::fmt::Display;
 use std::fs;
 use std::mem;
 use std::path::Path;
@@ -154,8 +155,8 @@ pub fn main() -> anyhow::Result<()> {
             let input = client.input(year, day)?;
             let title = title(&description);
 
-            write("description.md", &description)?;
-            write("input.txt", &input)?;
+            write("description.md", description)?;
+            write("input.txt", input)?;
 
             // Template out Rust code, avoiding clobbering
             let root = PathBuf::from(format!("aoc-{}/src", &year.to_static_str()[2..]));
@@ -250,28 +251,40 @@ pub fn main() -> anyhow::Result<()> {
                 part.unwrap_or(Part::P01) as usize,
                 width = width,
             );
-            println!("{}", if part.is_none() { "   | Part 2" } else { "" });
+            println!(
+                "{}",
+                if part.is_none() {
+                    "   | Part 2   | Delta"
+                } else {
+                    ""
+                }
+            );
 
             print!("-----+-{:-<width$}-+---------", "-", width = width);
-            println!("{}", if part.is_none() { "-+---------" } else { "" });
+            println!(
+                "{}",
+                if part.is_none() {
+                    "-+----------+---------"
+                } else {
+                    ""
+                }
+            );
 
             for (index, (name, first, second)) in members.iter().enumerate() {
-                let duration = match part {
-                    Some(Part::P01) | None => first,
-                    Some(Part::P02) => match second {
-                        None => continue,
-                        Some(second) => second,
-                    },
-                }
-                .signed_duration_since(start);
-
                 print!(
-                    "{:02}   | {:<width$} | {:02}:{:02}:{:02}",
+                    "{:02}   | {:<width$} | {}",
                     index,
                     name,
-                    duration.num_hours(),
-                    duration.num_minutes() % 60,
-                    duration.num_seconds() % 60,
+                    Duration(
+                        match part {
+                            Some(Part::P01) | None => first,
+                            Some(Part::P02) => match second {
+                                None => continue,
+                                Some(second) => second,
+                            },
+                        }
+                        .signed_duration_since(start)
+                    ),
                     width = width,
                 );
 
@@ -285,12 +298,10 @@ pub fn main() -> anyhow::Result<()> {
                     continue;
                 };
 
-                let duration = second.signed_duration_since(start);
                 println!(
-                    " | {:02}:{:02}:{:02}",
-                    duration.num_hours(),
-                    duration.num_minutes() % 60,
-                    duration.num_seconds() % 60,
+                    " | {} | {}",
+                    Duration(second.signed_duration_since(start)),
+                    Duration(second.signed_duration_since(first)),
                 );
             }
         }
@@ -388,5 +399,19 @@ fn solve(year: Year, day: Day, part: Part, input: &str) -> i64 {
         Year::Y21 => aoc_21::solve(day, part, input),
         Year::Y22 => aoc_22::solve(day, part, input),
         Year::Y23 => aoc_23::solve(day, part, input),
+    }
+}
+
+struct Duration(chrono::Duration);
+
+impl Display for Duration {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            fmt,
+            "{:02}:{:02}:{:02}",
+            self.0.num_hours(),
+            self.0.num_minutes() % 60,
+            self.0.num_seconds() % 60,
+        )
     }
 }
