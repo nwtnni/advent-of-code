@@ -51,16 +51,19 @@ impl str::FromStr for Id {
 }
 
 mod id {
-    use serde::de::Error as _;
     use serde::Deserialize as _;
     use serde::Serialize as _;
 
     pub fn deserialize<'de, D: serde::Deserializer<'de>>(
         deserializer: D,
     ) -> Result<usize, D::Error> {
-        String::deserialize(deserializer)?
-            .parse::<usize>()
-            .map_err(D::Error::custom)
+        let value = match json::Value::deserialize(deserializer)? {
+            json::Value::Number(number) => number.as_u64().unwrap() as usize,
+            json::Value::String(string) => string.parse::<usize>().unwrap(),
+            _ => unreachable!(),
+        };
+
+        Ok(value)
     }
 
     pub fn serialize<S: serde::Serializer>(id: &usize, serializer: S) -> Result<S::Ok, S::Error> {
