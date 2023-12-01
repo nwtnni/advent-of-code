@@ -1,12 +1,17 @@
 use std::cmp;
+use std::cmp::Reverse;
 use std::fs;
 use std::mem;
-use std::path;
+use std::path::Path;
+use std::path::PathBuf;
 use std::process;
 
 use anyhow::anyhow;
 use anyhow::Context as _;
+use aoc_core::Day;
+use aoc_core::Part;
 use aoc_core::Tap as _;
+use aoc_core::Year;
 use chrono::TimeZone as _;
 use structopt::StructOpt;
 
@@ -39,77 +44,80 @@ struct Opt {
 }
 
 #[derive(Clone, Debug, StructOpt)]
+/// Solve puzzle and print solution
+struct Solve {
+    #[structopt(short, long)]
+    year: Year,
+
+    #[structopt(short, long)]
+    day: Day,
+
+    #[structopt(short, long)]
+    part: Part,
+
+    /// Path to alternative input text file
+    input: Option<PathBuf>,
+}
+
+#[derive(Clone, Debug, StructOpt)]
 enum Command {
     /// Fetch puzzle description
     Description {
         #[structopt(short, long)]
-        year: aoc_core::Year,
+        year: Year,
 
         #[structopt(short, long)]
-        day: aoc_core::Day,
+        day: Day,
 
         #[structopt(short, long)]
-        part: Option<aoc_core::Part>,
+        part: Option<Part>,
     },
 
     /// Download part one description and input, and template out a dummy solution file
     Init {
         #[structopt(short, long)]
-        year: aoc_core::Year,
+        year: Year,
 
         #[structopt(short, long)]
-        day: aoc_core::Day,
+        day: Day,
     },
 
     /// Fetch puzzle input
     Input {
         #[structopt(short, long)]
-        year: aoc_core::Year,
+        year: Year,
 
         #[structopt(short, long)]
-        day: aoc_core::Day,
+        day: Day,
     },
 
     /// Fetch leaderboard
     Leaderboard {
         #[structopt(short, long)]
-        year: aoc_core::Year,
+        year: Year,
 
         #[structopt(short, long)]
-        day: aoc_core::Day,
+        day: Day,
 
         #[structopt(short, long)]
-        part: aoc_core::Part,
+        part: Option<Part>,
 
         /// Path to alternative leaderboard JSON file
-        leaderboard: Option<path::PathBuf>,
+        leaderboard: Option<PathBuf>,
     },
 
-    /// Solve puzzle and print solution
-    Solve {
-        #[structopt(short, long)]
-        year: aoc_core::Year,
-
-        #[structopt(short, long)]
-        day: aoc_core::Day,
-
-        #[structopt(short, long)]
-        part: aoc_core::Part,
-
-        /// Path to alternative input text file
-        input: Option<path::PathBuf>,
-    },
+    Solve(Solve),
 
     /// Solve puzzle and submit solution to Advent of Code server
     Submit {
         #[structopt(short, long)]
-        year: aoc_core::Year,
+        year: Year,
 
         #[structopt(short, long)]
-        day: aoc_core::Day,
+        day: Day,
 
         #[structopt(short, long)]
-        part: aoc_core::Part,
+        part: Part,
 
         /// Alternative answer to submit
         output: Option<i64>,
@@ -142,7 +150,7 @@ pub fn main() -> anyhow::Result<()> {
             );
         }
         Command::Init { year, day } => {
-            let description = client.description(year, day, aoc_core::Part::P01)?;
+            let description = client.description(year, day, Part::P01)?;
             let input = client.input(year, day)?;
             let title = title(&description);
 
@@ -150,7 +158,7 @@ pub fn main() -> anyhow::Result<()> {
             write("input.txt", &input)?;
 
             // Template out Rust code, avoiding clobbering
-            let root = path::PathBuf::from(format!("aoc-{}/src", &year.to_static_str()[2..]));
+            let root = PathBuf::from(format!("aoc-{}/src", &year.to_static_str()[2..]));
 
             let r#mod = root.join(format!("day_{:02}.rs", day as usize));
             if !r#mod.exists() {
@@ -216,23 +224,48 @@ pub fn main() -> anyhow::Result<()> {
                         .name
                         .unwrap_or_else(|| format!("anonymous user #{}", id));
                     let day = member.completion_day_level.get(&day)?;
-                    let ts = match part {
-                        aoc_core::Part::P01 => day.one.get_star_ts,
-                        aoc_core::Part::P02 => day.two?.get_star_ts,
-                    };
-                    Some((name, ts))
+                    Some((
+                        name,
+                        day.one.get_star_ts,
+                        day.two.map(|day| day.get_star_ts),
+                    ))
                 })
                 .collect::<Vec<_>>()
-                .tap_mut(|members| members.sort_by_key(|(_, ts)| ts.timestamp()));
+                .tap_mut(|members| match part {
+                    Some(Part::P01) => members.sort_by_key(|(_, first, _)| *first),
+                    Some(Part::P02) | None => {
+                        // Hack to sort Option::None last.
+                        members.sort_by_key(|(_, _, second)| Reverse(second.map(Reverse)))
+                    }
+                });
 
-            let width = members.iter().map(|(name, _)| name.len()).fold(8, cmp::max);
+            let width = members
+                .iter()
+                .map(|(name, _, _)| name.len())
+                .fold(8, cmp::max);
 
-            println!("Rank | {:<width$} | Time", "Username", width = width);
-            println!("-----+-{:-<width$}-+---------", "-", width = width);
+            print!(
+                "Rank | {:<width$} | Part {}",
+                "Username",
+                part.unwrap_or(Part::P01) as usize,
+                width = width,
+            );
+            println!("{}", if part.is_none() { "   | Part 2" } else { "" });
 
-            for (index, (name, finish)) in members.into_iter().enumerate() {
-                let duration = finish.signed_duration_since(start);
-                println!(
+            print!("-----+-{:-<width$}-+---------", "-", width = width);
+            println!("{}", if part.is_none() { "-+---------" } else { "" });
+
+            for (index, (name, first, second)) in members.iter().enumerate() {
+                let duration = match part {
+                    Some(Part::P01) | None => first,
+                    Some(Part::P02) => match second {
+                        None => continue,
+                        Some(second) => second,
+                    },
+                }
+                .signed_duration_since(start);
+
+                print!(
                     "{:02}   | {:<width$} | {:02}:{:02}:{:02}",
                     index,
                     name,
@@ -241,14 +274,32 @@ pub fn main() -> anyhow::Result<()> {
                     duration.num_seconds() % 60,
                     width = width,
                 );
+
+                if part.is_some() {
+                    println!();
+                    continue;
+                }
+
+                let Some(second) = second else {
+                    println!(" |");
+                    continue;
+                };
+
+                let duration = second.signed_duration_since(start);
+                println!(
+                    " | {:02}:{:02}:{:02}",
+                    duration.num_hours(),
+                    duration.num_minutes() % 60,
+                    duration.num_seconds() % 60,
+                );
             }
         }
-        Command::Solve {
+        Command::Solve(Solve {
             year,
             day,
             part,
             input,
-        } => {
+        }) => {
             let input = input.map(read).unwrap_or_else(|| client.input(year, day))?;
 
             println!("{}", solve(year, day, part, &input));
@@ -273,7 +324,7 @@ pub fn main() -> anyhow::Result<()> {
 
             log::info!("{} was correct!", output);
 
-            if part == aoc_core::Part::P02 {
+            if part == Part::P02 {
                 return Ok(());
             }
 
@@ -292,14 +343,14 @@ pub fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn read<P: AsRef<path::Path>>(path: P) -> anyhow::Result<String> {
+fn read<P: AsRef<Path>>(path: P) -> anyhow::Result<String> {
     let path = path.as_ref();
     fs::read_to_string(path).with_context(|| anyhow!("Could not read file: '{}'", path.display()))
 }
 
 fn write<P, D>(path: P, data: D) -> anyhow::Result<()>
 where
-    P: AsRef<path::Path>,
+    P: AsRef<Path>,
     D: AsRef<[u8]>,
 {
     let path = path.as_ref();
@@ -326,16 +377,16 @@ fn title(description: &str) -> String {
         .collect()
 }
 
-fn solve(year: aoc_core::Year, day: aoc_core::Day, part: aoc_core::Part, input: &str) -> i64 {
+fn solve(year: Year, day: Day, part: Part, input: &str) -> i64 {
     match year {
-        aoc_core::Year::Y15 => aoc_15::solve(day, part, input),
-        aoc_core::Year::Y16 => aoc_16::solve(day, part, input),
-        aoc_core::Year::Y17 => aoc_17::solve(day, part, input),
-        aoc_core::Year::Y18 => aoc_18::solve(day, part, input),
-        aoc_core::Year::Y19 => aoc_19::solve(day, part, input),
-        aoc_core::Year::Y20 => aoc_20::solve(day, part, input),
-        aoc_core::Year::Y21 => aoc_21::solve(day, part, input),
-        aoc_core::Year::Y22 => aoc_22::solve(day, part, input),
-        aoc_core::Year::Y23 => aoc_23::solve(day, part, input),
+        Year::Y15 => aoc_15::solve(day, part, input),
+        Year::Y16 => aoc_16::solve(day, part, input),
+        Year::Y17 => aoc_17::solve(day, part, input),
+        Year::Y18 => aoc_18::solve(day, part, input),
+        Year::Y19 => aoc_19::solve(day, part, input),
+        Year::Y20 => aoc_20::solve(day, part, input),
+        Year::Y21 => aoc_21::solve(day, part, input),
+        Year::Y22 => aoc_22::solve(day, part, input),
+        Year::Y23 => aoc_23::solve(day, part, input),
     }
 }
