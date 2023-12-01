@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = [
     "aoc",
     "aoc-core",
@@ -10,4 +11,5 @@ members = [
     "aoc-20",
     "aoc-21",
     "aoc-22",
+    "aoc-23",
 ]
