@@ -9,6 +9,7 @@ mod day_06;
 mod day_07;
 mod day_08;
 mod day_09;
+mod day_10;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -26,6 +27,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
         Day::D07 => run!(day_07::CamelCards),
         Day::D08 => run!(day_08::HauntedWasteland),
         Day::D09 => run!(day_09::MirageMaintenance),
+        Day::D10 => run!(day_10::PipeMaze),
         _ => unreachable!(),
     }
 }

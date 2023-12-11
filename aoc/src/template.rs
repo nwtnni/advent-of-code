@@ -35,7 +35,7 @@ impl Fro for $TITLE {
         for (y, row) in input.trim().split('\n').enumerate() {
             rows += 1;
             cols = 0;
-            for (x, col) in row.trim().chars() {
+            for (x, col) in row.trim().chars().enumerate() {
                 cols += 1;
                 let pos = Pos {
                     x: x as i64,
