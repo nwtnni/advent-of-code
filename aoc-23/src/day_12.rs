@@ -33,20 +33,13 @@ impl Solution for HotSprings {
     fn one(mut self) -> i64 {
         self.0
             .iter_mut()
-            .inspect(|(springs, target)| {
-                debug2(springs);
-                debug3(target);
-            })
             .map(|(springs, targets)| {
                 let mut cache = Vec::new();
                 let a = solve(springs, targets);
                 let b = ways(springs, &mut cache, targets, 0);
-                if dbg!(a) != dbg!(b) {
-                    panic!();
-                }
+                assert_eq!(a, b);
                 b
             })
-            // .map(|(springs, targets)| solve(springs, targets))
             .sum()
     }
 
@@ -112,38 +105,6 @@ fn solve(springs: &[Option<bool>], targets: &[i64]) -> i64 {
     table.last().unwrap().iter().sum()
 }
 
-// Recursive non-memoized solution, has right time complexity
-// but fails to discount solutions that leave extra springs at the end.
-#[allow(dead_code)]
-fn solve2(springs: &[Option<bool>], targets: &[i64], index: usize, start: usize) -> i64 {
-    if index >= targets.len() {
-        return 1;
-    }
-
-    let mut ways = 0;
-
-    for start in start..springs.len() {
-        if fits(
-            springs,
-            start..start + targets[index] as usize,
-            index == targets.len() - 1,
-        ) {
-            ways += solve2(
-                springs,
-                targets,
-                index + 1,
-                start + targets[index] as usize + 1,
-            );
-        }
-
-        if matches!(springs[start], Some(true)) {
-            break;
-        }
-    }
-
-    ways
-}
-
 fn fits(springs: &[Option<bool>], range: Range<usize>, last: bool) -> bool {
     // Check after the end
     if range.end > springs.len() || matches!(springs.get(range.end), Some(Some(true))) {
@@ -177,6 +138,38 @@ fn fits(springs: &[Option<bool>], range: Range<usize>, last: bool) -> bool {
     }
 
     true
+}
+
+// Recursive non-memoized solution, has right time complexity
+// but fails to discount solutions that leave extra springs at the end.
+#[allow(dead_code)]
+fn solve2(springs: &[Option<bool>], targets: &[i64], index: usize, start: usize) -> i64 {
+    if index >= targets.len() {
+        return 1;
+    }
+
+    let mut ways = 0;
+
+    for start in start..springs.len() {
+        if fits(
+            springs,
+            start..start + targets[index] as usize,
+            index == targets.len() - 1,
+        ) {
+            ways += solve2(
+                springs,
+                targets,
+                index + 1,
+                start + targets[index] as usize + 1,
+            );
+        }
+
+        if matches!(springs[start], Some(true)) {
+            break;
+        }
+    }
+
+    ways
 }
 
 // Naive solution, works but too slow
