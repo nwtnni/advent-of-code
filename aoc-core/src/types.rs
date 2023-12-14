@@ -121,7 +121,9 @@ impl Pos {
 }
 
 #[repr(u8)]
-#[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(
+    serde::Serialize, serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord,
+)]
 pub enum Dir {
     N,
     S,
