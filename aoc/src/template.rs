@@ -49,7 +49,7 @@ impl Fro for $TITLE {
                 grid.insert(pos, cell);
             }
         }
-        Self(grid)
+        Self { cols, rows, grid }
     }
 }
 

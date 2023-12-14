@@ -47,6 +47,18 @@ pub struct Pos {
 }
 
 impl Pos {
+    pub fn i(&self) -> i64 {
+        self.y
+    }
+
+    pub fn j(&self) -> i64 {
+        self.x
+    }
+
+    pub fn from_i_j(i: i64, j: i64) -> Self {
+        Pos { x: j, y: i }
+    }
+
     pub fn to_inclusive(self, other: Self) -> impl Iterator<Item = Self> {
         (self.y..=other.y).flat_map(move |y| (self.x..=other.x).map(move |x| Pos { x, y }))
     }
@@ -67,6 +79,77 @@ impl Pos {
             x: cmp::max(self.x, other.x),
             y: cmp::max(self.y, other.y),
         }
+    }
+
+    pub fn distance(self, other: Pos) -> i64 {
+        self.x.abs_diff(other.x).max(self.y.abs_diff(other.y)) as i64
+    }
+
+    pub fn distance_manhattan(self, other: Pos) -> i64 {
+        self.x.abs_diff(other.x) as i64 + self.y.abs_diff(other.y) as i64
+    }
+
+    /// All points within `radius` of `self`, including `self`.
+    pub fn around_inclusive(&self, radius: i64) -> impl Iterator<Item = Self> {
+        let center = *self;
+        ((center.y - radius)..=(center.y + radius)).flat_map(move |y| {
+            ((center.x - radius)..=(center.x + radius)).map(move |x| Pos { x, y })
+        })
+    }
+
+    /// All points within `radius` of `self`, excluding `self`.
+    pub fn around_exclusive(&self, radius: i64) -> impl Iterator<Item = Self> {
+        let center = *self;
+        self.around_inclusive(radius)
+            .filter(move |other| *other != center)
+    }
+
+    /// All points at exactly `radius` from `self`.
+    pub fn around_exact(&self, radius: i64) -> impl Iterator<Item = Self> {
+        let center = *self;
+        let upper = center.y - radius;
+        let lower = center.y + radius;
+        ((center.y - radius)..=(center.y + radius)).flat_map(move |y| {
+            match y == upper || y == lower {
+                true => Or::L((center.x - radius)..=(center.x + radius)),
+                false => Or::R(IntoIterator::into_iter([
+                    center.x - radius,
+                    center.x + radius,
+                ])),
+            }
+            .map(move |x| Pos { x, y })
+        })
+    }
+
+    /// All points within `radius` of `self`, including `self`.
+    pub fn around_manhattan_inclusive(&self, radius: i64) -> impl Iterator<Item = Self> {
+        let center = *self;
+        ((center.y - radius)..=(center.y + radius)).flat_map(move |y| {
+            let radius = radius - y.abs_diff(center.y) as i64;
+            ((center.x - radius)..=(center.x + radius)).map(move |x| Pos { x, y })
+        })
+    }
+
+    /// All points within `radius` of `self`, excluding `self`.
+    pub fn around_manhattan_exclusive(&self, radius: i64) -> impl Iterator<Item = Self> {
+        let center = *self;
+        self.around_manhattan_inclusive(radius)
+            .filter(move |other| *other != center)
+    }
+
+    /// All points at exactly `radius` from `self`.
+    pub fn around_manhattan_exact(&self, radius: i64) -> impl Iterator<Item = Self> {
+        let center = *self;
+        ((center.y - radius)..=(center.y + radius)).flat_map(move |y| {
+            let radius = radius - y.abs_diff(center.y) as i64;
+            match radius {
+                0 => Or::L(std::iter::once(Pos { x: center.x, y })),
+                _ => Or::R(
+                    IntoIterator::into_iter([center.x - radius, center.x + radius])
+                        .map(move |x| Pos { x, y }),
+                ),
+            }
+        })
     }
 
     pub fn shift(self, dir: Dir) -> Self {
