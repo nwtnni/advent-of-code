@@ -1,5 +1,4 @@
 use std::collections::BTreeMap;
-use std::collections::HashMap;
 
 use aoc::*;
 
@@ -7,12 +6,12 @@ use aoc::*;
 pub struct ParabolicReflectorDish {
     cols: usize,
     rows: usize,
-    grid: HashMap<Pos, bool>,
+    grid: BTreeMap<Pos, bool>,
 }
 
 impl Fro for ParabolicReflectorDish {
     fn fro(input: &str) -> Self {
-        let mut grid = HashMap::new();
+        let mut grid = BTreeMap::new();
         let mut rows = 0;
         let mut cols = 0;
         for (y, row) in input.trim().split('\n').enumerate() {
@@ -41,49 +40,27 @@ impl Fro for ParabolicReflectorDish {
 impl Solution for ParabolicReflectorDish {
     fn one(mut self) -> i64 {
         self.tilt(Dir::N);
-
-        self.grid
-            .iter()
-            .map(|(pos, rock)| if *rock { self.rows as i64 - pos.y } else { 0 })
-            .sum::<i64>()
+        self.score()
     }
 
     fn two(mut self) -> i64 {
         let mut seen = BTreeMap::new();
-        seen.insert(
-            (self
-                .grid
-                .iter()
-                .map(|(p, b)| (*p, *b))
-                .collect::<BTreeMap<_, _>>(),),
-            0,
-        );
+        seen.insert(self.grid.clone(), 0);
 
         let (start, end) = loop {
             for dir in [Dir::N, Dir::W, Dir::S, Dir::E] {
                 self.tilt(dir);
             }
             let end = seen.len();
-            let start = seen.insert(
-                (self
-                    .grid
-                    .iter()
-                    .map(|(p, b)| (*p, *b))
-                    .collect::<BTreeMap<_, _>>(),),
-                end,
-            );
-
-            if seen.len() == end {
+            if let Some(start) = seen.insert(self.grid.clone(), end) {
                 break (start, end);
             }
         };
 
-        let index = ((1000000000 - start.unwrap()) % (end - start.unwrap())) + start.unwrap();
         seen.iter()
-            .find(|(_, key)| **key == index)
+            .find(|(_, index)| **index == ((1000000000 - start) % (end - start)) + start)
             .map(|(map, _)| {
-                map.0
-                    .iter()
+                map.iter()
                     .map(|(pos, rock)| if *rock { self.rows as i64 - pos.y } else { 0 })
                     .sum::<i64>()
             })
@@ -94,36 +71,37 @@ impl Solution for ParabolicReflectorDish {
 impl ParabolicReflectorDish {
     fn tilt(&mut self, dir: Dir) {
         loop {
-            let old = self.grid.clone();
+            let mut changed = false;
             for i in 0..self.rows as i64 {
                 for j in 0..self.cols as i64 {
-                    let p = Pos { x: j, y: i };
-                    match (
-                        self.grid.get(&p).copied(),
-                        self.grid.get(&p.shift(dir)).copied(),
-                    ) {
-                        (None, None) => (),
-                        (None, Some(_)) => (),
-                        (Some(true), None) => {
-                            let p = p.shift(dir);
-                            if p.x >= 0
-                                && p.x < self.cols as i64
-                                && p.y >= 0
-                                && p.y < self.rows as i64
-                            {
-                                self.grid.remove(&Pos { x: j, y: i });
-                                self.grid.insert(p, true);
-                            }
-                        }
-                        (Some(false), None) => (),
-                        (Some(_), Some(_)) => (),
+                    let a = Pos { x: j, y: i };
+                    let b = a.shift(dir);
+
+                    if b.x < 0 || b.x >= self.cols as i64 || b.y < 0 || b.y >= self.rows as i64 {
+                        continue;
+                    }
+
+                    if let (Some(true), None) =
+                        (self.grid.get(&a).copied(), self.grid.get(&b).copied())
+                    {
+                        changed = true;
+                        self.grid.remove(&a);
+                        self.grid.insert(b, true);
                     }
                 }
             }
-            if self.grid == old {
+
+            if !changed {
                 break;
             }
         }
+    }
+
+    fn score(&self) -> i64 {
+        self.grid
+            .iter()
+            .map(|(pos, rock)| if *rock { self.rows as i64 - pos.y } else { 0 })
+            .sum::<i64>()
     }
 
     #[allow(dead_code)]
