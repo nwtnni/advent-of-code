@@ -1,4 +1,5 @@
 use std::cmp;
+use std::cmp::Ordering;
 use std::iter;
 use std::num;
 use std::ops;
@@ -57,6 +58,47 @@ impl Pos {
 
     pub fn from_i_j(i: i64, j: i64) -> Self {
         Pos { x: j, y: i }
+    }
+
+    pub fn from_index(cols: i64, index: usize) -> Self {
+        Pos {
+            x: index as i64 % cols,
+            y: index as i64 / cols,
+        }
+    }
+
+    pub fn to_index(&self, cols: i64) -> usize {
+        (self.y * cols + self.x) as usize
+    }
+
+    pub fn border_inclusive(self, other: Self) -> impl Iterator<Item = Self> {
+        (self.y..=other.y).flat_map(move |y| {
+            if y == self.y || y == other.y {
+                Or::L(Or::L(self.x..=other.x))
+            } else {
+                match self.x.cmp(&other.x) {
+                    Ordering::Less => Or::L(Or::R(IntoIterator::into_iter([self.x, other.x]))),
+                    Ordering::Equal => Or::R(Or::L(iter::once(self.x))),
+                    Ordering::Greater => Or::R(Or::R(iter::empty())),
+                }
+            }
+            .map(move |x| Pos { x, y })
+        })
+    }
+
+    pub fn border_exclusive(self, other: Self) -> impl Iterator<Item = Self> {
+        (self.y..other.y).flat_map(move |y| {
+            if y == self.y || y + 1 == other.y {
+                Or::L(Or::L(self.x..other.x))
+            } else {
+                match self.x.cmp(&(other.x - 1)) {
+                    Ordering::Less => Or::L(Or::R(IntoIterator::into_iter([self.x, other.x - 1]))),
+                    Ordering::Equal => Or::R(Or::L(iter::once(self.x))),
+                    Ordering::Greater => Or::R(Or::R(iter::empty())),
+                }
+            }
+            .map(move |x| Pos { x, y })
+        })
     }
 
     pub fn to_inclusive(self, other: Self) -> impl Iterator<Item = Self> {
@@ -200,6 +242,80 @@ impl Pos {
 
     pub fn shiftn_mut(&mut self, dir: Dir, n: i64) {
         *self = self.shiftn(dir, n);
+    }
+}
+
+impl std::ops::Sub for Pos {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Pos {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl std::ops::SubAssign for Pos {
+    fn sub_assign(&mut self, rhs: Self) {
+        *self = *self - rhs;
+    }
+}
+
+impl std::ops::Add for Pos {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        Pos {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl std::ops::AddAssign for Pos {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = *self + rhs;
+    }
+}
+
+impl std::ops::Neg for Pos {
+    type Output = Self;
+    fn neg(self) -> Self::Output {
+        Pos {
+            x: -self.x,
+            y: -self.y,
+        }
+    }
+}
+
+impl std::ops::Mul<i64> for Pos {
+    type Output = Self;
+    fn mul(self, rhs: i64) -> Self::Output {
+        Pos {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+}
+
+impl std::ops::MulAssign<i64> for Pos {
+    fn mul_assign(&mut self, rhs: i64) {
+        *self = *self * rhs;
+    }
+}
+
+impl std::ops::Div<i64> for Pos {
+    type Output = Self;
+    fn div(self, rhs: i64) -> Self::Output {
+        Pos {
+            x: self.x / rhs,
+            y: self.y / rhs,
+        }
+    }
+}
+
+impl std::ops::DivAssign<i64> for Pos {
+    fn div_assign(&mut self, rhs: i64) {
+        *self = *self / rhs;
     }
 }
 
