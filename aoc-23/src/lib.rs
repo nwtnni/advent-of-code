@@ -19,6 +19,7 @@ mod day_16;
 mod day_17;
 mod day_18;
 mod day_19;
+mod day_20;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -46,6 +47,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
         Day::D17 => run!(day_17::ClumsyCrucible),
         Day::D18 => run!(day_18::LavaductLagoon),
         Day::D19 => run!(day_19::Aplenty),
+        Day::D20 => run!(day_20::PulsePropagation),
         _ => unreachable!(),
     }
 }
