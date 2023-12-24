@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 use aoc::*;
 
@@ -55,6 +55,7 @@ impl Grid {
         self.bits.iter_mut().for_each(|word| *word = 0)
     }
 
+    #[allow(dead_code)]
     fn get(&self, pos: Pos) -> Option<bool> {
         let (index, bit) = self.index(pos)?;
         Some(self.bits[index] & (1 << bit) > 0)
@@ -166,6 +167,7 @@ impl Grid {
         self.bits.iter().map(|word| word.count_ones()).sum()
     }
 
+    #[allow(dead_code)]
     fn debug(&self, print: char) {
         for i in 0..self.rows {
             if i > 1 {
@@ -231,7 +233,125 @@ impl Solution for StepCounter {
         start.len() as i64
     }
 
-    fn two(mut self) -> i64 {
-        todo!();
+    fn two(self) -> i64 {
+        let mut start = ProvenanceGrid(vec![vec![Vec::new(); self.rocks.cols]; self.rocks.rows]);
+
+        start.0[self.start.i() as usize][self.start.j() as usize].push((0, 0));
+
+        let mut garbage = HashSet::new();
+
+        for i in 0..26501365 {
+            dbg!(i);
+
+            if i % 131 == 0 {
+                start.gc(&mut garbage);
+                dbg!(&garbage);
+            }
+
+            start.step(&garbage);
+        }
+
+        start.gc(&mut garbage);
+        let chunk = (self.rocks.rows * self.rocks.cols) - self.rocks.len() as usize;
+
+        (garbage.len() * chunk + start.0.iter().flatten().flatten().count()) as i64
+    }
+}
+
+#[derive(Clone)]
+struct ProvenanceGrid(Vec<Vec<Vec<(i32, i32)>>>);
+
+impl ProvenanceGrid {
+    fn step(&mut self, garbage: &HashSet<(i32, i32)>) {
+        for (i, dir) in Dir::all().enumerate() {
+            let mut next = self.clone();
+            next.shift(dir);
+
+            match dir {
+                Dir::N => next.0.last_mut().unwrap().iter_mut().for_each(|set| {
+                    set.retain_mut(|(i, j)| {
+                        *i -= 1;
+                        !garbage.contains(&(*i, *j))
+                    })
+                }),
+                Dir::S => next.0.last_mut().unwrap().iter_mut().for_each(|set| {
+                    set.retain_mut(|(i, j)| {
+                        *i += 1;
+                        !garbage.contains(&(*i, *j))
+                    })
+                }),
+                Dir::W => next
+                    .0
+                    .iter_mut()
+                    .filter_map(|row| row.last_mut())
+                    .for_each(|set| {
+                        set.retain_mut(|(i, j)| {
+                            *j -= 1;
+                            !garbage.contains(&(*i, *j))
+                        })
+                    }),
+                Dir::E => next
+                    .0
+                    .iter_mut()
+                    .filter_map(|row| row.first_mut())
+                    .for_each(|set| {
+                        set.retain_mut(|(i, j)| {
+                            *j += 1;
+                            !garbage.contains(&(*i, *j))
+                        })
+                    }),
+            }
+
+            if i == 0 {
+                self.clear();
+            }
+
+            self.union(next);
+        }
+    }
+
+    fn clear(&mut self) {
+        self.0.iter_mut().flatten().for_each(|set| set.clear());
+    }
+
+    fn shift(&mut self, dir: Dir) {
+        match dir {
+            Dir::N => self.0.rotate_right(1),
+            Dir::S => self.0.rotate_left(1),
+            Dir::W => self.0.iter_mut().for_each(|row| row.rotate_left(1)),
+            Dir::E => self.0.iter_mut().for_each(|row| row.rotate_right(1)),
+        }
+    }
+
+    fn union(&mut self, other: Self) {
+        for (ls, rs) in self
+            .0
+            .iter_mut()
+            .flatten()
+            .zip(other.0.into_iter().flatten())
+        {
+            for r in rs {
+                if !ls.contains(&r) {
+                    ls.push(r);
+                }
+            }
+        }
+    }
+
+    fn gc(&mut self, garbage: &mut HashSet<(i32, i32)>) {
+        let mut sets = self.0.iter().flatten();
+
+        let mut intersection = sets.give().iter().copied().collect::<HashSet<_>>();
+        for set in sets {
+            intersection.retain(|chunk| set.contains(chunk));
+        }
+
+        for chunk in &intersection {
+            garbage.insert(*chunk);
+        }
+
+        for set in self.0.iter_mut().flatten() {
+            set.retain(|chunk| !intersection.contains(chunk));
+        }
     }
 }
