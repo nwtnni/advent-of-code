@@ -1,5 +1,10 @@
+use std::collections::HashMap;
 use std::fmt;
+use std::hash::Hash;
 use std::iter;
+use std::iter::FromIterator;
+use std::ops::Deref;
+use std::ops::DerefMut;
 use std::str;
 
 pub fn fst<A, B>((a, _): (A, B)) -> A {
@@ -333,5 +338,41 @@ impl Iterator for Permutations {
         let p = (1..=self.data.len()).product::<usize>();
         let n = p - self.count - 1;
         (n, Some(n))
+    }
+}
+
+pub struct Counter<T>(pub HashMap<T, usize>);
+
+impl<T> Deref for Counter<T> {
+    type Target = HashMap<T, usize>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<T> DerefMut for Counter<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl<T> Default for Counter<T> {
+    fn default() -> Self {
+        Self(HashMap::new())
+    }
+}
+
+impl<A: Eq + Hash> FromIterator<A> for Counter<A> {
+    fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self {
+        let mut counts = Self::default();
+        counts.extend(iter);
+        counts
+    }
+}
+
+impl<A: Eq + Hash> Extend<A> for Counter<A> {
+    fn extend<T: IntoIterator<Item = A>>(&mut self, iter: T) {
+        iter.into_iter()
+            .for_each(|key| *self.0.entry(key).or_insert(0) += 1);
     }
 }

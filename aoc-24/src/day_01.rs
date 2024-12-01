@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use aoc::*;
 
 #[derive(Clone, Debug)]
@@ -33,15 +31,9 @@ impl Solution for HistorianHysteria {
     }
 
     fn two(self) -> i64 {
-        let mut counts = HashMap::new();
-
-        self.0
-            .iter()
-            .for_each(|(_, r)| *counts.entry(r).or_insert(0) += 1);
-
-        self.0
-            .iter()
-            .map(|(l, _)| l * counts.get(l).copied().unwrap_or(0))
+        let (ls, rs) = self.0.into_iter().unzip::<_, _, Vec<_>, Counter<_>>();
+        ls.into_iter()
+            .map(|l| l * rs.get(&l).copied().unwrap_or(0) as i64)
             .sum()
     }
 }
