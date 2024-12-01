@@ -399,6 +399,7 @@ fn solve(year: Year, day: Day, part: Part, input: &str) -> i64 {
         Year::Y21 => aoc_21::solve(day, part, input),
         Year::Y22 => aoc_22::solve(day, part, input),
         Year::Y23 => aoc_23::solve(day, part, input),
+        Year::Y24 => aoc_24::solve(day, part, input),
     }
 }
 

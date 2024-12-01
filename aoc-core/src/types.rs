@@ -455,6 +455,8 @@ pub enum Year {
     Y22 = 2022,
     #[serde(rename = "2023")]
     Y23 = 2023,
+    #[serde(rename = "2024")]
+    Y24 = 2024,
 }
 
 #[derive(

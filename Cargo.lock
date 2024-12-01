@@ -70,6 +70,7 @@ dependencies = [
  "aoc-21",
  "aoc-22",
  "aoc-23",
+ "aoc-24",
  "aoc-core",
  "chrono",
  "directories-next",
@@ -167,6 +168,20 @@ name = "aoc-23"
 version = "0.1.0"
 dependencies = [
  "aoc-core",
+ "bnum",
+ "indexmap 1.9.3",
+ "petgraph 0.5.1",
+ "priority-queue",
+ "range-collections",
+ "regex",
+]
+
+[[package]]
+name = "aoc-24"
+version = "0.1.0"
+dependencies = [
+ "aoc-core",
+ "bnum",
  "indexmap 1.9.3",
  "petgraph 0.5.1",
  "priority-queue",
@@ -238,6 +253,12 @@ name = "bitflags"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "327762f6e5a765692301e5bb513e0d9fef63be86bbc14528052b1cd3e6f03e07"
+
+[[package]]
+name = "bnum"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56953345e39537a3e18bdaeba4cb0c58a78c1f61f361dc0fa7c5c7340ae87c5f"
 
 [[package]]
 name = "bumpalo"
