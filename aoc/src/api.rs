@@ -9,8 +9,8 @@ use crate::markdown;
 
 pub static ROOT: &str = "https://adventofcode.com";
 
-static CORRECT: &str = "That's the right answer!";
-static INCORRECT: &str = "That's not the right answer.";
+static CORRECT: &str = "That's the right answer";
+static INCORRECT: &str = "That's not the right answer";
 static COMPLETED: &str = "You don't seem to be solving the right level.";
 
 pub struct Client {
