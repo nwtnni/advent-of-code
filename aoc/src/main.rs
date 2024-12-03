@@ -9,6 +9,7 @@ use std::process;
 
 use anyhow::anyhow;
 use anyhow::Context as _;
+use aoc::api;
 use aoc_core::Day;
 use aoc_core::Part;
 use aoc_core::Tap as _;
@@ -328,12 +329,13 @@ pub fn main() -> anyhow::Result<()> {
                     .tap(|input| solve(year, day, part, &input)),
             };
 
-            if !client.submit(year, day, part, output)? {
-                log::info!("{} was incorrect!", output);
-                process::exit(1);
+            match client.submit(year, day, part, output)? {
+                api::Response::Correct => log::info!("{} was correct!", output),
+                response => {
+                    log::info!("{} was incorrect: {:?}", output, response);
+                    process::exit(1);
+                }
             }
-
-            log::info!("{} was correct!", output);
 
             if part == Part::P02 {
                 return Ok(());

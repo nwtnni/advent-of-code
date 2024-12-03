@@ -2,6 +2,8 @@ use anyhow::anyhow;
 use aoc_core::Tap as _;
 use reqwest::blocking;
 use reqwest::header;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::cache;
 use crate::leaderboard;
@@ -11,6 +13,8 @@ pub static ROOT: &str = "https://adventofcode.com";
 
 static CORRECT: &str = "That's the right answer";
 static INCORRECT: &str = "That's not the right answer";
+static HIGH: &str = "too high";
+static LOW: &str = "too low";
 static COMPLETED: &str = "You don't seem to be solving the right level.";
 
 pub struct Client {
@@ -19,11 +23,19 @@ pub struct Client {
     inner: blocking::Client,
 }
 
-#[derive(serde::Serialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 struct Submission {
     #[serde(rename = "level")]
     part: aoc_core::Part,
     answer: i64,
+}
+
+#[derive(Deserialize, Serialize, Copy, Clone, Debug)]
+pub enum Response {
+    Correct,
+    High,
+    Low,
+    Incorrect,
 }
 
 impl Client {
@@ -62,7 +74,7 @@ impl Client {
 
         let html = self
             .inner
-            .get(&format!("{}/{}/day/{}", ROOT, year, day))
+            .get(format!("{}/{}/day/{}", ROOT, year, day))
             .send()?
             .error_for_status()?
             .text()
@@ -103,8 +115,8 @@ impl Client {
         self.cache.set_description(year, day, part, &description)?;
 
         if let Some(solution) = solution {
-            self.cache.append_submitted(year, day, part, solution)?;
-            self.cache.set_completed(year, day, part, true)?;
+            self.cache
+                .append_submitted(year, day, part, solution, Response::Correct)?;
         }
 
         Ok(description)
@@ -120,7 +132,7 @@ impl Client {
 
         let input = self
             .inner
-            .get(&format!("{}/{}/day/{}/input", ROOT, year, day))
+            .get(format!("{}/{}/day/{}/input", ROOT, year, day))
             .send()?
             .error_for_status()?
             .text()?
@@ -140,7 +152,7 @@ impl Client {
 
         let leaderboard = self
             .inner
-            .get(&format!(
+            .get(format!(
                 "{}/{}/leaderboard/private/view/{}.json",
                 ROOT, year, self.id.0
             ))
@@ -158,25 +170,17 @@ impl Client {
         day: aoc_core::Day,
         part: aoc_core::Part,
         answer: i64,
-    ) -> anyhow::Result<bool> {
-        let completed = self.cache.completed(year, day, part);
+    ) -> anyhow::Result<Response> {
         let submitted = self.cache.submitted(year, day, part)?;
 
-        match submitted.last() {
-            Some(last) if completed && answer == *last => {
-                log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
-                return Ok(true);
-            }
-            _ if completed || submitted.contains(&answer) => {
-                log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
-                return Ok(false);
-            }
-            _ => log::info!("[SUBMIT] Cache miss for {}-{}-{}", year, day, part),
+        if let Some(response) = submitted.get(&answer) {
+            log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
+            return Ok(*response);
         }
 
-        let correct = self
+        let response = self
             .inner
-            .post(&format!("{}/{}/day/{}/answer", ROOT, year, day))
+            .post(format!("{}/{}/day/{}/answer", ROOT, year, day))
             .form(&Submission { part, answer })
             .send()?
             .error_for_status()?
@@ -184,9 +188,15 @@ impl Client {
             .map_err(anyhow::Error::from)
             .and_then(|text| {
                 if text.contains(INCORRECT) {
-                    Ok(false)
+                    if text.contains(HIGH) {
+                        Ok(Response::High)
+                    } else if text.contains(LOW) {
+                        Ok(Response::Low)
+                    } else {
+                        Ok(Response::Incorrect)
+                    }
                 } else if text.contains(CORRECT) {
-                    Ok(true)
+                    Ok(Response::Correct)
                 } else if text.contains(COMPLETED) {
                     Err(anyhow!("[USAGE ERROR]: puzzle has already been solved"))
                 } else {
@@ -194,9 +204,10 @@ impl Client {
                 }
             })?;
 
-        self.cache.append_submitted(year, day, part, answer)?;
-        self.cache.set_completed(year, day, part, correct)?;
-        Ok(correct)
+        self.cache
+            .append_submitted(year, day, part, answer, response)?;
+
+        Ok(response)
     }
 }
 

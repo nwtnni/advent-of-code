@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::io;
 use std::io::Write as _;
@@ -7,6 +8,7 @@ use std::time;
 use anyhow::anyhow;
 use anyhow::Context as _;
 
+use crate::api::Response;
 use crate::leaderboard;
 
 #[derive(Debug)]
@@ -150,50 +152,12 @@ impl Cache {
         self.write(path, "leaderboard", Some(&leaderboard), Mode::Replace)
     }
 
-    pub fn completed(
-        &self,
-        year: aoc_core::Year,
-        day: aoc_core::Day,
-        part: aoc_core::Part,
-    ) -> bool {
-        self.project
-            .cache_dir()
-            .join(self.id.0.to_string())
-            .join(year.to_static_str())
-            .join(day.to_static_str())
-            .join(part.to_static_str())
-            .join("completed")
-            .exists()
-    }
-
-    pub fn set_completed(
-        &self,
-        year: aoc_core::Year,
-        day: aoc_core::Day,
-        part: aoc_core::Part,
-        correct: bool,
-    ) -> anyhow::Result<()> {
-        if !correct {
-            return Ok(());
-        }
-
-        let path = self
-            .project
-            .cache_dir()
-            .join(self.id.0.to_string())
-            .join(year.to_static_str())
-            .join(day.to_static_str())
-            .join(part.to_static_str());
-
-        self.write(path, "completed", None, Mode::Replace)
-    }
-
     pub fn submitted(
         &self,
         year: aoc_core::Year,
         day: aoc_core::Day,
         part: aoc_core::Part,
-    ) -> anyhow::Result<Vec<i64>> {
+    ) -> anyhow::Result<HashMap<i64, Response>> {
         let path = self
             .project
             .cache_dir()
@@ -204,13 +168,20 @@ impl Cache {
             .join("submitted");
 
         match self.read(path)? {
-            None => Ok(Vec::new()),
+            None => Ok(HashMap::new()),
             Some(submitted) => submitted
                 .trim()
-                .split_whitespace()
-                .map(|answer| answer.parse::<i64>())
-                .collect::<Result<Vec<_>, _>>()
-                .map_err(anyhow::Error::from),
+                .split('\n')
+                .map(|line| {
+                    (|| {
+                        let (answer, response) = line.split_once(',')?;
+                        let answer = answer.parse::<i64>().ok()?;
+                        let response = json::from_str(response).ok()?;
+                        Some((answer, response))
+                    })()
+                    .with_context(|| anyhow!("Invalid cache entry: {}", line))
+                })
+                .collect(),
         }
     }
 
@@ -220,6 +191,7 @@ impl Cache {
         day: aoc_core::Day,
         part: aoc_core::Part,
         answer: i64,
+        response: Response,
     ) -> anyhow::Result<()> {
         let path = self
             .project
@@ -232,7 +204,11 @@ impl Cache {
         self.write(
             path,
             "submitted",
-            Some(&format!("{}\n", answer)),
+            Some(&format!(
+                "{},{}\n",
+                answer,
+                json::to_string(&response).expect("[INTERNAL ERROR]: failed to serialize response"),
+            )),
             Mode::Append,
         )
     }
