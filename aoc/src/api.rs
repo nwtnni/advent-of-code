@@ -1,5 +1,6 @@
 use anyhow::anyhow;
 use aoc_core::Tap as _;
+use regex::Regex;
 use reqwest::blocking;
 use reqwest::header;
 use serde::Deserialize;
@@ -15,7 +16,8 @@ static CORRECT: &str = "That's the right answer";
 static INCORRECT: &str = "That's not the right answer";
 static HIGH: &str = "too high";
 static LOW: &str = "too low";
-static COMPLETED: &str = "You don't seem to be solving the right level.";
+static COMPLETED: &str = "You don't seem to be solving the right level";
+static THROTTLE: &str = "You gave an answer too recently";
 
 pub struct Client {
     id: leaderboard::Id,
@@ -30,12 +32,13 @@ struct Submission {
     answer: i64,
 }
 
-#[derive(Deserialize, Serialize, Copy, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub enum Response {
     Correct,
     High,
     Low,
     Incorrect,
+    Timeout(String),
 }
 
 impl Client {
@@ -175,7 +178,7 @@ impl Client {
 
         if let Some(response) = submitted.get(&answer) {
             log::info!("[SUBMIT] Cache hit for {}-{}-{}", year, day, part);
-            return Ok(*response);
+            return Ok(response.clone());
         }
 
         let response = self
@@ -187,7 +190,18 @@ impl Client {
             .text()
             .map_err(anyhow::Error::from)
             .and_then(|text| {
-                if text.contains(INCORRECT) {
+                if text.contains(THROTTLE) {
+                    Ok(Response::Timeout(
+                        Regex::new(r#"You have (.*) left to wait"#)
+                            .expect("Failed to compile throttle regex")
+                            .captures(&text)
+                            .expect("Failed to match throttle regex")
+                            .get(1)
+                            .unwrap()
+                            .as_str()
+                            .to_owned(),
+                    ))
+                } else if text.contains(INCORRECT) {
                     if text.contains(HIGH) {
                         Ok(Response::High)
                     } else if text.contains(LOW) {
@@ -204,8 +218,10 @@ impl Client {
                 }
             })?;
 
-        self.cache
-            .append_submitted(year, day, part, answer, response)?;
+        if !matches!(&response, Response::Timeout(_)) {
+            self.cache
+                .append_submitted(year, day, part, answer, response.clone())?;
+        }
 
         Ok(response)
     }

@@ -78,6 +78,7 @@ dependencies = [
  "env_logger",
  "html5ever",
  "log",
+ "regex",
  "reqwest",
  "scraper",
  "serde",
