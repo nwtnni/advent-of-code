@@ -5,6 +5,7 @@ mod day_02;
 mod day_03;
 mod day_04;
 mod day_05;
+mod day_06;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -18,6 +19,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
         Day::D03 => run!(day_03::MullItOver),
         Day::D04 => run!(day_04::CeresSearch),
         Day::D05 => run!(day_05::PrintQueue),
+        Day::D06 => run!(day_06::GuardGallivant),
         _ => unreachable!(),
     }
 }
