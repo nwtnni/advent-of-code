@@ -8,6 +8,7 @@ mod day_05;
 mod day_06;
 mod day_07;
 mod day_08;
+mod day_09;
 
 pub fn solve(day: Day, part: Part, input: &str) -> i64 {
     macro_rules! run {
@@ -24,6 +25,7 @@ pub fn solve(day: Day, part: Part, input: &str) -> i64 {
         Day::D06 => run!(day_06::GuardGallivant),
         Day::D07 => run!(day_07::BridgeRepair),
         Day::D08 => run!(day_08::ResonantCollinearity),
+        Day::D09 => run!(day_09::DiskFragmenter),
         _ => unreachable!(),
     }
 }
