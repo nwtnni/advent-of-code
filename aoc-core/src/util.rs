@@ -341,10 +341,20 @@ impl Iterator for Permutations {
     }
 }
 
-pub struct Counter<T>(pub HashMap<T, usize>);
+pub struct Counter<T>(pub HashMap<T, i64>);
+
+impl<T: Eq + Hash> Counter<T> {
+    pub fn update_one(&mut self, key: T) {
+        self.update(key, 1)
+    }
+
+    pub fn update(&mut self, key: T, count: i64) {
+        *self.0.entry(key).or_insert(0) += count;
+    }
+}
 
 impl<T> Deref for Counter<T> {
-    type Target = HashMap<T, usize>;
+    type Target = HashMap<T, i64>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
