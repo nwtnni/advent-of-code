@@ -45,25 +45,17 @@ impl Solution for PlutonianPebbles {
         let mut prev = Counter::default();
         let mut next = Counter::default();
 
-        self.0
-            .iter()
-            .map(|stone| {
-                prev.clear();
-                next.clear();
+        self.0.into_iter().for_each(|stone| prev.update_one(stone));
 
-                prev.insert(*stone, 1);
+        for _ in 0..75 {
+            next.clear();
+            for (stone, count) in prev.iter() {
+                blink_map(*stone, &mut next, *count);
+            }
+            mem::swap(&mut prev, &mut next);
+        }
 
-                for _ in 0..75 {
-                    next.clear();
-                    for (stone, count) in prev.iter() {
-                        blink_map(*stone, &mut next, *count);
-                    }
-                    mem::swap(&mut prev, &mut next);
-                }
-
-                prev.values().sum::<i64>()
-            })
-            .sum()
+        prev.values().copied().sum()
     }
 }
 
